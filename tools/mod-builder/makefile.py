@@ -1,5 +1,5 @@
 from compile_list import CompileList
-from common import create_directory, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH
+from common import create_directory, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH
 
 import re
 import json
@@ -114,7 +114,7 @@ class Makefile:
         buffer += "BACKUPDIR = $(MODDIR)" + BACKUP_FOLDER + "\n"
         buffer += "EXTRA_CC_FLAGS = " + self.compiler_flags + "\n"
         buffer += "\n"
-        buffer += "include ../../../common.mk\n"
+        buffer += "include " + FOLDER_DISTANCE + "../common.mk\n"
 
         with open("Makefile", "w") as file:
             file.write(buffer)

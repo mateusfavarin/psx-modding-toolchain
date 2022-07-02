@@ -1,17 +1,28 @@
 import os
 
+CONFIG_FILE = "config.json"
+
+def get_distance_to_config() -> str:
+    config = CONFIG_FILE
+    distance = str()
+    while not os.path.isfile(config):
+        distance += "../"
+        config = distance + CONFIG_FILE
+    return distance
+
 LOG_FILE = "crash.log"
-ISO_PATH = "../../build/"
+FOLDER_DISTANCE = get_distance_to_config()
+ISO_PATH = FOLDER_DISTANCE + "build/"
 COMPILE_LIST = "buildList.txt"
-SYMS_PATH = "../../symbols/"
+SYMS_PATH = FOLDER_DISTANCE + "symbols/"
 OUTPUT_FOLDER = "output/"
 BACKUP_FOLDER = "backup/"
 DEBUG_FOLDER = "debug/"
 GCC_MAP_FILE = DEBUG_FOLDER + "mod.map"
 REDUX_MAP_FILE = DEBUG_FOLDER + "redux.map"
-CONFIG_PATH = "../../config.json"
-SETTINGS_PATH = "../../../settings.json"
-DISC_PATH = "../../disc.json"
+CONFIG_PATH = FOLDER_DISTANCE + CONFIG_FILE
+SETTINGS_PATH = FOLDER_DISTANCE + "../settings.json"
+DISC_PATH = FOLDER_DISTANCE + "disc.json"
 COMMENT_SYMBOL = "//"
 MOD_NAME = os.getcwd().replace("\\", "/").split("/")[-1]
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
