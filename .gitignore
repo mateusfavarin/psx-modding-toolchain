@@ -20,3 +20,6 @@ tools/gcc-psyq-converted/include/*
 tools/gcc-psyq-converted/lib/*
 !/tools/gcc-psyq-converted/lib/.gitignore
 !/tools/gcc-psyq-converted/include/.gitignore
+
+# Settings
+samples/settings.json
