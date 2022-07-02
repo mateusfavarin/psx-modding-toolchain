@@ -1,0 +1,2 @@
+gameMode = 0x800906B8;
+gamepadSystem = 0x800906B8;

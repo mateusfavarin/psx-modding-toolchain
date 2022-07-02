@@ -1,0 +1,21 @@
+{
+    "compiler": {
+        "function_sections": 1,
+        "reorder_functions": 1,
+        "optimization": 4,
+        "debug": 0,
+        "psyq": 0,
+        "8mb": 0
+    },
+    "versions": [
+        {
+            "american": {
+                "name": "spyro2.bin",
+                "symbols": [
+                    "american.txt"
+                ],
+                "build_id": 94425
+            }
+        }
+    ]
+}

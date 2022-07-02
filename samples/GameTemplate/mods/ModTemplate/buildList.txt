@@ -1,0 +1,1 @@
+foo_version, aliasSection1File1, 0x80060000, 0x0, src/bar_code.c

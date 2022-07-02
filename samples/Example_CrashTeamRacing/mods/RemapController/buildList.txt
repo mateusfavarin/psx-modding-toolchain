@@ -1,0 +1,2 @@
+common, exe, 0x80010100, 0x0, src/main.c
+common, exe, LOAD_Hub_ReadFile, -0x8, src/hook.s

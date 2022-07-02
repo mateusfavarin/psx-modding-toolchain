@@ -1,0 +1,42 @@
+{
+    "compiler": {
+        "function_sections": 1,
+        "reorder_functions": 1,
+        "optimization": 4,
+        "debug": 0,
+        "psyq": 0,
+        "8mb": 0
+    },
+    "versions": [
+        {
+            "ntsc-u": {
+                "name": "ctr-u.bin",
+                "symbols": [
+                    "funcs-u.txt",
+                    "addrs-u.txt"
+                ],
+                "build_id": 926
+            }
+        },
+        {
+            "pal": {
+                "name": "ctr-pal.bin",
+                "symbols": [
+                    "funcs-pal.txt",
+                    "addrs-pal.txt"
+                ],
+                "build_id": 1020
+            }
+        },
+        {
+            "ntsc-j": {
+                "name": "ctr-j.bin",
+                "symbols": [
+                    "funcs-j.txt",
+                    "addrs-j.txt"
+                ],
+                "build_id": 1111
+            }
+        }
+    ]
+}

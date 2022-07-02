@@ -1,0 +1,50 @@
+{
+    "ntsc-u": [
+        {
+            "SCUS_944.26": [
+                {
+                    "name": "header",
+                    "address": "0x8000B070",
+                    "offset": "0x0"
+                },
+                {
+                    "name"      :   "exe",
+                    "address"   :   "0x80010000",
+                    "offset"    :   "0x800"
+                }
+            ]
+        }
+    ],
+    "pal": [
+        {
+            "SCES_021.05": [
+                {
+                    "name": "header",
+                    "address": "0x8000B070",
+                    "offset": "0x0"
+                },
+                {
+                    "name"      :   "exe",
+                    "address"   :   "0x80010000",
+                    "offset"    :   "0x800"
+                }
+            ]
+        }
+    ],
+    "ntsc-j": [
+        {
+            "SCPS_101.18": [
+                {
+                    "name": "header",
+                    "address": "0x8000B070",
+                    "offset": "0x0"
+                },
+                {
+                    "name"      :   "exe",
+                    "address"   :   "0x80010000",
+                    "offset"    :   "0x800"
+                }
+            ]
+        }
+    ]
+}
