@@ -1,3 +1,11 @@
+ifeq ($(OS),Windows_NT)
+  PYTHON = python
+else ifeq ($(shell which python3),)
+  PYTHON = python
+else
+  PYTHON = python3
+endif
+
 THISDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TOOLSDIR = $(THISDIR)../tools/
 
