@@ -1,2 +1,2 @@
 american, exe, 0x8001bdc4, 0x0, src/hook.s
-american, header, 0x8000B0A4, 0x0, src/main.c src/math.c, speedometer.bin
+american, header, 0x8000B0A8, 0x0, src/main.c src/math.c, speedometer.bin
