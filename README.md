@@ -1,12 +1,22 @@
 # PSX Modding Toolchain
 The goal of this project is to provide a set of tools for PSX developers in order to make modding and reverse engineering games easier, while using modern non-proprietary software.
 
-![Imgur](https://imgur.com/LPch6vO.jpg)
+Watch the demo:
+[![video](https://imgur.com/Mdqs9JH.jpg)](https://www.youtube.com/watch?v=-AE4QKrx5uY)
+
+## Features
+* Compile, playtest and build an ISO in just a few clicks;
+* Compile C code into multiple overlays, targetting any PSX RAM address;
+* Test your changes in game during runtime;
+* Automatic rebuild a PSX iso with your own modifications.
+
+To discuss PSX development, hacking, and reverse engineering in general, please join the PSXDev Network Discord server: [![Discord](https://img.shields.io/discord/642647820683444236)](https://discord.gg/QByKPpH)
 
 ## Pre requisites
 ```
-python 3
+python 3+
 ```
+Note: make sure to add python to your `PATH`.
 
 ## Getting Started
 #### Clone this repository:
@@ -23,7 +33,7 @@ Then, open a new command prompt, and type the following:
 ```
 mips install 12.1.0
 ```
-As an alternative, you can download the toolchain directly [here](https://static.grumpycoder.net/pixel/mips/g++-mipsel-none-elf-12.1.0.zip), and then add the `bin/` folder to your environment variables.
+As an alternative, you can download the toolchain directly [here](https://static.grumpycoder.net/pixel/mips/g++-mipsel-none-elf-12.1.0.zip), and then add the `bin/` folder to your `PATH`.
 
 ##### Linux
 You'll need to install `g++-mipsel-linux-gnu cpp-mipsel-linux-gnu binutils-mipsel-linux-gnu`, which are available in the [AUR](https://wiki.archlinux.org/index.php/Aur) via [cross-mipsel-linux-gnu-binutils](https://aur.archlinux.org/packages/cross-mipsel-linux-gnu-binutils/) and [cross-mipsel-linux-gnu-gcc](https://aur.archlinux.org/packages/cross-mipsel-linux-gnu-gcc/).
@@ -58,11 +68,4 @@ NotPSXSerial, or NoPS for short, is a Serial/TTY suite for Unirom 8 featuring ke
 You can download the latest release of Unirom [here](https://github.com/JonathanDotCel/unirom8_bootdisc_and_firmware_for_ps1/releases), and then set the NoPS folder to your `PATH`.
 
 #### Usage
-Check the `docs/` for information on configuring and using the tools.
-
-## Features
-* Compile C code into multiple overlays, targetting any PSX RAM address;
-* Test your code changes in game during runtime;
-* Automatic rebuild a PSX iso with your modifications.
-
-The abstractions provided by the tools give the developer full control of what will be compiled to each binary, and where in memory will everything reside; the bridge with Redux/NoPS allows for quickly testing the software during the game runtime, while maintaining powerful debugging capabilities; the automated ISO generation process allows for quick testing your modifications in any emulator or console.
+Check the [docs](docs/) for information about configuring and using the tools.
