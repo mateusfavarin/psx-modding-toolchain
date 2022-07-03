@@ -44,7 +44,7 @@ all: dep $(foreach ovl, $(OVERLAYSECTION), $(BINDIR)Overlay$(ovl))
 
 $(BINDIR)Overlay%: $(BINDIR)$(TARGET).elf
 	$(PREFIX)-objcopy -j $(@:$(BINDIR)Overlay%=%) -O binary $< $(BINDIR)$(TARGET)$(@:$(BINDIR)Overlay%=%)
-	python $(TOOLSDIR)trimbin/trimbin.py $(BINDIR)$(TARGET)$(@:$(BINDIR)Overlay%=%) $(BUILDDIR)
+	$(PYTHON) $(TOOLSDIR)trimbin/trimbin.py $(BINDIR)$(TARGET)$(@:$(BINDIR)Overlay%=%) $(BUILDDIR)
 
 $(BINDIR)$(TARGET).elf: $(OBJS)
 ifneq ($(strip $(BINDIR)),)
