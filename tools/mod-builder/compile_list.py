@@ -22,7 +22,7 @@ class CompileList:
 
     def parse_line(self, line: str) -> None:
         line = line.replace(COMMENT_SYMBOL, "," + COMMENT_SYMBOL + ",")
-        line = [l.strip() for l in line.split(",")]
+        line = [l.strip() for l in line.split(",") if l.strip() != ""]
         for i in range(len(line)):
             if line[i] == COMMENT_SYMBOL:
                 if i == 0:
