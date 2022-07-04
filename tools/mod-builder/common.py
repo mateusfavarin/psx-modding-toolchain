@@ -56,12 +56,14 @@ def get_build_id() -> int:
                 return build_id
 
 def is_number(s: str) -> bool:
+    is_hex = False
     if len(s) > 1 and s[0] == "-":
         s = s[1:]
     if len(s) > 2 and s[:2] == "0x":
         s = s[2:]
+        is_hex = True
     for char in s:
-        if not ((char.isdigit()) or (char.upper() in HEXDIGITS)):
+        if not ((char.isdigit()) or (is_hex and char.upper() in HEXDIGITS)):
             return False
     return True
 
