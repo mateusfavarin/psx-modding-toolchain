@@ -25,7 +25,10 @@ class CompileList:
         line = [l.strip() for l in line.split(",")]
         for i in range(len(line)):
             if line[i] == COMMENT_SYMBOL:
-                line = line[:i]
+                if i == 0:
+                    line = []
+                else:
+                    line = line[:i]
                 break
         if len(line) < 5:
             if len(line) > 0:
