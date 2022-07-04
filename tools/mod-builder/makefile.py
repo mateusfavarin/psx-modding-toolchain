@@ -4,6 +4,7 @@ from common import create_directory, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDE
 import re
 import json
 import os
+import shutil
 
 class Makefile:
     def __init__(self, build_id: int, sym_file: list[str]) -> None:
@@ -124,8 +125,8 @@ class Makefile:
         create_directory(BACKUP_FOLDER)
         create_directory(DEBUG_FOLDER)
         os.system("make -s -j8")
-        os.system("move mod.map " + DEBUG_FOLDER)
-        os.system("move mod.elf " + DEBUG_FOLDER)
+        shutil.move("mod.map", DEBUG_FOLDER + "mod.map")
+        shutil.move("mod.elf", DEBUG_FOLDER + "mod.elf")
 
         if not os.path.isfile(GCC_MAP_FILE):
             print("\n[Makefile-py] ERROR: compilation was not successful.\n")

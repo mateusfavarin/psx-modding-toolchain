@@ -15,6 +15,14 @@ __pycache__/
 *.cue
 *.iso
 
+# Build artifacts
+build/
+debug/
+*.log
+offset.txt
+overlay.ld
+Makefile
+
 # Third party stuff
 tools/gcc-psyq-converted/include/*
 tools/gcc-psyq-converted/lib/*
