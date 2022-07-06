@@ -13,8 +13,9 @@ def get_distance_to_config() -> str:
 LOG_FILE = "crash.log"
 FOLDER_DISTANCE = get_distance_to_config()
 ISO_PATH = FOLDER_DISTANCE + "build/"
-COMPILE_LIST = "buildList.txt"
 SYMS_PATH = FOLDER_DISTANCE + "symbols/"
+GAME_INCLUDE_PATH = FOLDER_DISTANCE + "include/"
+COMPILE_LIST = "buildList.txt"
 OUTPUT_FOLDER = "output/"
 BACKUP_FOLDER = "backup/"
 DEBUG_FOLDER = "debug/"

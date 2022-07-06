@@ -1,4 +1,4 @@
-#include "../../../common.h"
+#include <common.h>
 
 unsigned int original_map[] = {
 	RAW_BTN_UP,

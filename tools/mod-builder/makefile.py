@@ -1,5 +1,5 @@
 from compile_list import CompileList
-from common import create_directory, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH
+from common import create_directory, GAME_INCLUDE_PATH, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH
 
 import re
 import json
@@ -113,6 +113,7 @@ class Makefile:
         buffer += "BUILDDIR = $(MODDIR)" + OUTPUT_FOLDER + "\n"
         buffer += "DEBUGDIR = $(MODDIR)" + DEBUG_FOLDER + "\n"
         buffer += "BACKUPDIR = $(MODDIR)" + BACKUP_FOLDER + "\n"
+        buffer += "GAMEINCLUDEDIR = $(MODDIR)" + GAME_INCLUDE_PATH + "\n"
         buffer += "EXTRA_CC_FLAGS = " + self.compiler_flags + "\n"
         buffer += "\n"
         buffer += "include " + FOLDER_DISTANCE + "../common.mk\n"
