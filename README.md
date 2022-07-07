@@ -16,7 +16,12 @@ To discuss PSX development, hacking, and reverse engineering in general, please 
 ```
 python 3+
 ```
-Note: make sure to add python to your `PATH`.
+Note: some python instalations might be incomplete. Make sure that you have installed `python`, `pip` and add them to your `PATH`.
+
+Open the command prompt and install the dependencies:
+```
+pip install requests
+```
 
 ## Getting Started
 #### Clone this repository:
