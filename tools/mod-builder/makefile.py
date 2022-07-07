@@ -126,13 +126,12 @@ class Makefile:
         create_directory(BACKUP_FOLDER)
         create_directory(DEBUG_FOLDER)
         os.system("make -s -j8")
-        shutil.move("mod.map", DEBUG_FOLDER + "mod.map")
-        shutil.move("mod.elf", DEBUG_FOLDER + "mod.elf")
-
-        if not os.path.isfile(GCC_MAP_FILE):
+        if not os.path.isfile("mod.map"):
             print("\n[Makefile-py] ERROR: compilation was not successful.\n")
             return
 
+        shutil.move("mod.map", DEBUG_FOLDER + "mod.map")
+        shutil.move("mod.elf", DEBUG_FOLDER + "mod.elf")
         print("\n[Makefile-py] Successful compilation.\n")
         pattern = re.compile(r"0x0000000080[0-7][0-9a-fA-F]{5}\s+([a-zA-Z]|_)\w*")
         special_symbols = ["__heap_base", "__ovr_start", "__ovr_end", "OVR_START_ADDR"]

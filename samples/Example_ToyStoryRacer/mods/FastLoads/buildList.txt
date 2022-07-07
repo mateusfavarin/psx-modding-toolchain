@@ -1,0 +1,4 @@
+ntsc-u, exe, 0x80086294, 0x0, src/hook_sections.s
+ntsc-u, exe, 0x800646c8, 0x0, src/hook_load.s
+ntsc-u, exe, 0x8005e03c, 0x0, src/hook_raw.s
+ntsc-u, kernel, 0x8000A000, 0x0, src/main.c

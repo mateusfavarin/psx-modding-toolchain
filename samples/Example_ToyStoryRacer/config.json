@@ -1,0 +1,22 @@
+{
+    "compiler": {
+        "function_sections": 1,
+        "reorder_functions": 1,
+        "optimization": 4,
+        "debug": 0,
+        "psyq": 0,
+        "8mb": 0
+    },
+    "versions": [
+        {
+            "ntsc-u": {
+                "name": "tsr.bin",
+                "symbols": [
+                    "funcs.txt",
+                    "addrs.txt"
+                ],
+                "build_id": 1214
+            }
+        }
+    ]
+}
