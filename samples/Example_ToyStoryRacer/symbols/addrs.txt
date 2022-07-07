@@ -1,3 +1,0 @@
-courseTable = 0x800a5288;
-levelID = 0x800a95ac;
-bufferBackup = 0x800cead8;
