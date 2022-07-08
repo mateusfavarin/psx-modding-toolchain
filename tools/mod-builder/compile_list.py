@@ -61,11 +61,11 @@ class CompileList:
         srcs = [l.strip() for l in line[4].split()]
         self.source = list()
         for src in srcs:
-            self.source.append(src)
+            self.source.append(src.replace("\\", "/"))
         if len(line) == 6:
             self.section_name = line[5].split(".")[0]
         else:
-            self.section_name = self.get_section_name_from_filepath(self.source[0].split(".")[0])
+            self.section_name = self.get_section_name_from_filepath(self.source[0])
 
         for src in self.source:
             extension = src.split(".")[-1]
@@ -83,15 +83,7 @@ class CompileList:
             sections[self.section_name] = True
 
     def get_section_name_from_filepath(self, filepath: str) -> str:
-        for i in range(len(filepath) - 1, -1, -1):
-            if filepath[i].isalpha():
-                continue
-            if filepath[i].isdigit():
-                continue
-            if filepath[i] == "_":
-                continue
-            return filepath[(i + 1):]
-        return filepath
+        return filepath.replace("/", "").replace(".", "")
 
     def calculate_address_base(self, symbol: str, offset: int) -> int:
         addr = self.sym.get_address(symbol)
