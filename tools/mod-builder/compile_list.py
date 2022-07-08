@@ -4,6 +4,7 @@ from syms import Syms
 import json
 
 sections = dict()
+line_count = [0]
 
 class CompileList:
     def __init__(self, line: str, sym: Syms) -> None:
@@ -14,6 +15,7 @@ class CompileList:
         self.min_addr = 0x80000000
         self.max_addr = 0x807FFFFF if self.is_8mb() else 0x801FFFFF
         self.parse_line(line)
+        line_count[0] += 1
 
     def is_8mb(self) -> bool:
         with open(CONFIG_PATH, "r") as file:
@@ -32,7 +34,7 @@ class CompileList:
                 break
         if len(line) < 5:
             if len(line) > 0:
-                print("\n[Compile-list-py] ERROR: wrong syntax at line: " + self.original_line + "\n")
+                print("\n[BuildList-py] ERROR: wrong syntax at line " + str(line_count[0]) + ": " + self.original_line + "\n")
             self.ignore = True
             return
 
@@ -48,14 +50,16 @@ class CompileList:
                 return
 
         self.game_file = line[1]
-        if not is_number(line[3]):
-            print("\n[Compile-list-py] ERROR: invalid offset at line: " + self.original_line + "\n")
-            self.ignore = True
-            return
-        self.address = self.calculate_address_base(line[2], int(line[3], 0))
+        offset = 0
+        try:
+            offset = eval(line[3])
+        except Exception:
+            print("\n[BuildList-py] ERROR: invalid arithmetic expression for offset at line " + str(line_count[0]) + ": " + self.original_line + "\n")
+
+        self.address = self.calculate_address_base(line[2], offset)
         if (self.address < self.min_addr) or (self.address > self.max_addr):
-            print("\n[Compile-list-py] ERROR: address specified is not in the [" + hex(self.min_addr) + ", " + hex(self.max_addr) + "] range.")
-            print("[Compile-list-py] at line: " + self.original_line + "\n")
+            print("\n[BuildList-py] ERROR: address specified is not in the [" + hex(self.min_addr) + ", " + hex(self.max_addr) + "] range.")
+            print("[BuildList-py] at line " + str(line_count[0]) + ": " + self.original_line + "\n")
             self.ignore = True
             return
         srcs = [l.strip() for l in line[4].split()]
@@ -76,8 +80,8 @@ class CompileList:
 
         if self.section_name in sections:
             self.ignore = True
-            print("\n[Compile-list-py] ERROR: binary filename already in use, please define another alias.")
-            print("[Compile-list-py] at line: " + self.original_line + "\n")
+            print("\n[BuildList-py] ERROR: binary filename already in use, please define another alias.")
+            print("[BuildList-py] at line " + str(line_count[0]) + ": " + self.original_line + "\n")
             return
         else:
             sections[self.section_name] = True
@@ -91,16 +95,17 @@ class CompileList:
             return addr + offset
         if is_number(symbol):
             return int(symbol, 0) + offset
-        print("\n[Compile-list-py] ERROR: invalid address or symbol at line: " + self.original_line + "\n")
+        print("\n[BuildList-py] ERROR: invalid address or symbol at line " + str(line_count[0]) + ": " + self.original_line + "\n")
         return -1
 
-    def should_ignore(self):
+    def should_ignore(self) -> bool:
         return self.ignore
 
-    def should_build(self):
+    def should_build(self) -> bool:
         if self.ignore and not self.is_bin:
             return False
         return True
 
-def free_sections():
+def free_sections() -> None:
     sections.clear()
+    line_count[0] = 0

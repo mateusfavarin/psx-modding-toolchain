@@ -86,7 +86,7 @@ Fields:
 version: set this to one of your versions defined in config.json, or use the special word "common" to apply to all versions. This line will only be compiled if it matches the version you selected to compile.
 section: name of the section defined in disc.json which will be used to overwrite the data in the disc. You can leave this section empty if you want to add a new file to the disc.
 address: address which the binary will be compiled to. It can either be a decimal number, a hexadecimal number, or a symbol.
-offset: an offset which will be applied to the address. This is useful when working with symbols in the address field, so that you can make cross-version mods by choosing to compile to an address which is an offset of a symbol defined in all-versions symbol files.
+offset: an offset which will be applied to the address. This field can be any valid python arithmetic expression.
 path: path to the file you want to compile. If you want to compile multiple files into the same binary, separate each path with a space. e.g "src/file1.c src/file2.c ..."
 binary name: optinal field. Specifies the final name of the binary. If not specified, the name of the binary will be the name of the first file specified in the "path" field.
 ```
