@@ -40,12 +40,10 @@ class CompileList:
         if is_number(version):
             version = int(version, 0)
             if version != self.sym.get_build_id():
-                print("\n[Compile-list-py] ERROR: version not found at line: " + self.original_line + "\n")
                 self.ignore = True
                 return
         else:
             if (version.lower() != "common") and (version != self.sym.get_version()):
-                print("\n[Compile-list-py] ERROR: version not found at line: " + self.original_line + "\n")
                 self.ignore = True
                 return
 
