@@ -83,7 +83,7 @@ class CompileList:
             sections[self.section_name] = True
 
     def get_section_name_from_filepath(self, filepath: str) -> str:
-        return filepath.replace("/", "").replace(".", "")
+        return filepath.replace("/", "").replace(".", "").replace("-", "_")
 
     def calculate_address_base(self, symbol: str, offset: int) -> int:
         addr = self.sym.get_address(symbol)
