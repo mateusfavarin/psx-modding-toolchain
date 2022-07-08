@@ -12,6 +12,7 @@ This project uses a specific folder structure in order to look for components du
 ├──samples/
       ├──game1/
             ├──build/
+            ├──include/
             ├──mods/
                 ├──mod1/
                     ├──src/
@@ -30,6 +31,7 @@ This project uses a specific folder structure in order to look for components du
     ├──gcc-psyq-converted/
                 ├──include/
                 ├──lib/
+    ...
 ```
 
 ## Compiling
