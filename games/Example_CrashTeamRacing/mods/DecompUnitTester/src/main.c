@@ -1,4 +1,5 @@
 #include <common.h>
+#include <gte.h>
 #include "math.h"
 
 // MIPS Instructions
@@ -23,6 +24,9 @@ unsigned int * scratchpad = (unsigned int *) 0x1F800000;
 unsigned int * scratchpadBackup_4mb = (unsigned int *) 0x80400000;
 unsigned int * scratchpadBackup_6mb = (unsigned int *) 0x80600000;
 const unsigned int scratchpadSize = 0x400 / 4;
+unsigned int * gteBackup_4mb = (unsigned int *) 0x80408000;
+unsigned int * gteBackup_6mb = (unsigned int *) 0x80608000;
+const unsigned int gteSize = 64;
 unsigned int hits = 0;
 unsigned int total = 0;
 
@@ -80,21 +84,29 @@ void Tester(unsigned int angle)
     // Backup the program state before calling the decomp function
     memCopy(ram_4mb, ram, ramSize);
     memCopy(scratchpadBackup_4mb, scratchpad, scratchpadSize);
+    gte_saveContext(gteBackup_4mb);
     // Call the decomp function
     newRes = newFunc(angle);
     // Backup result of decomp function
     memCopy(ram_6mb, ram, ramSize);
     memCopy(scratchpadBackup_6mb, scratchpad, scratchpadSize);
+    gte_saveContext(gteBackup_6mb);
     // Load state
     memCopy(ram, ram_4mb, ramSize);
     memCopy(scratchpad, scratchpadBackup_4mb, scratchpadSize);
+    gte_loadContext(gteBackup_4mb);
     // Call the original function
     func ogFunc = (func) &instructions[0];
     ogRes = ogFunc(angle);
+    gte_saveContext(gteBackup_4mb);
     total++;
     // Comparing the results of the original function and the decomp function
-    if ((newRes == ogRes) && (isEqual(scratchpad, scratchpadBackup_6mb, scratchpadSize)) && (isEqual(ram, ram_6mb, ramSize)))
+    if ((newRes == ogRes) &&
+        (isEqual(gteBackup_4mb, gteBackup_6mb, gteSize)) &&
+        (isEqual(scratchpad, scratchpadBackup_6mb, scratchpadSize)) &&
+        (isEqual(ram, ram_6mb, ramSize))) {
         hits++;
+    }
     printf("Hits/totals: %d/%d\n", hits, total);
     leaveCriticalSection();
 }

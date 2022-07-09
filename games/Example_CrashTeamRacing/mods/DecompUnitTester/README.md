@@ -16,5 +16,6 @@ The idea behind comparing two functions is simple. In the PSX, a function can:
 * Return a value;
 * Write to the RAM;
 * Write to the scratchpad;
+* Modify the COP2 registers;
 
-If we want to tell whether two functions share the same behavior, we first need to create a backup of the current state of the program, and de-activate all the system interrupts. This will ensure that only our functions will be writing to memory, so we have full control of the function workflow. Then, we need to compare whether the RAM, scratchpad and return value remains the same for both functions.
+If we want to tell whether two functions share the same behavior, we first need to create a backup of the current state of the program, and de-activate all the system interrupts. This will ensure that only our functions will be writing to memory, so we have full control of the function workflow. Then, we need to compare whether the RAM, scratchpad, COP2 regs and return value remains the same for both functions.
