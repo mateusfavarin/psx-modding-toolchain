@@ -21,7 +21,7 @@ def parse_compile_list(make: Makefile, sym: Syms):
                 make.add_cl(cl)
 
 def get_options() -> int:
-    error_msg = "ERROR: Wrong option. Please type a number from 1-3.\n"
+    error_msg = "ERROR: Wrong option. Please type a number from 1-11.\n"
     print("Please select an action:")
     print()
     print("Mod:")
