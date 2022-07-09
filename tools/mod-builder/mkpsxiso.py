@@ -107,7 +107,7 @@ class Mkpsxiso:
                     shutil.copyfile(mod_file, dst)
                     contents = {
                         "name": filename,
-                        "source": rom_name + "/" + filename,
+                        "source": modified_rom_name + "/" + filename,
                         "type": "data"
                     }
                     element = et.Element("file", contents)
