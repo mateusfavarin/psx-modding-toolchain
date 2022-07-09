@@ -9,12 +9,12 @@ endif
 THISDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TOOLSDIR = $(THISDIR)../tools/
 
-CPPFLAGS += -I$(TOOLSDIR)nugget/common/macros
+CPPFLAGS += -I$(TOOLSDIR)nugget/common/macros/
 CPPFLAGS += -I$(GAMEINCLUDEDIR)
 
 ifeq ($(USE_PSYQ),true)
-CPPFLAGS += -I$(TOOLSDIR)gcc-psyq-converted/include
-LDFLAGS += -L$(TOOLSDIR)gcc-psyq-converted/lib
+CPPFLAGS += -I$(TOOLSDIR)gcc-psyq-converted/include/
+LDFLAGS += -L$(TOOLSDIR)gcc-psyq-converted/lib/
 LDFLAGS += -Wl,--start-group
 LDFLAGS += -lapi
 LDFLAGS += -lc
