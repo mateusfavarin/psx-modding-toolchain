@@ -1,0 +1,9 @@
+{
+    "redux": {
+        "port": 8080
+    },
+    "nops": {
+        "comport": "COM5",
+        "mode": "fast"
+    }
+}
