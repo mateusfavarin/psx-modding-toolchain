@@ -5,7 +5,7 @@
         "optimization": 4,
         "debug": 0,
         "psyq": 0,
-        "8mb": 0
+        "8mb": 1
     },
     "versions": [
         {

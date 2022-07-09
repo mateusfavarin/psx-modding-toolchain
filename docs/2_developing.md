@@ -4,11 +4,11 @@ This page is dedicated for developers looking for using the tool to build mods. 
 Note: when writing addresses for the PSX, always use the prefix 0x80 (KSEG0)
 
 ## Setting up a new game
-Copy the `samples/GameTemplate/` folder and rename it. This folder has all the structure of the toolchain set, so you only need to modify its contents to integrate a new game with the tools.
+Copy the `games/GameTemplate/` folder and rename it. This folder has all the structure of the toolchain set, so you only need to modify its contents to integrate a new game with the tools.
 
 ## Configuring the environment
 
-### samples/setting.json
+### games/setting.json
 This file describes general settings about the environment, which applies to all games.
 ```
 redux:
@@ -18,7 +18,7 @@ nops:
     mode: str # Mode selected to run NoPS at. Currently supports fast and slow.
 ```
 
-### samples/game/config.json
+### games/game/config.json
 This file describes game specific settings, such as game versions and compiler configurations.
 
 ```
@@ -26,10 +26,10 @@ version: list # List of versions that your game environment support. You can giv
     [
         {
             yourVersion:
-                name: str # Name of the ISO that the tool will look for in the samples/game/build/ folder
+                name: str # Name of the ISO that the tool will look for in the games/game/build/ folder
                 symbols: list # List of linker symbol files that the tool will look for when compiling for this version of the game
                 [
-                    yourSymbolFile: str # filename. This file must be in the samples/game/symbols/ folder
+                    yourSymbolFile: str # filename. This file must be in the games/game/symbols/ folder
                     ...
                 ]
                 build_id: int # unique ID for this version. This will be used during compilation time to create the variable BUILD, which will have the value of build_id (-DBUILD=build_id).
@@ -46,8 +46,8 @@ compiler:
 ```
 Note: `common` is a reserved name and shouldn't be used to name any of your custom versions.
 
-### samples/game/disc.json
-This file should contain a description of the ISO structure of your game for each game version. The version names should be same ones that you defined in `samples/game/config.json`.
+### games/game/disc.json
+This file should contain a description of the ISO structure of your game for each game version. The version names should be same ones that you defined in `games/game/config.json`.
 ```
 common: list # Container for files that are the same in all versions of your game
     [
@@ -64,16 +64,16 @@ common: list # Container for files that are the same in all versions of your gam
         }
         ...
     ]
-version1: list # Container for a specific version of the game. The name of version must be the same specified in samples/game/config.json
+version1: list # Container for a specific version of the game. The name of version must be the same specified in games/game/config.json
     [
         ...
     ]
 ```
 
-### samples/game/include/
+### games/game/include/
 This is a folder which the compiler will always look at for include files. This is where your files describing the memory map of your game should go.
 
-### samples/game/mods/mod/buildList.txt
+### games/game/mods/mod/buildList.txt
 This file should contain a description of how to compile and build your mod. Each line in the file will correspond to one different binary compiled. Each line has different fields, which are separated using the `,` token. Comments are supported using the `//` token.
 
 A general line looks like this:

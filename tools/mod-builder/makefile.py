@@ -126,7 +126,7 @@ class Makefile:
         create_directory(BACKUP_FOLDER)
         create_directory(DEBUG_FOLDER)
         os.system("make -s -j8")
-        if not os.path.isfile("mod.map"):
+        if (not os.path.isfile("mod.map")) or (not os.path.isfile("mod.elf")):
             print("\n[Makefile-py] ERROR: compilation was not successful.\n")
             return
 

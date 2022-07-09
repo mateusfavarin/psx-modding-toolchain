@@ -74,3 +74,5 @@ You can download the latest release of Unirom [here](https://github.com/Jonathan
 
 #### Usage
 Check the [docs](docs/) for information about configuring and using the tools.
+
+If you're interested in decompiling a game, you might be interested in checking out [this](games/Example_CrashTeamRacing/mods/DecompUnitTester/README.md) real time function unit tester.

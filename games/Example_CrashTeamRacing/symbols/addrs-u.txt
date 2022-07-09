@@ -1,0 +1,3 @@
+gameMode = 0x8008D2AC;
+gamepadSystem = 0x8008D2B0;
+trigApprox = 0x800845a0;

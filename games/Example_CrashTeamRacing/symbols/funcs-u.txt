@@ -1,0 +1,6 @@
+DrawText = 0x80022878;
+BOTS_SetRotation = 0x80013444;
+LOAD_Hub_ReadFile = 0x80032ffc;
+ND_MATH_Sin = 0x8003d184;
+GameplayUpdateLoop = 0x80034d54;
+printf = 0x8007c820;

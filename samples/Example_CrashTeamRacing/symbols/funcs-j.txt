@@ -1,3 +1,0 @@
-DrawText = 0x800241f0;
-BOTS_SetRotation = 0x800148e4;
-LOAD_Hub_ReadFile = 0x80034bc8;

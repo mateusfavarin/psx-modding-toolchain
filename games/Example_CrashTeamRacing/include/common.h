@@ -55,11 +55,17 @@ struct GamepadSystem
 };
 
 void DrawText(char * text, int x, int y, int size, int color);
+int ND_MATH_Sin(unsigned int angle);
+void GameplayUpdateLoop();
+int printf(const char * format, ...);
 
 // 0x8008D2AC - NTSC-U
 // 0x8008D644 - PAL
 // 0x800906B8 - NTSC-J
 extern unsigned int gameMode;
 extern struct GamepadSystem * gamepadSystem;
+
+// 0x800845a0 - NTSC-U
+extern int trigApprox[0x400];
 
 #endif

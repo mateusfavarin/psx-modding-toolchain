@@ -10,8 +10,6 @@ THISDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TOOLSDIR = $(THISDIR)../tools/
 
 CPPFLAGS += -I$(TOOLSDIR)nugget/common/macros
-CPPFLAGS += -I$(TOOLSDIR)nugget/common/crt0
-CPPFLAGS += -I$(TOOLSDIR)nugget/common/syscalls
 CPPFLAGS += -I$(GAMEINCLUDEDIR)
 
 ifeq ($(USE_PSYQ),true)

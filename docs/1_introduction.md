@@ -9,7 +9,7 @@ This project uses a specific folder structure in order to look for components du
 ```
 .psx-modding-toolchain
 ├──docs/
-├──samples/
+├──games/
       ├──game1/
             ├──build/
             ├──include/
@@ -40,12 +40,12 @@ In order to play a mod, the first thing you need to do is hit the compiler butto
 The tool will look for the `buildList.txt`, which contains a declaration of what files to compile and how to compile them. During the compilation process, several files will be created. The `output/` folder will contain `.bin` files which corresponds to the code that you compiled. The `debug/` folder contains useful debugging information, such as linker map files and `.elf` files. The `backup/` folder will contain saved information for uninstalling mods which you hot-reloaded.
 
 ## Building an ISO
-Place your iso in the `samples/game/build/` folder, rename your iso to match the same name as the iso specified in `samples/game/config.json`, then run the `Build ISO` command.
+Place your iso in the `games/game/build/` folder, rename your iso to match the same name as the iso specified in `games/game/config.json`, then run the `Build ISO` command.
 
 Note: during the building process, all new files will be renamed to upper case files.
 
 ## Hot Reloading
-Edit the file `samples/settings.json` with your redux port and/or NoPS comport, then run the hot reload command during the game. This will stop the game, inject mod code, and then resume the game running the newly injected code.
+Edit the file `games/settings.json` with your redux port and/or NoPS comport, then run the hot reload command during the game. This will stop the game, inject mod code, and then resume the game running the newly injected code.
 
 Note: you can only uninstall a mod if you select the backup option during the hot reload.
 Note/NoPS: you may need to launch your game via unirom in debug mode in order to hot-reload code in your PSX.
