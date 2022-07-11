@@ -21,6 +21,7 @@ build/
 debug/
 *.log
 offset.txt
+comport.txt
 overlay.ld
 Makefile
 
