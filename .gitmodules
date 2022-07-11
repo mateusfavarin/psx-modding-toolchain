@@ -1,0 +1,3 @@
+[submodule "games/Spyro2"]
+	path = games/Spyro2
+	url = https://github.com/mateusfavarin/Spyro2
