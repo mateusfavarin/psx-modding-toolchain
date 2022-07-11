@@ -79,7 +79,11 @@ class Redux:
                 cl = CompileList(line, sym)
                 if not cl.should_build():
                     return
-                bin = OUTPUT_FOLDER + cl.section_name + ".bin"
+                bin = str()
+                if cl.is_bin:
+                    bin = cl.source[0]
+                else:
+                    bin = OUTPUT_FOLDER + cl.section_name + ".bin"
                 backup_bin = BACKUP_FOLDER + "redux_" + cl.section_name + ".bin"
                 offset = cl.address & 0xFFFFFFF
                 if not os.path.isfile(bin):

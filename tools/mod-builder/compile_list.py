@@ -71,12 +71,11 @@ class CompileList:
         else:
             self.section_name = self.get_section_name_from_filepath(self.source[0])
 
-        for src in self.source:
-            extension = src.split(".")[-1]
-            if extension.lower() == "bin":
-                self.is_bin = True
-                self.ignore = True
-                return
+        extension = self.source[0].split(".")[-1]
+        if extension.lower() == "bin":
+            self.is_bin = True
+            self.ignore = True
+            return
 
         if self.section_name in sections:
             self.ignore = True

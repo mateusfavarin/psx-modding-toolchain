@@ -26,7 +26,11 @@ class Nops:
                 cl = CompileList(line, sym)
                 if not cl.should_build():
                     continue
-                bin = OUTPUT_FOLDER + cl.section_name + ".bin"
+                bin = str()
+                if cl.is_bin:
+                    bin = cl.source[0]
+                else:
+                    bin = OUTPUT_FOLDER + cl.section_name + ".bin"
                 backup_bin = BACKUP_FOLDER + "nops_" + cl.section_name + ".bin"
                 if backup:
                     if not os.path.isfile(bin):

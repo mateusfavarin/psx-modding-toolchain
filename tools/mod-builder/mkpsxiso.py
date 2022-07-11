@@ -70,7 +70,11 @@ class Mkpsxiso:
                         continue
                     game_file = extract_folder + df.physical_file
                     game_file_size = os.path.getsize(game_file)
-                    mod_file = OUTPUT_FOLDER + cl.section_name + ".bin"
+                    mod_file = str()
+                    if cl.is_bin:
+                        mod_file = cl.source[0]
+                    else:
+                        mod_file = OUTPUT_FOLDER + cl.section_name + ".bin"
                     if not os.path.isfile(mod_file):
                         print("\n[Mkpsxiso-py] ERROR: " + mod_file + " not found.\n")
                         continue
@@ -102,6 +106,9 @@ class Mkpsxiso:
                 else:
                     # assume it's a new file to be inserted in the disc
                     filename = (cl.section_name + ".bin").upper()
+                    filename_len = len(filename)
+                    if filename_len > 12:
+                        filename = filename[(filename_len - 12):]
                     mod_file = OUTPUT_FOLDER + cl.section_name + ".bin"
                     dst = build_files_folder + filename
                     shutil.copyfile(mod_file, dst)
