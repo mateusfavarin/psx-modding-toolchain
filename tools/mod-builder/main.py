@@ -2,9 +2,10 @@ from makefile import Makefile
 from compile_list import CompileList, free_sections
 from syms import Syms
 from redux import Redux
-from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list
+from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files
 from mkpsxiso import Mkpsxiso
 from nops import Nops
+from game_options import game_options
 
 import os
 import logging
@@ -75,6 +76,11 @@ def disasm() -> None:
     print("\nDisassembly saved at " + DEBUG_FOLDER + "disasm.txt\n")
 
 def main():
+    while not check_prerequisite_files():
+        cli_pause()
+    game_options.load_config()
+    redux.load_config()
+    nops.load_config()
     actions = {
         1   :   compile,
         2   :   clean,

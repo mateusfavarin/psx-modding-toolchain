@@ -2,16 +2,32 @@ import os
 
 CONFIG_FILE = "config.json"
 
-def get_distance_to_config() -> str:
+def cli_pause() -> None:
+    print("Press enter to continue...")
+    input()
+
+def get_distance_to_config(print_error: bool) -> str:
+    if print_error:
+        print("No config.json found. Make sure to set this prerequisite file before continuing.")
+        cli_pause()
     config = CONFIG_FILE
     distance = str()
+    max_depth = 10
+    k = 0
+    failed = False
     while not os.path.isfile(config):
         distance += "../"
         config = distance + CONFIG_FILE
-    return distance
+        k += 1
+        if k == max_depth:
+            failed = True
+            break
+    if not failed:
+        return distance
+    return get_distance_to_config(True)
 
 LOG_FILE = "crash.log"
-FOLDER_DISTANCE = get_distance_to_config()
+FOLDER_DISTANCE = get_distance_to_config(False)
 ISO_PATH = FOLDER_DISTANCE + "build/"
 SYMS_PATH = FOLDER_DISTANCE + "symbols/"
 GAME_INCLUDE_PATH = FOLDER_DISTANCE + "include/"
@@ -27,6 +43,21 @@ DISC_PATH = FOLDER_DISTANCE + "disc.json"
 COMMENT_SYMBOL = "//"
 MOD_NAME = os.getcwd().replace("\\", "/").split("/")[-1]
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
+
+def check_file(filename: str) -> bool:
+    if not os.path.isfile(filename):
+        print("[Common-py] ERROR: no " + filename + " found.")
+        return False
+    return True
+
+def check_prerequisite_files() -> bool:
+    status = check_file(COMPILE_LIST)
+    status = check_file(DISC_PATH) and status
+    status = check_file(SETTINGS_PATH) and status
+    if not status:
+        print("[Common-py] Please set up these prerequisite files before continuing.")
+
+    return status
 
 def create_directory(dirname: str) -> None:
     if not os.path.isdir(dirname):
@@ -73,10 +104,6 @@ def cli_clear() -> None:
         os.system("cls")
     else:
         os.system("clear")
-
-def cli_pause() -> None:
-    print("Press any key to continue...")
-    input()
 
 def check_compile_list() -> bool:
     if os.path.isfile(COMPILE_LIST):

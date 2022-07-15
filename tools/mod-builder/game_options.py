@@ -13,6 +13,8 @@ class GameOptions:
     def __init__(self) -> None:
         self.versions_by_name = dict()
         self.versions_by_build_id = dict()
+
+    def load_config(self):
         with open(CONFIG_PATH) as file:
             data = json.load(file)
             versions = data["versions"]

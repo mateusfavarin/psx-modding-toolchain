@@ -8,7 +8,7 @@ import requests as r
 
 class Redux:
     def __init__(self) -> None:
-        self.load_config()
+        pass
 
     def load_config(self) -> None:
         with open(SETTINGS_PATH) as file:
@@ -55,6 +55,9 @@ class Redux:
 
     def load_map(self) -> None:
         self.reset_map()
+        if not os.path.isfile(REDUX_MAP_FILE):
+            print("\n[Redux-py] ERROR: No map file found. Make sure you have compiled your mod before trying to hot reload.\n")
+            return
         file = open(REDUX_MAP_FILE, "rb")
         files = {"file": file}
         response = r.post(self.url + "/api/v1/assembly/symbols?function=upload", files=files)
@@ -64,6 +67,10 @@ class Redux:
             print("\n[Redux - Web Server] error loading " + REDUX_MAP_FILE + "\n")
 
     def inject(self, backup: bool, restore: bool) -> None:
+        build_id = get_build_id()
+        if build_id is None:
+            print("\n[Redux-py] ERROR: No output files found. Make sure that you have compiled your mod before trying to hot reload.\n")
+            return
         sym = Syms(get_build_id())
         url = self.url + "/api/v1/cpu/ram/raw"
         psx_ram = bytearray()
@@ -78,7 +85,7 @@ class Redux:
             for line in file:
                 cl = CompileList(line, sym)
                 if not cl.should_build():
-                    return
+                    continue
                 bin = str()
                 if cl.is_bin:
                     bin = cl.source[0]

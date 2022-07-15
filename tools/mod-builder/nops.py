@@ -7,7 +7,7 @@ import json
 
 class Nops:
     def __init__(self) -> None:
-        self.load_config()
+        pass
 
     def load_config(self) -> None:
         with open(SETTINGS_PATH) as file:
