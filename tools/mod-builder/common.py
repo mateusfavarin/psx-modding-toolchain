@@ -1,10 +1,17 @@
 import os
+import sys
+import copy
+
+remaining_args = copy.deepcopy(sys.argv[1:])
 
 CONFIG_FILE = "config.json"
 
 def cli_pause() -> None:
-    print("Press enter to continue...")
-    input()
+    if len(sys.argv) > 1:
+        sys.exit(0) if len(remaining_args) == 0 else print("Continuing...")
+    else:
+        print("Press Enter to continue...")
+        input()
 
 def get_distance_to_config(print_error: bool) -> str:
     if print_error:
@@ -64,16 +71,25 @@ def create_directory(dirname: str) -> None:
         os.mkdir(dirname)
 
 def request_user_input(first_option: int, last_option: int, error_msg: str) -> int:
+    if len(sys.argv) > 1 and len(remaining_args) == 0:
+        incomplete_args_msg = "ERROR: Not enough arguments to complete command."
+        print(incomplete_args_msg)
+        raise Exception(incomplete_args_msg)
+
     i = 0
     while True:
         try:
-            i = int(input())
+            i = int(input()) if len(sys.argv) < 2 else int(remaining_args.pop(0))
             if (i < first_option) or (i > last_option):
                 print(error_msg)
+                if (sys.argv > 1):
+                    sys.exit(1)
             else:
                 break
         except:
             print(error_msg)
+            if (sys.argv > 1):
+                sys.exit(1)
     return i
 
 def get_build_id() -> int:
