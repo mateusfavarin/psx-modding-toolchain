@@ -71,10 +71,15 @@ def create_directory(dirname: str) -> None:
         os.mkdir(dirname)
 
 def request_user_input(first_option: int, last_option: int, error_msg: str) -> int:
+    if len(sys.argv) > 1 and len(remaining_args) == 0:
+        incomplete_args_msg = "ERROR: Not enough arguments to complete command."
+        print(incomplete_args_msg)
+        raise Exception(incomplete_args_msg)
+
     i = 0
     while True:
         try:
-            i = int(input()) if len(sys.argv) < 2 or len(remaining_args) == 0 else int(remaining_args.pop(0))
+            i = int(input()) if len(sys.argv) < 2 else int(remaining_args.pop(0))
             if (i < first_option) or (i > last_option):
                 print(error_msg)
                 if (sys.argv > 1):
