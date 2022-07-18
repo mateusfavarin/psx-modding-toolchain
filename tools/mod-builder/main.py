@@ -16,6 +16,7 @@ import logging
 redux = Redux()
 mkpsxiso = Mkpsxiso()
 nops = Nops()
+num_options = [0]
 
 def parse_compile_list(make: Makefile, sym: Syms):
     with open(COMPILE_LIST, "r") as file:
@@ -25,7 +26,6 @@ def parse_compile_list(make: Makefile, sym: Syms):
                 make.add_cl(cl)
 
 def get_options() -> int:
-    error_msg = "ERROR: Wrong option. Please type a number from 1-11.\n"
     intro_msg = (
         "Please select an action:\n\n"
         "Mod:\n\n"
@@ -46,7 +46,8 @@ def get_options() -> int:
         "11 - Disassemble Elf\n"
         "12 - Clean All\n"
     )
-    return request_user_input(first_option=1, last_option=11, intro_msg=intro_msg, error_msg=error_msg)
+    error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(num_options[0]) + ".\n"
+    return request_user_input(first_option=1, last_option=num_options[0], intro_msg=intro_msg, error_msg=error_msg)
 
 def compile() -> None:
     if not check_compile_list():
@@ -104,6 +105,7 @@ def main():
         11  :   disasm,
         12  :   clean_all,
     }
+    num_options[0] = len(actions)
     while True:
         cli_clear()
         i = get_options()
