@@ -22,6 +22,7 @@ Note: some python instalations might be incomplete. Make sure that you have inst
 Open the command prompt and install the dependencies:
 ```
 pip install requests
+pip install opencv-python
 ```
 
 ## Getting Started
@@ -29,6 +30,7 @@ pip install requests
 ```
 $ git clone https://github.com/mateusfavarin/psx-modding-toolchain.git
 ```
+Note: don't use whitespaces in the folder names. This will break the `make` script.
 #### Install the mipsel GCC toolchain:
 ##### Windows:
 Copy-paste the following into a command prompt:
