@@ -23,11 +23,11 @@ class Mkpsxiso:
 
     def ask_user_for_version(self):
         names = game_options.get_version_names()
-        print("Select the game version:")
+        intro_msg = "Select the game version:\n"
         for i in range(len(names)):
-            print(str(i + 1) + " - " + names[i])
+            intro_msg += str(i + 1) + " - " + names[i] + "\n"
         error_msg = "ERROR: Invalid version. Please select a number from 1-" + str(len(names)) +"."
-        version = request_user_input(first_option=1, last_option=len(names), error_msg=error_msg)
+        version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         return game_options.get_gv_by_name(names[version - 1])
 
     def extract(self, gv, extract_folder: str, xml: str) -> None:
@@ -56,14 +56,16 @@ class Mkpsxiso:
                 df = disc.get_df(cl.game_file)
                 if df is not None:
                     if (cl.address - df.address) < 0:
-                        print("\n[Mkpsxiso-py] ERROR: Cannot overwrite " + df.physical_file)
-                        print("Base address " + hex(df.address) + " is bigger than the requested address " + hex(cl.address))
-                        print("At line: " + cl.original_line + "\n")
-                        print("Abort iso build?")
-                        print("1 - Yes")
-                        print("2 - No")
+                        intro_msg = (
+                            "\n[Mkpsxiso-py] ERROR: Cannot overwrite " + df.physical_file + "\n"
+                            "Base address " + hex(df.address) + " is bigger than the requested address " + hex(cl.address) + "\n"
+                            "At line: " + cl.original_line + "\n\n"
+                            "Abort iso build?\n"
+                            "1 - Yes\n"
+                            "2 - No\n"
+                        )
                         error_msg = "Invalid input. Please type a number from 1-2."
-                        should_quit = request_user_input(first_option=1, last_option=2, error_msg=error_msg) == 1
+                        should_quit = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
                         if should_quit:
                             iso_changed = False
                             return

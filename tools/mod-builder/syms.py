@@ -14,11 +14,11 @@ class Syms():
         if build_id is not None:
             return game_options.get_gv_by_build_id(build_id)
         names = game_options.get_version_names()
-        print("Select the game version:")
+        intro_msg = "Select the game version:\n"
         for i in range(len(names)):
-            print(str(i + 1) + " - " + names[i])
+            intro_msg += str(i + 1) + " - " + names[i] + "\n"
         error_msg = "ERROR: Invalid version. Please select a number from 1-" + str(len(names)) +"."
-        version = request_user_input(first_option=1, last_option=len(names), error_msg=error_msg)
+        version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         return game_options.get_gv_by_name(names[version - 1])
 
     def parse_gcc_file(self, filename: str) -> None:

@@ -89,11 +89,14 @@ def dump_images(path: str) -> None:
         else:
             print("[Image-py] WARNING: Image " + img.name + " was ignored because it uses " + img.clut.name + ", which exceeds the number of maximum colors")
 
-def create_images(directory: str) -> Image:
+def create_images(directory: str) -> int:
+    total = 0
     for root, _, files in os.walk(directory):
         for filename in files:
-            if filename[-4:] == ".png":
+            if filename[-4:].lower() == ".png":
+                total += 1
                 path = root + filename
                 img = Image(path)
                 imgs.append(img)
                 img.img2psx()
+    return total

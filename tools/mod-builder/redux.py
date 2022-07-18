@@ -177,13 +177,15 @@ class Redux:
             print("Make sure that redux is running, its web server is active, and")
             print("the port configuration saved in settings.json is correct.\n")
             return
-        print("Would you like to backup the RAM?")
-        print("1 - Yes")
-        print("2 - No")
-        print("Note: this option is required if you want to uninstall the mod.")
-        print("By selecting yes you'll overwrite the current backup.")
+        intro_msg = (
+            "Would you like to backup the RAM?\n"
+            "1 - Yes\n"
+            "2 - No\n"
+            "Note: this option is required if you want to uninstall the mod.\n"
+            "By selecting yes you'll overwrite the current backup.\n"
+        )
         error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
-        backup = request_user_input(first_option=1, last_option=2, error_msg=error_msg) == 1
+        backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
         self.pause_emulation()
         self.inject(backup, False)
         self.load_map()
@@ -212,7 +214,7 @@ class Redux:
         free_sections()
 
     def replace_textures(self) -> None:
-        print("\n[Redux-py] Replacing textures...\n")
+        print("[Redux-py] Replacing textures...\n")
         is_running = bool()
         try:
             is_running = self.get_emulation_running_state()
@@ -221,15 +223,22 @@ class Redux:
             print("Make sure that redux is running, its web server is active, and")
             print("the port configuration saved in settings.json is correct.\n")
             return
-        print("Would you like to backup the VRAM?")
-        print("1 - Yes")
-        print("2 - No")
-        print("Note: this option is required if you want to restore the original textures.")
-        print("By selecting yes you'll overwrite the current backup.")
-        error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
-        backup = request_user_input(first_option=1, last_option=2, error_msg=error_msg) == 1
+
+        # Texture backups are currently impossible in Redux
+        # because their web server get method doesn't retrieve the accurate VRAM state.
+        #
+        #intro_msg = (
+        #    "Would you like to backup the VRAM?\n"
+        #    "1 - Yes\n"
+        #    "2 - No\n"
+        #    "Note: this option is required if you want to restore the original textures.\n"
+        #    "By selecting yes you'll overwrite the current backup.\n"
+        #)
+        #error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
+        #backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
+
         self.pause_emulation()
-        self.inject_textures(backup, False)
+        self.inject_textures(False, False)
         if is_running:
             self.resume_emulation()
 

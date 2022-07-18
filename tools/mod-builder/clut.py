@@ -70,7 +70,7 @@ def clear_cluts() -> None:
     cluts.clear()
 
 def dump_cluts(path: str) -> None:
-    print("\n[CLUT-py] Dumping CLUTs...")
+    print("[CLUT-py] Dumping CLUTs...")
     for clut in cluts:
         if clut.is_valid():
             output = bytearray()

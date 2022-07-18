@@ -49,13 +49,15 @@ class Nops:
         if not check_compile_list():
             print("\n[NoPS-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
-        print("Would you like to backup the state?")
-        print("1 - Yes")
-        print("2 - No")
-        print("Note: this option is required if you want to uninstall the mod.")
-        print("By selecting yes you'll overwrite the current backup.")
+        intro_msg = (
+            "Would you like to backup the state?\n"
+            "1 - Yes\n"
+            "2 - No\n"
+            "Note: this option is required if you want to uninstall the mod.\n"
+            "By selecting yes you'll overwrite the current backup.\n"
+        )
         error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
-        backup = request_user_input(first_option=1, last_option=2, error_msg=error_msg) == 1
+        backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
         self.fire_command("/halt")
         self.inject(backup, False)
         self.fire_command("/cont")

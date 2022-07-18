@@ -3,12 +3,14 @@ import sys
 import copy
 
 remaining_args = copy.deepcopy(sys.argv[1:])
+using_cl_args = len(sys.argv) > 1
 
 CONFIG_FILE = "config.json"
 
 def cli_pause() -> None:
-    if len(sys.argv) > 1:
-        sys.exit(0) if len(remaining_args) == 0 else print("Continuing...")
+    if using_cl_args:
+        if len(remaining_args) == 0:
+            sys.exit(0)
     else:
         print("Press Enter to continue...")
         input()
@@ -72,26 +74,36 @@ def create_directory(dirname: str) -> None:
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
-def request_user_input(first_option: int, last_option: int, error_msg: str) -> int:
-    if len(sys.argv) > 1 and len(remaining_args) == 0:
-        incomplete_args_msg = "ERROR: Not enough arguments to complete command."
-        print(incomplete_args_msg)
-        raise Exception(incomplete_args_msg)
+def request_user_input(first_option: int, last_option: int, intro_msg: str, error_msg: str) -> int:
+    if using_cl_args and len(remaining_args) == 0:
+        raise Exception("ERROR: Not enough arguments to complete command.")
 
+    if not using_cl_args:
+        print(intro_msg)
+
+    raise_exception = False
     i = 0
     while True:
         try:
-            i = int(input()) if len(sys.argv) < 2 else int(remaining_args.pop(0))
+            i = int(input()) if not using_cl_args else int(remaining_args.pop(0))
             if (i < first_option) or (i > last_option):
-                print(error_msg)
-                if (sys.argv > 1):
-                    sys.exit(1)
+                if using_cl_args:
+                    raise_exception = True
+                    break
+                else:
+                    print(error_msg)
             else:
                 break
         except:
-            print(error_msg)
-            if (sys.argv > 1):
-                sys.exit(1)
+            if using_cl_args:
+                raise_exception = True
+                break
+            else:
+                print(error_msg)
+
+    if raise_exception:
+        raise Exception(error_msg)
+
     return i
 
 def get_build_id() -> int:
