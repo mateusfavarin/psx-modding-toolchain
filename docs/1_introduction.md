@@ -50,7 +50,10 @@ Edit the file `games/settings.json` with your redux port and/or NoPS comport, th
 Note: you can only uninstall a mod if you select the backup option during the hot reload.
 Note/NoPS: you may need to launch your game via unirom in debug mode in order to hot-reload code in your PSX.
 
+## Texture Replacement
+Edit the file `games/settings.json` with your redux port, place your images in the folder `newtex` as specified in [notes](3_notes.md), and then run the texture replacement command. This command will convert your image to the RGB5551 format, and then inject in the specified VRAM address.
+
 ## Clean Commands
-* `Clean`: cleans all the files generated during the compilation process.
+* `Clean`: cleans all the files generated during the compilation process, as well as the output of texture replacement.
 * `Clean Build`: cleans all the files generated during the iso building process, except the iso extraction files.
 * `Clean All`: runs `Clean` and `Clean Build`, as well as cleans all the files created in the iso extraction process.

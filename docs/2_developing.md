@@ -93,5 +93,10 @@ binary name: optinal field. Specifies the final name of the binary. If not speci
 
 Note: if you want to add assets in your mod, rename their extension to `.bin` and add them to the `buildList.txt`. This will ensure that the file will be used when hot-reloading and building the iso, but it won't be fed to the compiler.
 
+### games/game/mods/mod/newtex/
+Place here any image png that you want to inject in game. The image name must be in the following format: `name_x_y_clutx_cluty_width_height_bpp`.
+
+Note: `clutx` is in 16 half steps, i.e one unit corresponds to 16 pixels.
+
 ### tools/gcc-psyq-converted
 If you own a copy of PSYQ, you can use it in this modding toolchain by converting them using [Nicolas Noble's psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/blob/main/src/mips/psyq/README.md), then copying the headers in the `tools/gcc-psyq-converted/include/` folder, and the libs in the `tools/gcc-psyq-convered/lib/` folder.

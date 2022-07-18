@@ -1,6 +1,8 @@
 from syms import Syms
 from compile_list import CompileList, free_sections
-from common import COMPILE_LIST, REDUX_MAP_FILE, SETTINGS_PATH, OUTPUT_FOLDER, BACKUP_FOLDER, request_user_input, get_build_id, check_compile_list
+from common import COMPILE_LIST, REDUX_MAP_FILE, SETTINGS_PATH, OUTPUT_FOLDER, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, get_build_id, check_compile_list
+from image import get_image_list
+from clut import get_clut_list
 
 import os
 import json
@@ -80,7 +82,7 @@ class Redux:
                 psx_ram = response.content
                 print("Successfully retrieved a backup of the RAM.")
             else:
-                print("\n[Redux - Web Server] error backing up RAM.\n")
+                print("\n[Redux - Web Server] error backing up the RAM.\n")
         with open(COMPILE_LIST, "r") as file:
             for line in file:
                 cl = CompileList(line, sym)
@@ -94,7 +96,7 @@ class Redux:
                 backup_bin = BACKUP_FOLDER + "redux_" + cl.section_name + ".bin"
                 offset = cl.address & 0xFFFFFFF
                 if not os.path.isfile(bin):
-                    print("\n[Redux-py] ERROR: " + bin + " not found.\n")
+                    print("\n[Redux-py] ERROR: backup file " + bin + " not found.\n")
                     continue
                 size = os.path.getsize(bin)
                 if backup:
@@ -119,6 +121,49 @@ class Redux:
                     else:
                         print("\n[Redux - Web Server] error injecting " + bin + "\n")
                 file.close()
+
+    def inject_textures(self, backup: bool, restore: bool) -> None:
+        url = self.url + "/api/v1/gpu/vram/raw"
+        vram_path = TEXTURES_OUTPUT_FOLDER + "vram.bin"
+        if backup:
+            response = r.get(url)
+            if response.status_code == 200:
+                vram = response.content
+                print("Successfully retrieved a backup of the VRAM.")
+            else:
+                print("\n[Redux - Web Server] Error backing up the VRAM.\n")
+            with open(vram_path, "wb") as file:
+                file.write(vram)
+        if restore:
+            if os.path.isfile(vram_path):
+                vram_width = 1024
+                vram_height = 512
+                file = open(vram_path, "rb")
+                files = {"file": file}
+                response = r.post(url + "?x=" + str(0) + "&y=" + str(0) + "&width=" + str(vram_width) + "&height=" + str(vram_height), files=files)
+                if response.status_code == 200:
+                    print(vram_path + " successfully restored.")
+                else:
+                    print("\n[Redux - Web Server] Error restoring the VRAM.\n")
+                file.close()
+            else:
+                print("\n[Redux - Web Server] ERROR: backup file " + vram_path + "not found.\n")
+            return
+        imgs = get_image_list()
+        cluts = get_clut_list()
+        data = [imgs, cluts]
+        for textures in data:
+            for img in textures:
+                path = img.get_path()
+                if path is not None:
+                    file = open(path, "rb")
+                    files = {"file": file}
+                    response = r.post(url + "?x=" + str(img.x) + "&y=" + str(img.y) + "&width=" + str(img.w) + "&height=" + str(img.h), files=files)
+                    if response.status_code == 200:
+                        print(path + " successfully injected.")
+                    else:
+                        print("\n[Redux - Web Server] error injecting " + path + "\n")
+                    file.close()
 
     def hot_reload(self) -> None:
         if not check_compile_list():
@@ -165,3 +210,40 @@ class Redux:
         if is_running:
             self.resume_emulation()
         free_sections()
+
+    def replace_textures(self) -> None:
+        print("\n[Redux-py] Replacing textures...\n")
+        is_running = bool()
+        try:
+            is_running = self.get_emulation_running_state()
+        except Exception:
+            print("\n[Redux - Web Server] ERROR: Couldn't start a connection with redux.")
+            print("Make sure that redux is running, its web server is active, and")
+            print("the port configuration saved in settings.json is correct.\n")
+            return
+        print("Would you like to backup the VRAM?")
+        print("1 - Yes")
+        print("2 - No")
+        print("Note: this option is required if you want to restore the original textures.")
+        print("By selecting yes you'll overwrite the current backup.")
+        error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
+        backup = request_user_input(first_option=1, last_option=2, error_msg=error_msg) == 1
+        self.pause_emulation()
+        self.inject_textures(backup, False)
+        if is_running:
+            self.resume_emulation()
+
+    def restore_textures(self) -> None:
+        print("\n[Redux-py] Restoring textures...\n")
+        is_running = bool()
+        try:
+            is_running = self.get_emulation_running_state()
+        except Exception:
+            print("\n[Redux - Web Server] ERROR: Couldn't start a connection with redux.")
+            print("Make sure that redux is running, its web server is active, and")
+            print("the port configuration saved in settings.json is correct.\n")
+            return
+        self.pause_emulation()
+        self.inject_textures(False, True)
+        if is_running:
+            self.resume_emulation()

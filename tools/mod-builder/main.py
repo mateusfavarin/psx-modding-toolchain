@@ -2,11 +2,14 @@ from makefile import Makefile
 from compile_list import CompileList, free_sections
 from syms import Syms
 from redux import Redux
-from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files
+from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
+from image import create_images, clear_images, dump_images
+from clut import clear_cluts, dump_cluts
 
+import shutil
 import os
 import logging
 
@@ -38,18 +41,20 @@ def get_options() -> int:
     print()
     print("PCSX-Redux:")
     print()
-    print("6 - Hot Reload")
-    print("7 - Restore")
+    print("6 - Hot Reload Mod")
+    print("7 - Restore Mod")
+    print("8 - Replace Textures")
+    print("9 - Restore Textures")
     print()
     print("NotPSXSerial:")
     print()
-    print("8 - Hot Reload")
-    print("9 - Restore")
+    print("10 - Hot Reload")
+    print("11 - Restore")
     print()
     print("Misc:")
     print()
-    print("10 - Disassemble Elf")
-    print("11 - Clean All")
+    print("12 - Disassemble Elf")
+    print("13 - Clean All")
     print()
     return request_user_input(first_option=1, last_option=11, error_msg=error_msg)
 
@@ -66,10 +71,21 @@ def compile() -> None:
 
 def clean() -> None:
     os.system("make clean")
+    if os.path.isdir(TEXTURES_OUTPUT_FOLDER):
+        shutil.rmtree(TEXTURES_OUTPUT_FOLDER)
 
 def clean_all() -> None:
     mkpsxiso.clean(all=True)
     clean()
+
+def replace_textures() -> None:
+    create_directory(TEXTURES_OUTPUT_FOLDER)
+    create_images(TEXTURES_FOLDER)
+    dump_images(TEXTURES_OUTPUT_FOLDER)
+    dump_cluts(TEXTURES_OUTPUT_FOLDER)
+    redux.replace_textures()
+    clear_images()
+    clear_cluts()
 
 def disasm() -> None:
     os.system("mipsel-none-elf-objdump -d " + DEBUG_FOLDER + "mod.elf >> " + DEBUG_FOLDER + "disasm.txt")
@@ -89,10 +105,12 @@ def main():
         5   :   mkpsxiso.clean,
         6   :   redux.hot_reload,
         7   :   redux.restore,
-        8   :   nops.hot_reload,
-        9   :   nops.restore,
-        10  :   disasm,
-        11  :   clean_all,
+        8   :   replace_textures,
+        9   :   redux.restore_textures,
+        10  :   nops.hot_reload,
+        11  :   nops.restore,
+        12  :   disasm,
+        13  :   clean_all,
     }
     while True:
         cli_clear()

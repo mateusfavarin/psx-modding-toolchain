@@ -8,6 +8,7 @@ Watch the demo:
 * Compile, playtest and build an ISO in just a few clicks;
 * Compile C code into multiple overlays, targetting any PSX RAM address;
 * Test your changes in game during runtime;
+* Replace game textures using custom images;
 * Automatic rebuild a PSX iso with your own modifications.
 
 To discuss PSX development, hacking, and reverse engineering in general, please join the PSXDev Network Discord server: [![Discord](https://img.shields.io/discord/642647820683444236)](https://discord.gg/QByKPpH)
