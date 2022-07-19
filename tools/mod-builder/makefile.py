@@ -49,7 +49,7 @@ class Makefile:
 
     def build_linker_script(self, filename="overlay.ld") -> str:
         offset_buffer = str()
-        buffer = "__heap_base = __ovr_end;\n"
+        buffer =  "__heap_base = __ovr_end;\n"
         buffer += "\n"
         buffer += "__ovr_start = " + hex(self.base_addr) + ";\n"
         buffer += "\n"
@@ -95,7 +95,7 @@ class Makefile:
     def build_makefile(self) -> None:
         self.set_base_address()
         self.build_makefile_objects()
-        buffer = "MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))\n"
+        buffer =  "MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))\n"
         buffer += "TARGET = mod\n"
         buffer += "\n"
         buffer += "SRCS = " + self.srcs + "\n"
@@ -111,8 +111,6 @@ class Makefile:
         buffer += "OVR_START_ADDR = " + hex(self.base_addr) + "\n"
         buffer += "OVERLAYSCRIPT = " + self.build_linker_script() + "\n"
         buffer += "BUILDDIR = $(MODDIR)" + OUTPUT_FOLDER + "\n"
-        buffer += "DEBUGDIR = $(MODDIR)" + DEBUG_FOLDER + "\n"
-        buffer += "BACKUPDIR = $(MODDIR)" + BACKUP_FOLDER + "\n"
         buffer += "GAMEINCLUDEDIR = $(MODDIR)" + GAME_INCLUDE_PATH + "\n"
         buffer += "EXTRA_CC_FLAGS = " + self.compiler_flags + "\n"
         buffer += "\n"

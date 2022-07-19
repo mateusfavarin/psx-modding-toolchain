@@ -1,4 +1,4 @@
-from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, request_user_input, create_directory, cli_pause, check_compile_list
+from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -146,8 +146,7 @@ class Mkpsxiso:
         modified_rom_name = rom_name + "_" + MOD_NAME
         build_files_folder = ISO_PATH + modified_rom_name
         new_xml = build_files_folder + ".xml"
-        if os.path.isdir(build_files_folder):
-            shutil.rmtree(build_files_folder)
+        delete_directory(build_files_folder)
         create_directory(build_files_folder)
         hack_bin = build_files_folder + ".bin"
         hack_cue = build_files_folder + ".cue"
@@ -164,12 +163,18 @@ class Mkpsxiso:
             rom_name = gv.rom_name.split(".")[0]
             modified_rom_name = rom_name + "_" + MOD_NAME
             build_files_folder = ISO_PATH + modified_rom_name
+            build_cue = build_files_folder + ".cue"
+            build_bin = build_files_folder + ".bin"
+            build_xml = build_files_folder + ".xml"
             if all:
                 extract_folder = ISO_PATH + rom_name
-                os.system("rm " + extract_folder + ".xml")
-                os.system("rm -rf " + extract_folder)
-            os.system("rm " + build_files_folder + ".* ")
-            os.system("rm -rf " + build_files_folder)
+                extract_xml = extract_folder + ".xml"
+                delete_directory(extract_folder)
+                delete_file(extract_xml)
+            delete_directory(build_files_folder)
+            delete_file(build_bin)
+            delete_file(build_cue)
+            delete_file(build_xml)
 
     def extract_iso(self) -> None:
         self.build(only_extract=True)

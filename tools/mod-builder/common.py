@@ -1,6 +1,7 @@
-import os
-import sys
 import copy
+import os
+import shutil
+import sys
 
 remaining_args = copy.deepcopy(sys.argv[1:])
 using_cl_args = len(sys.argv) > 1
@@ -40,6 +41,8 @@ FOLDER_DISTANCE = get_distance_to_config(False)
 ISO_PATH = FOLDER_DISTANCE + "build/"
 SYMS_PATH = FOLDER_DISTANCE + "symbols/"
 GAME_INCLUDE_PATH = FOLDER_DISTANCE + "include/"
+MAKEFILE = "Makefile"
+COMPILATION_RESIDUES = ["overlay.ld", MAKEFILE, "offset.txt", "comport.txt"]
 COMPILE_LIST = "buildList.txt"
 OUTPUT_FOLDER = "output/"
 BACKUP_FOLDER = "backup/"
@@ -73,6 +76,14 @@ def check_prerequisite_files() -> bool:
 def create_directory(dirname: str) -> None:
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
+
+def delete_directory(dirname: str) -> None:
+    if os.path.isdir(dirname):
+        shutil.rmtree(dirname)
+
+def delete_file(filename: str) -> None:
+    if os.path.isfile(filename):
+        os.remove(filename)
 
 def request_user_input(first_option: int, last_option: int, intro_msg: str, error_msg: str) -> int:
     if using_cl_args and len(remaining_args) == 0:

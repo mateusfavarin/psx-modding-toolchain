@@ -2,7 +2,7 @@ from makefile import Makefile
 from compile_list import CompileList, free_sections
 from syms import Syms
 from redux import Redux
-from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory
+from common import LOG_FILE, COMPILE_LIST, MAKEFILE, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
@@ -61,9 +61,21 @@ def compile() -> None:
     free_sections()
 
 def clean() -> None:
-    os.system("make clean")
-    if os.path.isdir(TEXTURES_OUTPUT_FOLDER):
-        shutil.rmtree(TEXTURES_OUTPUT_FOLDER)
+    if os.path.isfile(MAKEFILE):
+        with open(MAKEFILE, "r") as file:
+            for line in file:
+                line = [l.strip() for l in line.split()]
+                if len(line) > 0 and line[0] == "SRCS":
+                    for src in line[2:]:
+                        src = src.split(".")[0]
+                        delete_file(src + ".o")
+                        delete_file(src + ".dep")
+    delete_directory(DEBUG_FOLDER)
+    delete_directory(BACKUP_FOLDER)
+    delete_directory(OUTPUT_FOLDER)
+    delete_directory(TEXTURES_OUTPUT_FOLDER)
+    for file in COMPILATION_RESIDUES:
+        delete_file(file)
 
 def clean_all() -> None:
     mkpsxiso.clean(all=True)

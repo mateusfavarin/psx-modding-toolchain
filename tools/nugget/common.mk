@@ -74,15 +74,3 @@ DEPS +=	$(patsubst %.c, %.dep,$(filter %.c,$(SRCS)))
 DEPS += $(patsubst %.s, %.dep,$(filter %.s,$(SRCS)))
 
 dep: $(DEPS)
-
-clean:
-	rm -rf $(BUILDDIR) $(DEBUGDIR) $(BACKUPDIR)
-	rm  $(OBJS) $(DEPS) $(BINDIR)*.ld $(BINDIR)offset.txt $(BINDIR)Makefile $(BINDIR)comport.txt
-
-ifneq ($(MAKECMDGOALS), clean)
-ifneq ($(MAKECMDGOALS), deepclean)
--include $(DEPS)
-endif
-endif
-
-.PHONY: clean dep all
