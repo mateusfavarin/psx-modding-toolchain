@@ -1,4 +1,5 @@
 import copy
+from genericpath import isdir
 import os
 import shutil
 import sys
@@ -47,6 +48,9 @@ COMPILE_LIST = "buildList.txt"
 OUTPUT_FOLDER = "output/"
 BACKUP_FOLDER = "backup/"
 DEBUG_FOLDER = "debug/"
+OBJ_FOLDER = DEBUG_FOLDER + "obj/"
+DEP_FOLDER = DEBUG_FOLDER + "dep/"
+COMP_SOURCE = DEBUG_FOLDER + "source.txt"
 TEXTURES_FOLDER = "newtex/"
 TEXTURES_OUTPUT_FOLDER = TEXTURES_FOLDER + "output/"
 GCC_MAP_FILE = DEBUG_FOLDER + "mod.map"

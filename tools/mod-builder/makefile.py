@@ -1,5 +1,5 @@
 from compile_list import CompileList
-from common import create_directory, GAME_INCLUDE_PATH, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH
+from common import create_directory, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH
 
 import re
 import json
@@ -119,17 +119,53 @@ class Makefile:
         with open("Makefile", "w") as file:
             file.write(buffer)
 
+    # Moving the .o and .dep to debug/
+    def move_temp_files(self) -> None:
+        buffer = str()
+        for ovr in self.ovrs:
+            for src in ovr[1]:
+                src = src.split(".")[0]
+                obj_path = src + ".o"
+                dep_path = src + ".dep"
+                obj_file = obj_path.rsplit("/", 1)[1]
+                dep_file = dep_path.rsplit("/", 1)[1]
+                obj_dst = OBJ_FOLDER + obj_file
+                dep_dst = DEP_FOLDER + dep_file
+                buffer += obj_dst + " " + obj_path + "\n"
+                buffer += dep_dst + " " + dep_path + "\n"
+                shutil.move(obj_path, obj_dst)
+                shutil.move(dep_path, dep_dst)
+        with open(COMP_SOURCE, "w") as file:
+            file.write(buffer)
+
+    # Restoring the saved .o and .dep for faster compilation
+    def restore_temp_files(self, backwards: bool) -> None:
+        if os.path.isfile(COMP_SOURCE):
+            with open(COMP_SOURCE, "r") as file:
+                for line in file:
+                    line = [l.strip() for l in line.split()]
+                    if backwards:
+                        shutil.move(line[1], line[0])
+                    else:
+                        shutil.move(line[0], line[1])
+
     def make(self) -> None:
+        self.restore_temp_files(False)
         create_directory(OUTPUT_FOLDER)
         create_directory(BACKUP_FOLDER)
-        create_directory(DEBUG_FOLDER)
         os.system("make -s -j8")
         if (not os.path.isfile("mod.map")) or (not os.path.isfile("mod.elf")):
+            self.restore_temp_files(True)
             print("\n[Makefile-py] ERROR: compilation was not successful.\n")
             return
 
+        create_directory(DEBUG_FOLDER)
+        create_directory(OBJ_FOLDER)
+        create_directory(DEP_FOLDER)
         shutil.move("mod.map", DEBUG_FOLDER + "mod.map")
         shutil.move("mod.elf", DEBUG_FOLDER + "mod.elf")
+        self.move_temp_files()
+
         print("\n[Makefile-py] Successful compilation.\n")
         pattern = re.compile(r"0x0000000080[0-7][0-9a-fA-F]{5}\s+([a-zA-Z]|_)\w*")
         special_symbols = ["__heap_base", "__ovr_start", "__ovr_end", "OVR_START_ADDR"]

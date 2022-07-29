@@ -9,7 +9,6 @@ from game_options import game_options
 from image import create_images, clear_images, dump_images
 from clut import clear_cluts, dump_cluts
 
-import shutil
 import os
 import logging
 
@@ -61,15 +60,6 @@ def compile() -> None:
     free_sections()
 
 def clean() -> None:
-    if os.path.isfile(MAKEFILE):
-        with open(MAKEFILE, "r") as file:
-            for line in file:
-                line = [l.strip() for l in line.split()]
-                if len(line) > 0 and line[0] == "SRCS":
-                    for src in line[2:]:
-                        src = src.split(".")[0]
-                        delete_file(src + ".o")
-                        delete_file(src + ".dep")
     delete_directory(DEBUG_FOLDER)
     delete_directory(BACKUP_FOLDER)
     delete_directory(OUTPUT_FOLDER)
