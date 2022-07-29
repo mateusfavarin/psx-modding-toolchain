@@ -1,5 +1,4 @@
 import copy
-from genericpath import isdir
 import os
 import shutil
 import sys
