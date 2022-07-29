@@ -1,2 +1,2 @@
-common, exe, GameplayUpdateLoop, -0x8, src/hook.s
-common, oob, 0x80200000, 0x0, src/main.c src/math.c, unit_tester.bin
+common, exe, GameplayUpdateLoop, -0x8, src/hook.s, hook.bin
+common, oob, 0x80200000, 0x0, src/*.c, unit_tester.bin

@@ -2,6 +2,8 @@ from common import COMMENT_SYMBOL, CONFIG_PATH, is_number
 from syms import Syms
 
 import json
+import re
+import os
 
 sections = dict()
 line_count = [0]
@@ -64,8 +66,18 @@ class CompileList:
             return
         srcs = [l.strip() for l in line[4].split()]
         self.source = list()
+        folders = dict()
         for src in srcs:
-            self.source.append(src.replace("\\", "/"))
+            src = src.replace("\\", "/").rsplit("/", 1)
+            directory = src[0] + "/"
+            regex = re.compile(src[1].replace("*", "(.*)"))
+            if not directory in folders:
+                for _, _, files in os.walk(directory):
+                    folders[directory] = files
+                    break
+            for file in folders[directory]:
+                if regex.search(file):
+                    self.source.append(directory + file)
         if len(line) == 6:
             self.section_name = line[5].split(".")[0]
         else:
