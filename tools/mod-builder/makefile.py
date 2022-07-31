@@ -124,7 +124,7 @@ class Makefile:
         buffer = str()
         for ovr in self.ovrs:
             for src in ovr[1]:
-                src = src.split(".")[0]
+                src = src.rsplit(".", 1)[0]
                 obj_path = src + ".o"
                 dep_path = src + ".dep"
                 obj_file = obj_path.rsplit("/", 1)[1]
