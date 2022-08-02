@@ -78,6 +78,11 @@ class CompileList:
             for file in folders[directory]:
                 if regex.search(file):
                     self.source.append(directory + file)
+        if len(self.source) == 0:
+            print("\n[BuildList-py] WARNING: no file(s) found.")
+            print("at line: " + str(line_count[0]) + ": " + self.original_line + "\n")
+            self.ignore = True
+            return
         if len(line) == 6:
             self.section_name = line[5].split(".")[0]
         else:
