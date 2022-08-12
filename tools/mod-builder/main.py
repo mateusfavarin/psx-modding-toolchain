@@ -2,7 +2,7 @@ from makefile import Makefile
 from compile_list import CompileList, free_sections
 from syms import Syms
 from redux import Redux
-from common import LOG_FILE, COMPILE_LIST, MAKEFILE, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file
+from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
