@@ -66,7 +66,7 @@ HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
 
 def rename_psyq_sections() -> None:
     sections = ["text", "data", "bss", "rdata", "sdata", "sbss", "note"]
-    prefix = "mipsel-linux-gnu" if sys.platform == "linux" or sys.platform == "linux2" else "mipsel-none-elf-"
+    prefix = "mipsel-linux-gnu-" if sys.platform == "linux" or sys.platform == "linux2" else "mipsel-none-elf-"
     command = prefix + "objcopy"
     for section in sections:
         command += " --rename-section ." + section + "=.psyq" + section
