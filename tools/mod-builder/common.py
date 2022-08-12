@@ -22,7 +22,7 @@ def get_distance_to_config(print_error: bool) -> str:
         cli_pause()
     config = CONFIG_FILE
     distance = str()
-    max_depth = 10
+    max_depth = 100
     k = 0
     failed = False
     while not os.path.isfile(config):
@@ -57,9 +57,39 @@ REDUX_MAP_FILE = DEBUG_FOLDER + "redux.map"
 CONFIG_PATH = FOLDER_DISTANCE + CONFIG_FILE
 SETTINGS_PATH = FOLDER_DISTANCE + "../settings.json"
 DISC_PATH = FOLDER_DISTANCE + "disc.json"
+TOOLS_PATH = FOLDER_DISTANCE + "../../tools/"
+PSYQ_CONVERTED_PATH = TOOLS_PATH + "gcc-psyq-converted/lib/"
+PSYQ_RENAME_CONFIRM_FILE = PSYQ_CONVERTED_PATH + ".sections-renamed"
 COMMENT_SYMBOL = "//"
 MOD_NAME = os.getcwd().replace("\\", "/").split("/")[-1]
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
+
+def rename_psyq_sections() -> None:
+    sections = ["text", "data", "bss", "rdata", "sdata", "sbss", "note"]
+    prefix = "mipsel-linux-gnu" if sys.platform == "linux" or sys.platform == "linux2" else "mipsel-none-elf-"
+    command = prefix + "objcopy"
+    for section in sections:
+        command += " --rename-section ." + section + "=.psyq" + section
+    print("\n[Common-py] Renaming PSYQ sections...")
+    curr_directory = ""
+    for root, _, files in os.walk(PSYQ_CONVERTED_PATH):
+        for filename in files:
+            split_filename = filename.rsplit(".", 1)
+            if len(split_filename) != 2:
+                continue
+            extension = split_filename[1]
+            if extension == "a" or extension == "o":
+                if root[-1] != "/":
+                    root = root + "/"
+                directory = root.split("/")[-2]
+                if directory != curr_directory:
+                    curr_directory = directory
+                    print("[Common-py] Converting " + directory + "/ directory...")
+                filepath = root + filename
+                os.system(command + " " + filepath)
+    with open(PSYQ_RENAME_CONFIRM_FILE, "w"):
+        pass
+    print("[Common-py] PSYQ sections renamed successfully.\n")
 
 def check_file(filename: str) -> bool:
     if not os.path.isfile(filename):

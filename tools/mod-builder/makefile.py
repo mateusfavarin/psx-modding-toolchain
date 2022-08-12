@@ -1,5 +1,5 @@
 from compile_list import CompileList
-from common import create_directory, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH
+from common import create_directory, request_user_input, rename_psyq_sections, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE
 
 import re
 import json
@@ -49,6 +49,7 @@ class Makefile:
 
     def build_linker_script(self, filename="overlay.ld") -> str:
         offset_buffer = str()
+        add_psyq = True
         buffer =  "__heap_base = __ovr_end;\n"
         buffer += "\n"
         buffer += "__ovr_start = " + hex(self.base_addr) + ";\n"
@@ -67,7 +68,11 @@ class Makefile:
             if addr > self.base_addr:
                 buffer += " " * 12 + ". = . + " + hex(offset) + ";\n"
             for src in source:
-                src = src[:-2]
+                full_source = src.rsplit(".", 1)
+                src = full_source[0]
+                is_c = False
+                if len(full_source) == 2 and full_source[1] != "s":
+                    is_c = True
                 buffer += " " * 12 + "KEEP(" + src + ".o(.text))\n"
                 buffer += " " * 12 + "KEEP(" + src + ".o(.text.startup._GLOBAL__*))\n"
                 buffer += " " * 12 + "KEEP(" + src + ".o(.text.*))\n"
@@ -77,6 +82,15 @@ class Makefile:
                 buffer += " " * 12 + "KEEP(" + src + ".o(.sbss*))\n"
                 buffer += " " * 12 + "KEEP(" + src + ".o(.bss*))\n"
                 buffer += " " * 12 + "KEEP(" + src + ".o(.ctors))\n"
+                if add_psyq and self.use_psyq and is_c:
+                    add_psyq = False
+                    buffer += " " * 12 + "KEEP(*(.psyqtext))\n"
+                    buffer += " " * 12 + "KEEP(*(.psyqtext.*))\n"
+                    buffer += " " * 12 + "KEEP(*(.psyqrdata*))\n"
+                    buffer += " " * 12 + "KEEP(*(.psyqsdata*))\n"
+                    buffer += " " * 12 + "KEEP(*(.psyqdata*))\n"
+                    buffer += " " * 12 + "KEEP(*(.psyqsbss*))\n"
+                    buffer += " " * 12 + "KEEP(*(.psyqbss*))\n"
             buffer += " " * 12 + "\n"
             buffer += " " * 12 + ". = ALIGN(4);\n"
             buffer += " " * 12 + "__ovr_end = .;\n"
@@ -92,7 +106,21 @@ class Makefile:
 
         return filename
 
-    def build_makefile(self) -> None:
+    def build_makefile(self) -> bool:
+        if self.use_psyq and not os.path.isfile(PSYQ_RENAME_CONFIRM_FILE):
+            print("\n[Makefile-py] WARNING: your project configuration may be trying to import PSYQ functions,")
+            print("but you haven't renamed your psyq sections.")
+            min_option = 1
+            max_option = 2
+            intro_msg = "Would you like to convert them now?\n1 - Yes\n2 - No"
+            error_msg = "ERROR: Please select a number between " + str(min_option) + " and " + str(max_option)
+            if request_user_input(min_option, max_option, intro_msg=intro_msg, error_msg=error_msg) == 1:
+                rename_psyq_sections()
+            else:
+                intro_msg = "Would you like to abort the compilation?\n1 - Yes\n2 - No"
+                if request_user_input(min_option, max_option, intro_msg=intro_msg, error_msg=error_msg) == 1:
+                    return False
+
         self.set_base_address()
         self.build_makefile_objects()
         buffer =  "MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))\n"
@@ -118,6 +146,8 @@ class Makefile:
 
         with open("Makefile", "w") as file:
             file.write(buffer)
+
+        return True
 
     # Moving the .o and .dep to debug/
     def move_temp_files(self) -> None:

@@ -2,7 +2,7 @@ from makefile import Makefile
 from compile_list import CompileList, free_sections
 from syms import Syms
 from redux import Redux
-from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file
+from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file, rename_psyq_sections
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
@@ -43,7 +43,8 @@ def get_options() -> int:
         "10 - Restore\n\n"
         "Misc:\n\n"
         "11 - Disassemble Elf\n"
-        "12 - Clean All\n"
+        "12 - Rename PSYQ Sections\n"
+        "13 - Clean All\n"
     )
     error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(num_options[0]) + ".\n"
     return request_user_input(first_option=1, last_option=num_options[0], intro_msg=intro_msg, error_msg=error_msg)
@@ -55,8 +56,8 @@ def compile() -> None:
     game_syms = Syms()
     make = Makefile(game_syms.get_build_id(), game_syms.get_files())
     parse_compile_list(make, game_syms)
-    make.build_makefile()
-    make.make()
+    if make.build_makefile():
+        make.make()
     free_sections()
 
 def clean() -> None:
@@ -105,7 +106,8 @@ def main():
         9   :   nops.hot_reload,
         10  :   nops.restore,
         11  :   disasm,
-        12  :   clean_all,
+        12  :   rename_psyq_sections,
+        13  :   clean_all,
     }
     num_options[0] = len(actions)
     while True:

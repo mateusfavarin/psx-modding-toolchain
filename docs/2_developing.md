@@ -100,3 +100,5 @@ Note: `clutx` is in 16 half steps, i.e one unit corresponds to 16 pixels.
 
 ### tools/gcc-psyq-converted
 If you own a copy of PSYQ, you can use it in this modding toolchain by converting them using [Nicolas Noble's psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/blob/main/src/mips/psyq/README.md), then copying the headers in the `tools/gcc-psyq-converted/include/` folder, and the libs in the `tools/gcc-psyq-convered/lib/` folder.
+
+Note: the psyq functions will be compiled to the first c file described in `buildList.txt`.
