@@ -62,6 +62,7 @@ In order to setup the emulator, you'll need to download [PCSX-Redux](https://git
 [ ] Dynarec CPU # Leave this unchecked
 [ ] 8MB # Optional
 [x] Enable Debugger
+[x] Enable GDB Server
 [x] Enable Web Server
 ```
 

@@ -1,2 +1,0 @@
-# Contributing
-If you're reversing/modding a game using this toolchain, feel free to submit a pull request with your `game/` folder as a submodule. The idea is to expand this project as much as possible, so it can become a hub for both playing and developing PSX mods.
