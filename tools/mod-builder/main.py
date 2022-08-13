@@ -37,14 +37,15 @@ def get_options() -> int:
         "PCSX-Redux:\n\n"
         "6 - Hot Reload Mod\n"
         "7 - Restore Mod\n"
-        "8 - Replace Textures\n\n"
+        "8 - Replace Textures\n"
+        "9 - Restore Textures\n\n"
         "NotPSXSerial:\n\n"
-        "9 - Hot Reload\n"
-        "10 - Restore\n\n"
+        "10 - Hot Reload\n"
+        "11 - Restore\n\n"
         "Misc:\n\n"
-        "11 - Disassemble Elf\n"
-        "12 - Rename PSYQ Sections\n"
-        "13 - Clean All\n"
+        "12 - Disassemble Elf\n"
+        "13 - Rename PSYQ Sections\n"
+        "14 - Clean All\n"
     )
     error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(num_options[0]) + ".\n"
     return request_user_input(first_option=1, last_option=num_options[0], intro_msg=intro_msg, error_msg=error_msg)
@@ -103,11 +104,12 @@ def main():
         6   :   redux.hot_reload,
         7   :   redux.restore,
         8   :   replace_textures,
-        9   :   nops.hot_reload,
-        10  :   nops.restore,
-        11  :   disasm,
-        12  :   rename_psyq_sections,
-        13  :   clean_all,
+        9   :   redux.restore_textures,
+        10  :   nops.hot_reload,
+        11  :   nops.restore,
+        12  :   disasm,
+        13  :   rename_psyq_sections,
+        14  :   clean_all,
     }
     num_options[0] = len(actions)
     while True:

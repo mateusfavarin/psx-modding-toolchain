@@ -224,21 +224,18 @@ class Redux:
             print("the port configuration saved in settings.json is correct.\n")
             return
 
-        # Texture backups are currently impossible in Redux
-        # because their web server get method doesn't retrieve the accurate VRAM state.
-        #
-        #intro_msg = (
-        #    "Would you like to backup the VRAM?\n"
-        #    "1 - Yes\n"
-        #    "2 - No\n"
-        #    "Note: this option is required if you want to restore the original textures.\n"
-        #    "By selecting yes you'll overwrite the current backup.\n"
-        #)
-        #error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
-        #backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
+        intro_msg = (
+            "Would you like to backup the VRAM?\n"
+            "1 - Yes\n"
+            "2 - No\n"
+            "Note: this option is required if you want to restore the original textures.\n"
+            "By selecting yes you'll overwrite the current backup.\n"
+        )
+        error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
+        backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 
         self.pause_emulation()
-        self.inject_textures(False, False)
+        self.inject_textures(backup, False)
         if is_running:
             self.resume_emulation()
 
