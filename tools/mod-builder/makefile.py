@@ -25,7 +25,8 @@ class Makefile:
                 self.compiler_flags = "-O" + str(optimization_level)
             if data["debug"] != 0:
                 self.compiler_flags += " -g"
-            self.use_psyq = str(data["psyq"] == 1).lower()
+            self.use_psyq_str = str(data["psyq"] != 0).lower()
+            self.use_psyq = data["psyq"] != 0
 
     def add_cl(self, cl: CompileList) -> None:
         self.cl.append(cl)
@@ -134,7 +135,7 @@ class Makefile:
         buffer += "\n"
         buffer += "USE_FUNCTION_SECTIONS ?= " + self.use_function_sections + "\n"
         buffer += "DISABLE_FUNCTION_REORDER ?= " + self.disable_function_reorder + "\n"
-        buffer += "USE_PSYQ ?= " + self.use_psyq + "\n"
+        buffer += "USE_PSYQ ?= " + self.use_psyq_str + "\n"
         buffer += "OVERLAYSECTION ?= " + self.ovr_section + "\n"
         buffer += "OVR_START_ADDR = " + hex(self.base_addr) + "\n"
         buffer += "OVERLAYSCRIPT = " + self.build_linker_script() + "\n"
