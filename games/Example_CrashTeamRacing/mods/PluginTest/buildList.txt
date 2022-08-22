@@ -1,0 +1,1 @@
+common, splash01, 0x0, 0x0, assets/title01_usa.tim

@@ -12,6 +12,13 @@
                     "address"   :   "0x80010000",
                     "offset"    :   "0x800"
                 }
+            ],
+            "bigfile/screen/title01_usa.tim": [
+                {
+                    "name": "splash01",
+                    "address": "0x0",
+                    "offset": "0x0"
+                }
             ]
         }
     ],

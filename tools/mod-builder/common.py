@@ -40,6 +40,7 @@ LOG_FILE = "crash.log"
 FOLDER_DISTANCE = get_distance_to_config(False)
 ISO_PATH = FOLDER_DISTANCE + "build/"
 SYMS_PATH = FOLDER_DISTANCE + "symbols/"
+PLUGIN_PATH = FOLDER_DISTANCE + "plugins/"
 GAME_INCLUDE_PATH = FOLDER_DISTANCE + "include/"
 MAKEFILE = "Makefile"
 COMPILATION_RESIDUES = ["overlay.ld", MAKEFILE, "offset.txt", "comport.txt"]

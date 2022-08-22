@@ -6,7 +6,7 @@ class DiscFile:
     def __init__(self, metadata: dict, physical_file: str) -> None:
         self.address = int(metadata["address"], 0)
         self.offset = int(metadata["offset"], 0)
-        self.physical_file = physical_file
+        self.physical_file = physical_file.replace("\\", "/")
 
 
 class Disc:
@@ -20,11 +20,11 @@ class Disc:
 
     def read_data_container(self, data: dict) -> None:
         for file in data:
-            filename = list(file.keys())[0]
-            for section in file[filename]:
-                name = section["name"]
-                df = DiscFile(section, filename)
-                self.df_by_name[name] = df
+            for filename in file.keys():
+                for section in file[filename]:
+                    name = section["name"]
+                    df = DiscFile(section, filename)
+                    self.df_by_name[name] = df
 
     def get_df(self, name: str) -> DiscFile:
         if name in self.df_by_name:

@@ -73,6 +73,9 @@ version1: list # Container for a specific version of the game. The name of versi
 ### games/game/include/
 This is a folder which the compiler will always look at for include files. This is where your files describing the memory map of your game should go.
 
+### games/game/plugins/plugin.py
+During the iso building process, the program will call the `extract` and `build` functions from this `plugin.py` file. This allows the user to write custom code in order to handle automatically building custom game archives. See the `PluginExample` mod in the `Example_CrashTeamRacing` folder as a reference.
+
 ### games/game/mods/mod/buildList.txt
 This file should contain a description of how to compile and build your mod. Each line in the file will correspond to one different binary compiled. Each line has different fields, which are separated using the `,` token. Comments are supported using the `//` token.
 

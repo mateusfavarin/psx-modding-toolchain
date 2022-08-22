@@ -1,4 +1,4 @@
-from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file
+from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -7,10 +7,15 @@ from syms import Syms
 import xml.etree.ElementTree as et
 import shutil
 import os
+import importlib
 
 class Mkpsxiso:
     def __init__(self) -> None:
-        pass
+        path = os.path.abspath(PLUGIN_PATH + "plugin.py")
+        spec = importlib.util.spec_from_file_location("plugin", path)
+        self.plugin = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.plugin)
+        self.python_path = os.getcwd().replace("\\", "/") + "/"
 
     def find_iso(self, gv) -> bool:
         if (not os.path.isfile(ISO_PATH + gv.rom_name)):
@@ -38,13 +43,22 @@ class Mkpsxiso:
         rom_path = ISO_PATH + gv.rom_name
         create_directory(extract_folder)
         os.system("dumpsxiso -x " + extract_folder + " -s " + xml + " " + rom_path)
+        self.plugin.extract(self.python_path + PLUGIN_PATH, self.python_path + extract_folder + "/")
 
-    def patch_iso(self, version: str, build_id: int, extract_folder: str, build_files_folder: str, rom_name: str, modified_rom_name: str, xml: str, new_xml: str) -> bool:
+    def abort_build_request(self) -> bool:
+        intro_msg = (
+            "Abort iso build?\n"
+            "1 - Yes\n"
+            "2 - No\n"
+        )
+        error_msg = "Invalid input. Please type a number from 1-2."
+        return request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
+
+    def patch_iso(self, version: str, build_id: int, build_files_folder: str, modified_rom_name: str, xml: str) -> bool:
         disc = Disc(version)
         sym = Syms(build_id)
         modded_files = dict()
         iso_changed = False
-        extract_folder += "/"
         build_files_folder += "/"
         xml_tree = et.parse(xml)
         dir_tree = xml_tree.findall(".//directory_tree")[0]
@@ -53,25 +67,32 @@ class Mkpsxiso:
                 cl = CompileList(line, sym)
                 if not cl.should_build():
                     continue
+
+                # if it's a file to be replaced in the game
                 df = disc.get_df(cl.game_file)
                 if df is not None:
+                    # Checking file start boundaries
                     if (cl.address - df.address) < 0:
-                        intro_msg = (
+                        error_msg = (
                             "\n[Mkpsxiso-py] ERROR: Cannot overwrite " + df.physical_file + "\n"
                             "Base address " + hex(df.address) + " is bigger than the requested address " + hex(cl.address) + "\n"
                             "At line: " + cl.original_line + "\n\n"
-                            "Abort iso build?\n"
-                            "1 - Yes\n"
-                            "2 - No\n"
                         )
-                        error_msg = "Invalid input. Please type a number from 1-2."
-                        should_quit = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
-                        if should_quit:
-                            iso_changed = False
-                            return
+                        print(error_msg)
+                        if self.abort_build_request():
+                            return False
                         continue
-                    game_file = extract_folder + df.physical_file
+
+                    # checking whether the original file exists and retrieving its size
+                    game_file = build_files_folder + df.physical_file
+                    if not os.path.isfile(game_file):
+                        print("\n[Mkpsxiso-py] ERROR: " + game_file + " not found.\n")
+                        if self.abort_build_request():
+                            return False
+                        continue
                     game_file_size = os.path.getsize(game_file)
+
+                    # checking whether the modded file exists and retrieving its size
                     mod_file = str()
                     if cl.is_bin:
                         mod_file = cl.source[0]
@@ -79,34 +100,38 @@ class Mkpsxiso:
                         mod_file = OUTPUT_FOLDER + cl.section_name + ".bin"
                     if not os.path.isfile(mod_file):
                         print("\n[Mkpsxiso-py] ERROR: " + mod_file + " not found.\n")
+                        if self.abort_build_request():
+                            return False
                         continue
                     mod_size = os.path.getsize(mod_file)
+
+                    # Checking potential file size overflows and warning the user about them
                     offset = cl.address - df.address + df.offset
                     if (mod_size + offset) > game_file_size:
-                        print("\n[Mkpsxiso-py] ERROR: " + mod_file + " is bigger than " + game_file + "\n")
-                        continue
+                        print("\n[Mkpsxiso-py] WARNING: " + mod_file + " will change the total file size of " + game_file + "\n")
+
                     mod_data = bytearray()
                     with open(mod_file, "rb") as mod:
                         mod_data = bytearray(mod.read())
                     if game_file not in modded_files:
                         modified_game_file = build_files_folder + df.physical_file
-                        shutil.copyfile(game_file, modified_game_file)
-                        element = xml_tree.find(".//file[@name='" + df.physical_file + "']")
-                        element_source = element.attrib["source"].split("/")
-                        element_source[0] = modified_rom_name
-                        element_source = "/".join(element_source)
-                        element.attrib["source"] = element_source
-                        iso_changed = True
                         modded_stream = open(modified_game_file, "r+b")
                         modded_files[game_file] = [modded_stream, bytearray(modded_stream.read())]
+                        iso_changed = True
+
                     modded_stream = modded_files[game_file][0]
                     modded_buffer = modded_files[game_file][1]
                     modded_stream.seek(0)
+                    # Add zeroes if the new total file size will be less than the original file size
+                    for i in range(len(modded_buffer), offset + mod_size):
+                        modded_buffer.append(0)
                     for i in range(mod_size):
                         modded_buffer[i + offset] = mod_data[i]
                     modded_stream.write(modded_buffer)
+
+                # if it's not a file to be replaced in the game
+                # assume it's a new file to be inserted in the disc
                 else:
-                    # assume it's a new file to be inserted in the disc
                     filename = (cl.section_name + ".bin").upper()
                     filename_len = len(filename)
                     if filename_len > 12:
@@ -122,13 +147,26 @@ class Mkpsxiso:
                     element = et.Element("file", contents)
                     dir_tree.insert(-1, element)
                     iso_changed = True
+
             for game_file in modded_files:
                 modded_stream = modded_files[game_file][0]
                 modded_stream.close()
             if iso_changed:
-                xml_tree.write(new_xml)
+                xml_tree.write(xml)
             free_sections()
+
         return iso_changed
+
+    def convert_xml(self, xml: str, new_xml: str, modified_rom_name: str) -> None:
+        xml_tree = et.parse(xml)
+        for element in xml_tree.iter():
+            key = "source"
+            if key in element.attrib:
+                element_source = element.attrib[key].split("/")
+                element_source[0] = modified_rom_name
+                element_source = "/".join(element_source)
+                element.attrib[key] = element_source
+        xml_tree.write(new_xml)
 
     def build(self, only_extract=False) -> None:
         gv = self.ask_user_for_version()
@@ -147,12 +185,16 @@ class Mkpsxiso:
         build_files_folder = ISO_PATH + modified_rom_name
         new_xml = build_files_folder + ".xml"
         delete_directory(build_files_folder)
-        create_directory(build_files_folder)
-        hack_bin = build_files_folder + ".bin"
-        hack_cue = build_files_folder + ".cue"
-        if self.patch_iso(gv.version, gv.build_id, extract_folder, build_files_folder, rom_name, modified_rom_name, xml, new_xml):
+        shutil.copytree(extract_folder, build_files_folder)
+        print("Converting XML...")
+        self.convert_xml(xml, new_xml, modified_rom_name)
+        build_bin = build_files_folder + ".bin"
+        build_cue = build_files_folder + ".cue"
+        print("Patching files...")
+        if self.patch_iso(gv.version, gv.build_id, build_files_folder, modified_rom_name, new_xml):
             print("Building iso...")
-            os.system("mkpsxiso -y -q -o " + hack_bin + " -c " + hack_cue + " " + new_xml)
+            self.plugin.build(self.python_path + PLUGIN_PATH, self.python_path + build_files_folder + "/")
+            os.system("mkpsxiso -y -q -o " + build_bin + " -c " + build_cue + " " + new_xml)
             print("Build completed.")
         else:
             print("\n[Mkpsxiso-py] WARNING: No files changed. ISO building skipped.\n")
