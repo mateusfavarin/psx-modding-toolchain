@@ -9,6 +9,18 @@ import shutil
 import os
 import importlib
 
+MB = 1024 * 1024
+
+def _copyfileobj_patched(fsrc, fdst, length=64*MB):
+    """Patches shutil method to hugely improve copy speed"""
+    while True:
+        buf = fsrc.read(length)
+        if not buf:
+            break
+        fdst.write(buf)
+
+shutil.copyfileobj = _copyfileobj_patched
+
 class Mkpsxiso:
     def __init__(self) -> None:
         path = os.path.abspath(PLUGIN_PATH + "plugin.py")
