@@ -1,6 +1,7 @@
 {
     "redux": {
-        "port": 8080
+        "port": 8080,
+        "path": "C:/path/to/redux/"
     },
     "nops": {
         "comport": "COM5",

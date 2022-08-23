@@ -185,6 +185,7 @@ class Mkpsxiso:
         build_files_folder = ISO_PATH + modified_rom_name
         new_xml = build_files_folder + ".xml"
         delete_directory(build_files_folder)
+        print("Copying files...")
         shutil.copytree(extract_folder, build_files_folder)
         print("Converting XML...")
         self.convert_xml(xml, new_xml, modified_rom_name)

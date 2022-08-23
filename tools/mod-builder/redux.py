@@ -1,10 +1,13 @@
 from syms import Syms
 from compile_list import CompileList, free_sections
-from common import COMPILE_LIST, REDUX_MAP_FILE, SETTINGS_PATH, OUTPUT_FOLDER, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, get_build_id, check_compile_list
+from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, OUTPUT_FOLDER, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, get_build_id, check_compile_list
 from image import get_image_list
 from clut import get_clut_list
+from game_options import game_options
 
 import os
+from subprocess import Popen
+
 import json
 import requests as r
 
@@ -16,7 +19,25 @@ class Redux:
         with open(SETTINGS_PATH) as file:
             data = json.load(file)["redux"]
             self.port = str(data["port"])
+            redux_path = data["path"].replace("\\", "/")
+            if redux_path[-1] != "/":
+                redux_path += "/"
+            redux_path += "pcsx-redux.exe"
+            self.command = redux_path
             self.url = "http://127.0.0.1:" + str(self.port)
+
+    def get_game_path(self) -> str:
+        names = game_options.get_version_names()
+        intro_msg = "Select the game version:\n"
+        for i in range(len(names)):
+            intro_msg += str(i + 1) + " - " + names[i] + "\n"
+        error_msg = "ERROR: Invalid version. Please select a number from 1-" + str(len(names)) +"."
+        version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
+        return game_options.get_gv_by_name(names[version - 1]).rom_name
+
+    def start_emulation(self) -> None:
+        game_path = ISO_PATH + self.get_game_path()
+        Popen([self.command, "-run", "-loadiso", game_path], start_new_session=True)
 
     def flush_cache(self) -> None:
         response = r.post(self.url + "/api/v1/cpu/cache?function=flush")
