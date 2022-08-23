@@ -19,14 +19,13 @@ class Redux:
         with open(SETTINGS_PATH) as file:
             data = json.load(file)["redux"]
             self.port = str(data["port"])
-            redux_path = data["path"].replace("\\", "/")
-            if redux_path[-1] != "/":
-                redux_path += "/"
-            redux_path += "pcsx-redux.exe"
-            self.command = redux_path
+            self.path = data["path"].replace("\\", "/")
+            if self.path[-1] != "/":
+                self.path += "/"
+            self.command = self.path + "pcsx-redux.exe"
             self.url = "http://127.0.0.1:" + str(self.port)
 
-    def get_game_path(self) -> str:
+    def get_game_name(self) -> str:
         names = game_options.get_version_names()
         intro_msg = "Select the game version:\n"
         for i in range(len(names)):
@@ -36,8 +35,14 @@ class Redux:
         return game_options.get_gv_by_name(names[version - 1]).rom_name
 
     def start_emulation(self) -> None:
-        game_path = ISO_PATH + self.get_game_path()
-        Popen([self.command, "-run", "-loadiso", game_path], start_new_session=True)
+        curr_dir = os.getcwd() + "/"
+        game_path = curr_dir + ISO_PATH + self.get_game_name()
+        if not os.path.isfile(game_path):
+            print("\n[Redux-py] WARNING: game file not found at " + game_path)
+            print("PCSX-Redux will start without booting the iso.")
+        os.chdir(self.path)
+        Popen(self.command + " -run -loadiso " + game_path, shell=True, start_new_session=True)
+        os.chdir(curr_dir)
 
     def flush_cache(self) -> None:
         response = r.post(self.url + "/api/v1/cpu/cache?function=flush")
