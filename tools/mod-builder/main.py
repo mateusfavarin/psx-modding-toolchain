@@ -33,19 +33,20 @@ def get_options() -> int:
         "Iso:\n\n"
         "3 - Extract Iso\n"
         "4 - Build Iso\n"
-        "5 - Clean Build\n\n"
+        "5 - Generate xdelta patch\n"
+        "6 - Clean Build\n\n"
         "PCSX-Redux:\n\n"
-        "6 - Hot Reload Mod\n"
-        "7 - Restore Mod\n"
-        "8 - Replace Textures\n"
-        "9 - Restore Textures\n\n"
+        "7 - Hot Reload Mod\n"
+        "8 - Restore Mod\n"
+        "9 - Replace Textures\n"
+        "10 - Restore Textures\n\n"
         "NotPSXSerial:\n\n"
-        "10 - Hot Reload\n"
-        "11 - Restore\n\n"
+        "11 - Hot Reload\n"
+        "12 - Restore\n\n"
         "Misc:\n\n"
-        "12 - Disassemble Elf\n"
-        "13 - Rename PSYQ Sections\n"
-        "14 - Clean All\n"
+        "13 - Disassemble Elf\n"
+        "14 - Rename PSYQ Sections\n"
+        "15 - Clean All\n"
     )
     error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(num_options[0]) + ".\n"
     return request_user_input(first_option=1, last_option=num_options[0], intro_msg=intro_msg, error_msg=error_msg)
@@ -100,16 +101,17 @@ def main():
         2   :   clean,
         3   :   mkpsxiso.extract_iso,
         4   :   mkpsxiso.build,
-        5   :   mkpsxiso.clean,
-        6   :   redux.hot_reload,
-        7   :   redux.restore,
-        8   :   replace_textures,
-        9   :   redux.restore_textures,
-        10  :   nops.hot_reload,
-        11  :   nops.restore,
-        12  :   disasm,
-        13  :   rename_psyq_sections,
-        14  :   clean_all,
+        5   :   mkpsxiso.xdelta,
+        6   :   mkpsxiso.clean,
+        7   :   redux.hot_reload,
+        8   :   redux.restore,
+        9   :   replace_textures,
+        10   :   redux.restore_textures,
+        11  :   nops.hot_reload,
+        12  :   nops.restore,
+        13  :   disasm,
+        14  :   rename_psyq_sections,
+        15  :   clean_all,
     }
     num_options[0] = len(actions)
     while True:

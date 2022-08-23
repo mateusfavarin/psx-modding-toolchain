@@ -33,3 +33,6 @@ tools/gcc-psyq-converted/lib/*
 
 # Settings
 games/settings.json
+
+# Executables
+*.exe

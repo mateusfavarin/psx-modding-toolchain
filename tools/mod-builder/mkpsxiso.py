@@ -1,4 +1,4 @@
-from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file
+from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, TOOLS_PATH, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -86,7 +86,7 @@ class Mkpsxiso:
                     # Checking file start boundaries
                     if (cl.address - df.address) < 0:
                         error_msg = (
-                            "\n[Mkpsxiso-py] ERROR: Cannot overwrite " + df.physical_file + "\n"
+                            "\n[ISO-py] ERROR: Cannot overwrite " + df.physical_file + "\n"
                             "Base address " + hex(df.address) + " is bigger than the requested address " + hex(cl.address) + "\n"
                             "At line: " + cl.original_line + "\n\n"
                         )
@@ -98,7 +98,7 @@ class Mkpsxiso:
                     # checking whether the original file exists and retrieving its size
                     game_file = build_files_folder + df.physical_file
                     if not os.path.isfile(game_file):
-                        print("\n[Mkpsxiso-py] ERROR: " + game_file + " not found.\n")
+                        print("\n[ISO-py] ERROR: " + game_file + " not found.\n")
                         if self.abort_build_request():
                             return False
                         continue
@@ -111,7 +111,7 @@ class Mkpsxiso:
                     else:
                         mod_file = OUTPUT_FOLDER + cl.section_name + ".bin"
                     if not os.path.isfile(mod_file):
-                        print("\n[Mkpsxiso-py] ERROR: " + mod_file + " not found.\n")
+                        print("\n[ISO-py] ERROR: " + mod_file + " not found.\n")
                         if self.abort_build_request():
                             return False
                         continue
@@ -120,7 +120,7 @@ class Mkpsxiso:
                     # Checking potential file size overflows and warning the user about them
                     offset = cl.address - df.address + df.offset
                     if (mod_size + offset) > game_file_size:
-                        print("\n[Mkpsxiso-py] WARNING: " + mod_file + " will change the total file size of " + game_file + "\n")
+                        print("\n[ISO-py] WARNING: " + mod_file + " will change the total file size of " + game_file + "\n")
 
                     mod_data = bytearray()
                     with open(mod_file, "rb") as mod:
@@ -189,7 +189,7 @@ class Mkpsxiso:
             self.extract(gv, extract_folder, xml)
             return
         if not check_compile_list():
-            print("\n[Mkpsxiso-py] ERROR: " + COMPILE_LIST + " not found.\n")
+            print("\n[ISO-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         if not os.path.isfile(xml):
             self.extract(gv, extract_folder, xml)
@@ -210,7 +210,30 @@ class Mkpsxiso:
             os.system("mkpsxiso -y -q -o " + build_bin + " -c " + build_cue + " " + new_xml)
             print("Build completed.")
         else:
-            print("\n[Mkpsxiso-py] WARNING: No files changed. ISO building skipped.\n")
+            print("\n[ISO-py] WARNING: No files changed. ISO building skipped.\n")
+
+    def xdelta(self) -> None:
+        gv = self.ask_user_for_version()
+        original_game = ISO_PATH + gv.rom_name
+        modded_game = ISO_PATH + gv.rom_name.split(".")[0] + "_" + MOD_NAME + ".bin"
+        if not os.path.isfile(original_game):
+            print("\n[ISO-py] ERROR: couldn't find " + original_game)
+            print("Make sure to put your original game in the " + ISO_PATH + " folder.\n")
+            return
+        if not os.path.isfile(modded_game):
+            print("\n[ISO-py] ERROR: couldn't find " + modded_game)
+            print("Make sure that you compiled and built your mod before trying to generate a PPF patch.\n")
+            return
+        print("Generating xdelta patch...")
+        command = os.getcwd().replace("\\", "/") + "/" + TOOLS_PATH + "xdelta/xdelta3.exe"
+        if not os.path.isfile(command):
+            print("\n[ISO-py] ERROR: xdelta not found. Make sure to download xdelta https://github.com/jmacd/xdelta-gpl/releases/tag/v3.0.11")
+            print("rename it to xdelta3, then place it in tools/xdelta.\n")
+        output = ISO_PATH + MOD_NAME + ".xdelta"
+        delete_file(output)
+        flags = " -S none -s " + original_game + " " + modded_game + " " + output
+        os.system(command + flags)
+        print(output + " generated!")
 
     def clean(self, all=False) -> None:
         for version in game_options.get_version_names():
