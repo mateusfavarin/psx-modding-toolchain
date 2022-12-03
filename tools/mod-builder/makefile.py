@@ -56,16 +56,14 @@ class Makefile:
         buffer += "__ovr_start = " + hex(self.base_addr) + ";\n"
         buffer += "\n"
         buffer += "SECTIONS {\n"
-        buffer += " " * 4 + "OVERLAY __ovr_start : SUBALIGN(4)\n"
-        buffer += " " * 4 + "{\n"
+        buffer += " " * 4 + "OVERLAY __ovr_start : SUBALIGN(4) {\n"
         for ovr in self.ovrs:
             section_name = ovr[0]
             source = ovr[1]
             addr = ovr[2]
             offset = addr - self.base_addr
             offset_buffer += section_name + " " + hex(offset) + "\n"
-            buffer += " " * 8 + "." + section_name + "\n"
-            buffer += " " * 8 + "{" + "\n"
+            buffer += " " * 8 + "." + section_name + " {\n"
             if addr > self.base_addr:
                 buffer += " " * 12 + ". = . + " + hex(offset) + ";\n"
             text, rodata, sdata, data, sbss, bss, ctors, psyq = [], [], [], [], [], [], [], []
@@ -82,11 +80,9 @@ class Makefile:
                 data.append(" " * 12 + "KEEP(" + src + ".o(.data*))\n")
                 sbss.append(" " * 12 + "KEEP(" + src + ".o(.sbss*))\n")
                 bss.append(" " * 12 + "KEEP(" + src + ".o(.bss*))\n")
-                ctors.append(" " * 12 + "KEEP(" + src + ".o(.ctors))\n")
                 if add_psyq and self.use_psyq and is_c:
                     add_psyq = False
-                    psyq.append(" " * 12 + "KEEP(*(.psyqtext))\n")
-                    psyq.append(" " * 12 + "KEEP(*(.psyqtext.*))\n")
+                    psyq.append(" " * 12 + "KEEP(*(.psyqtext*))\n")
                     psyq.append(" " * 12 + "KEEP(*(.psyqrdata*))\n")
                     psyq.append(" " * 12 + "KEEP(*(.psyqsdata*))\n")
                     psyq.append(" " * 12 + "KEEP(*(.psyqdata*))\n")
@@ -95,7 +91,6 @@ class Makefile:
             for section in sections:
                 for line in section:
                     buffer += line
-            buffer += " " * 12 + "\n"
             buffer += " " * 12 + ". = ALIGN(4);\n"
             buffer += " " * 12 + "__ovr_end = .;\n"
             buffer += " " * 8 + "}" + "\n"
@@ -162,14 +157,15 @@ class Makefile:
                 src = src.rsplit(".", 1)[0]
                 obj_path = src + ".o"
                 dep_path = src + ".dep"
-                obj_file = obj_path.rsplit("/", 1)[1]
-                dep_file = dep_path.rsplit("/", 1)[1]
-                obj_dst = OBJ_FOLDER + obj_file
-                dep_dst = DEP_FOLDER + dep_file
-                buffer += obj_dst + " " + obj_path + "\n"
-                buffer += dep_dst + " " + dep_path + "\n"
-                shutil.move(obj_path, obj_dst)
-                shutil.move(dep_path, dep_dst)
+                if os.path.isfile(obj_path) and os.path.isfile(dep_path):
+                    obj_file = obj_path.rsplit("/", 1)[1]
+                    dep_file = dep_path.rsplit("/", 1)[1]
+                    obj_dst = OBJ_FOLDER + obj_file
+                    dep_dst = DEP_FOLDER + dep_file
+                    buffer += obj_dst + " " + obj_path + "\n"
+                    buffer += dep_dst + " " + dep_path + "\n"
+                    shutil.move(obj_path, obj_dst)
+                    shutil.move(dep_path, dep_dst)
         with open(COMP_SOURCE, "w") as file:
             file.write(buffer)
 
