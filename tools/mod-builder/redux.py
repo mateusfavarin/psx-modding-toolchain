@@ -150,7 +150,7 @@ class Redux:
                     if restore:
                         print(bin + " successfully restored.")
                     else:
-                        print(bin + " successfully injected.")
+                        print("\n[Redux - Web Server] error injecting " + bin + "\n")
                 else:
                     print("\n[Redux - Web Server] error injecting " + bin + "\n")
                 file.close()
