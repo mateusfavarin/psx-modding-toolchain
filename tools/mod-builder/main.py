@@ -1,5 +1,5 @@
 from makefile import Makefile
-from compile_list import CompileList, free_sections
+from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
 from redux import Redux
 from common import LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file, rename_psyq_sections
@@ -79,6 +79,12 @@ class Main:
                 cl = CompileList(line, game_syms)
                 if not cl.should_ignore():
                     make.add_cl(cl)
+        if print_errors[0]:
+            intro_msg = "[Compile-py] Would you like to continue to compilation process?\n\n1 - Yes\n2 - No\n"
+            error_msg = "ERROR: Wrong option. Please type a number from 1-2.\n"
+            if request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 2:
+                free_sections()
+                return
         if make.build_makefile():
             make.make()
         free_sections()
