@@ -1,5 +1,5 @@
 from compile_list import CompileList
-from common import create_directory, request_user_input, rename_psyq_sections, delete_file, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE
+from common import create_directory, request_user_input, rename_psyq_sections, delete_file, cli_clear, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE
 
 import re
 import json
@@ -188,7 +188,14 @@ class Makefile:
         self.restore_temp_files()
         create_directory(OUTPUT_FOLDER)
         create_directory(BACKUP_FOLDER)
-        os.system("make -s -j8")
+        cli_clear()
+        print("\n[Makefile-py] Compilation started...\n")
+
+        os.system("make -s -j8 > " + GCC_OUT_FILE + " 2>&1")
+        with open(GCC_OUT_FILE) as file:
+            for line in file:
+                print(line)
+
         if (not os.path.isfile("mod.map")) or (not os.path.isfile("mod.elf")):
             self.delete_temp_files()
             print("\n[Makefile-py] ERROR: compilation was not successful.\n")
