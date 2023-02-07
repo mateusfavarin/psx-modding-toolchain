@@ -63,7 +63,7 @@ endif
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -M -MT $(addsuffix .o, $(basename $@)) -MF $@ $<
 
 %.dep: %.s
-	$(GCCDIR)touch $(addsuffix .dep, $(basename $@))
+	$(GCCDIR)touch $@
 
 dep: $(DEPS)
 
