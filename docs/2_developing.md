@@ -43,8 +43,10 @@ compiler:
     debug: int # 0 or 1. When 1, the flag -g will be set during compilation time.
     psyq: int # 0 or 1. When 1, the files at tools/gcc-psyq-converted/ will be included/linked in the compilation/linking process.
     8mb: int # 0 or 1. This configuration only affects the boundary check when compiling your mod.
+    pch: str # OPTIONAL. Name of your precompiled header. Header must be located in the include/ folder.
 ```
 Note: `common` is a reserved name and shouldn't be used to name any of your custom versions.
+Note:: this project supports gcc precompiled headers. To learn more about it, read [here](https://gcc.gnu.org/onlinedocs/gcc/Precompiled-Headers.html)
 
 ### games/game/disc.json
 This file should contain a description of the ISO structure of your game for each game version. The version names should be same ones that you defined in `games/game/config.json`.
