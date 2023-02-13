@@ -1,0 +1,29 @@
+{
+    "game_name": "game_name",
+    "symbols": [
+        "functions.txt",
+        "variables.txt"
+    ],
+    "versions": [
+        {
+            "usa": {
+                "build_id": 94426,
+                "game_path": "path/to/usa_game.bin"
+            }
+        },
+        {
+            "japan": {
+                "build_id": 1111,
+                "game_path": "path/to/japan_game.bin"
+            }
+        }
+    ],
+    "compiler": {
+        "function_sections": 1,
+        "reorder_functions": 1,
+        "optimization": 4,
+        "debug": 1,
+        "psyq": 0,
+        "8mb": 1
+    }
+}

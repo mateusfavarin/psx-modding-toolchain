@@ -4,9 +4,23 @@ This page is dedicated for developers looking for using the tool to build mods. 
 Note: when writing addresses for the PSX, always use the prefix 0x80 (KSEG0)
 
 ## Setting up a new game
-Copy the `games/GameTemplate/` folder and rename it. This folder has all the structure of the toolchain set, so you only need to modify its contents to integrate a new game with the tools.
+Modify the JSON file in `games/startup_game.json` and then run `STARTUP.BAT` (or `STARTUP.SH` if you're on linux/macos). Don't worry if you miss something in the configuration - you can add modify your game environment manually as described in the following sections.
+
+### games/startup_game.json
+JSON file used to automatically start a new game environment.
+```
+game_name: str # The script will use the name you set here as the name of the folder/game environment.
+symbols: list[str] # List of custom symbol files that will be fed to the linker.
+versions: list of versions that your game environment will support. They're structured as:
+    "your_version_name":
+            "build_id": int
+            "game_path": str # Path to the copy of your game
+    # Further discussed in the section about the structure of the file games/game/config.json
+compiler: compiler settings # Further discussed in the section about the structure of the file games/game/config.json
+```
 
 ## Configuring the environment
+This section discusses in detail how each file of the environment works, so you can adapt them for your needs.
 
 ### games/setting.json
 This file describes general settings about the environment, which applies to all games.
