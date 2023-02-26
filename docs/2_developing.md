@@ -99,7 +99,7 @@ This file should contain a description of how to compile and build your mod. Eac
 
 A general line looks like this:
 ```
-version, section, address, offset, path, binary name
+version, section, address, offset, path, binary name [optional]
 ```
 
 Fields:
@@ -109,7 +109,7 @@ section: name of the section defined in disc.json which will be used to overwrit
 address: address which the binary will be compiled to. It can either be a decimal number, a hexadecimal number, or a symbol.
 offset: an offset which will be applied to the address. This field can be any valid python arithmetic expression.
 path: path to the file you want to compile. If you want to compile multiple files into the same binary, separate each path with a space. e.g "src/file1.c src/file2.c ..."
-binary name: optinal field. Specifies the final name of the binary. If not specified, the name of the binary will be the name of the first file specified in the "path" field.
+binary name: optional field. Specifies the final name of the binary. If not specified, the name of the binary will be the name of the first file specified in the "path" field.
 ```
 
 Note: if you want to add assets in your mod, rename their extension to `.bin` and add them to the `buildList.txt`. This will ensure that the file will be used when hot-reloading and building the iso, but it won't be fed to the compiler.

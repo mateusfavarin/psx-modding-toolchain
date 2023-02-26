@@ -67,8 +67,9 @@ def make_mod(mod_folder: str) -> None:
         copy_file(BAT_PATH, mod_folder + BAT_FILE)
     else:
         copy_file(SH_PATH, mod_folder + SH_FILE)
-    with open(mod_folder + "buildList.txt", "w") as _:
-        pass
+    buffer = "// version, section, address, offset, path, binary name [optional]\n"
+    with open(mod_folder + "buildList.txt", "w") as file:
+        file.write(buffer)
 
 class Version():
     def __init__(self, data, symbols, dst_path) -> None:
