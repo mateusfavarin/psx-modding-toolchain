@@ -155,8 +155,6 @@ class Main:
         self.clean_files()
         curr_dir = os.getcwd() + "/"
         for dep in self.compilation_dep:
-            print(dep)
-            input()
             os.chdir(dep)
             self.clean_files()
         os.chdir(curr_dir)
