@@ -78,6 +78,7 @@ class Mkpsxiso:
         while build_lists:
             prefix = build_lists.pop(0)
             bl = prefix + COMPILE_LIST
+            free_sections()
             with open(bl, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
@@ -167,7 +168,6 @@ class Mkpsxiso:
                     modded_stream.close()
                 if iso_changed:
                     xml_tree.write(xml)
-            free_sections()
 
         return iso_changed
 

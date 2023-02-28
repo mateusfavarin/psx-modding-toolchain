@@ -121,6 +121,7 @@ class Redux:
         while build_lists:
             prefix = build_lists.pop(0)
             bl = prefix + COMPILE_LIST
+            free_sections()
             with open(bl, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
@@ -156,7 +157,6 @@ class Redux:
                     else:
                         print("\n[Redux - Web Server] error injecting " + bin + "\n")
                     file.close()
-            free_sections()
 
     def inject_textures(self, backup: bool, restore: bool) -> None:
         url = self.url + "/api/v1/gpu/vram/raw"

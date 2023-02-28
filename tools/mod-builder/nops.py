@@ -25,6 +25,7 @@ class Nops:
         while build_lists:
             prefix = build_lists.pop(0)
             bl = prefix + COMPILE_LIST
+            free_sections()
             with open(bl, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
@@ -46,7 +47,6 @@ class Nops:
                         print("\n[NoPS-py] ERROR: " + bin + " not found.\n")
                         continue
                     self.fire_command("/bin " + hex(cl.address) + " " + bin)
-            free_sections()
 
     def hot_reload(self) -> None:
         if not check_compile_list():

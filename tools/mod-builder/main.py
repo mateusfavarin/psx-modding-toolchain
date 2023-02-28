@@ -105,6 +105,7 @@ class Main:
         make = Makefile(game_syms.get_build_id(), game_syms.get_files())
         dependencies = []
         # parsing compile list
+        free_sections()
         with open(COMPILE_LIST, "r") as file:
             for line in file:
                 cl = CompileList(line, game_syms, "./")
@@ -116,7 +117,6 @@ class Main:
             intro_msg = "[Compile-py] Would you like to continue to compilation process?\n\n1 - Yes\n2 - No\n"
             error_msg = "ERROR: Wrong option. Please type a number from 1-2.\n"
             if request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 2:
-                free_sections()
                 return
         if make.build_makefile():
             if make.make():
@@ -127,7 +127,6 @@ class Main:
                 input()
                 with open(ABORT_PATH, "w") as _:
                     pass
-        free_sections()
         curr_dir = os.getcwd() + "/"
         if root:
             self.compilation_dep.clear()
