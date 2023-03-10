@@ -118,9 +118,10 @@ class CompileList:
             self.ignore = True
             return
 
-        if (self.address != 0) and (self.address != -1) and ((self.address < self.min_addr) or (self.address > self.max_addr)):
-            error_print("\n[BuildList-py] ERROR: address specified is not in the [" + hex(self.min_addr) + ", " + hex(self.max_addr) + "] range.")
-            error_print("[BuildList-py] at line " + str(line_count[0]) + ": " + self.original_line + "\n")
+        if (self.address != 0) and ((self.address < self.min_addr) or (self.address > self.max_addr)):
+            if self.address != -1:
+                error_print("\n[BuildList-py] ERROR: address specified is not in the [" + hex(self.min_addr) + ", " + hex(self.max_addr) + "] range.")
+                error_print("[BuildList-py] at line " + str(line_count[0]) + ": " + self.original_line + "\n")
             self.ignore = True
             return
 
