@@ -86,6 +86,17 @@ class Main:
         error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(self.num_options) + ".\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
 
+    def abort_compilation(self, root: bool, warning: bool) -> None:
+        if warning:
+            print("[Compile-py] Aborting ongoing compilations.")
+            cli_pause()
+        if root:
+            delete_file(RECURSIVE_COMP_PATH)
+            return
+        else:
+            with open(ABORT_PATH, "w") as _:
+                return
+
     def compile(self) -> None:
         if os.path.isfile(ABORT_PATH):
             return # Abort ongoing compilation chain due to an error that occured
@@ -98,9 +109,8 @@ class Main:
                 root = True
         else:
             with open(RECURSIVE_COMP_PATH, "r") as file:
-                # if the file was already compiled
                 if MOD_NAME in file.readline().split():
-                    return
+                    return # checking whether the mod was already compiled
         game_syms = Syms()
         make = Makefile(game_syms.get_build_id(), game_syms.get_files())
         dependencies = []
@@ -117,26 +127,15 @@ class Main:
             intro_msg = "[Compile-py] Would you like to continue to compilation process?\n\n1 - Yes\n2 - No\n"
             error_msg = "ERROR: Wrong option. Please type a number from 1-2.\n"
             if request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 2:
-                if root:
-                    delete_file(RECURSIVE_COMP_PATH)
-                    return
-                else:
-                    with open(ABORT_PATH, "w") as _:
-                        return
-
+                self.abort_compilation(root=root, warning=False)
         if make.build_makefile():
             if make.make():
                 with open(RECURSIVE_COMP_PATH, "a") as file:
                     file.write(MOD_NAME + " ")
             else:
-                print("[Compile-py] Aborting ongoing compilations. Please press enter to continue.")
-                input()
-                if root:
-                    delete_file(RECURSIVE_COMP_PATH)
-                    return
-                else:
-                    with open(ABORT_PATH, "w") as _:
-                        return
+                self.abort_compilation(root=root, warning=True)
+        else:
+            self.abort_compilation(root=root, warning=True)
         curr_dir = os.getcwd() + "/"
         for dep in dependencies:
             os.chdir(dep)
