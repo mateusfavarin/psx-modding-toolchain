@@ -113,7 +113,7 @@ class CompileList:
             self.section_name = self.get_section_name_from_filepath(self.source[0])
 
         extension = self.source[0].rsplit(".", 1)[1]
-        if not (extension.lower() in ["c", "s"]):
+        if not (extension.lower() in ["c", "s", "cpp", "cc"]):
             self.is_bin = True
             self.ignore = True
             return

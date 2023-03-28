@@ -2,7 +2,7 @@ from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
 from redux import Redux
-from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_FILE, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file, rename_psyq_sections, get_distance_to_file
+from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_FILE, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, check_compile_list, check_prerequisite_files, create_directory, delete_directory, delete_file, rename_psyq_sections, get_distance_to_file
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
@@ -19,8 +19,8 @@ class Main:
         self.redux = Redux()
         self.mkpsxiso = Mkpsxiso()
         self.nops = Nops()
-        self.redux.load_config()
         self.nops.load_config()
+        self.redux.load_config()
         self.actions = {
             1   :   self.compile,
             2   :   self.clean,
@@ -44,15 +44,17 @@ class Main:
         self.num_options = len(self.actions)
         self.window_title = GAME_NAME + " - " + MOD_NAME
         self.python = str()
+        if IS_WINDOWS_OS:
+            self.python = "python "
+        else:
+            self.python = "python3 "
         self.update_title()
 
     def update_title(self):
-        if sys.platform == "win32":
+        if IS_WINDOWS_OS:
             os.system("title " + self.window_title)
-            self.python = "python "
         else:
             os.system('echo -n -e "\\033]0;' + self.window_title + '\\007"')
-            self.python = "python3 "
 
     def get_options(self) -> int:
         intro_msg = (
