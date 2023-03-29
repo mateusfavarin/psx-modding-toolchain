@@ -149,7 +149,7 @@ class Redux:
                     if not cl.should_build():
                         continue
                     bin = cl.get_output_name()
-                    backup_bin = BACKUP_FOLDER + "redux_" + cl.section_name + ".bin"
+                    backup_bin = prefix + BACKUP_FOLDER + "redux_" + cl.section_name + ".bin"
                     offset = cl.address & 0xFFFFFFF
                     if not os.path.isfile(bin):
                         print("\n[Redux-py] ERROR: " + bin + " not found.\n")
