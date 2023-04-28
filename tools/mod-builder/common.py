@@ -189,6 +189,8 @@ def is_number(s: str) -> bool:
     if len(s) > 2 and s[:2] == "0x":
         s = s[2:]
         is_hex = True
+    if len(s) == 0:
+        return False
     for char in s:
         if not ((char.isdigit()) or (is_hex and char.upper() in HEXDIGITS)):
             return False

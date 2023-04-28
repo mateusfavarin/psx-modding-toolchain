@@ -11,7 +11,6 @@ from clut import clear_cluts, dump_cluts
 from c import export_as_c
 
 import os
-import sys
 import logging
 
 class Main:

@@ -40,12 +40,12 @@ powershell -c "& { iwr -UseBasicParsing https://raw.githubusercontent.com/grumpy
 ```
 Then, open a new command prompt, and type the following:
 ```
-mips install 12.1.0
+mips install 13.1.0
 ```
-As an alternative, you can download the toolchain directly [here](https://static.grumpycoder.net/pixel/mips/g++-mipsel-none-elf-12.1.0.zip), and then add the `bin/` folder to your `PATH`.
+As an alternative, you can download the toolchain directly [here](https://static.grumpycoder.net/pixel/mips/g++-mipsel-none-elf-13.1.0.zip), and then add the `bin/` folder to your `PATH`.
 
 ##### Linux
-Compile the latest version of gcc `mipsel-none-elf` using [this script](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/linux-mips), or download the pre-compiled binaries [here](https://drive.google.com/file/d/1VTCPRpriwPS5wkLVeDfx5dAXzUB1gAoa/view?usp=share_link). Make sure that you added the `bin/` folder to your `$PATH`.
+Compile the latest version of gcc `mipsel-none-elf` using [this script](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/linux-mips), or download the pre-compiled binaries [here](https://drive.google.com/file/d/1VTCPRpriwPS5wkLVeDfx5dAXzUB1gAoa/view?usp=share_link) (outdated, v12.2.0). Make sure that you added the `bin/` folder to your `$PATH`.
 
 ##### MacOS
 You'll need [brew](https://brew.sh/), and then run:
