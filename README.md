@@ -24,6 +24,7 @@ Open the command prompt and install the dependencies:
 ```
 pip install requests
 pip install opencv-python
+pip install pymkpsxiso
 pip install pyxdelta
 ```
 
@@ -67,11 +68,6 @@ In order to setup the emulator, you'll need to download [PCSX-Redux](https://git
 [x] Enable GDB Server
 [x] Enable Web Server
 ```
-
-#### Mkpsxiso
-Mkpsxiso is an ISO disc image maker written specifically for PlayStation development. This project uses Mkpsxiso in order to automate the process of overwriting existing data and adding new game files to the disc.
-
-You can download the latest release [here](https://github.com/Lameguy64/mkpsxiso/releases), and then set the `bin/` folder to your `PATH`.
 
 #### NoPS
 NotPSXSerial, or NoPS for short, is a Serial/TTY suite for Unirom 8 featuring kernel-resident debugging, cart/EEPROM flasher, .exe/.elf upload, memcard tools, peeks, pokes, dumps and bugs. This project is integrates NoPS in order to hot-reload code directly in your PS1.

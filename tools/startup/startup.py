@@ -106,12 +106,6 @@ class Version():
         os.system("dumpsxiso -x " + extract_folder + " -s " + xml + " " + game_dst)
         return extract_folder
 
-    def contents_to_dict(self, extract_folder: str) -> None:
-        if not os.path.isdir(extract_folder):
-            print("WARNING: Could not extract the contents of the game.\n")
-            print("Make sure that you have mkpsxiso/dumpsxiso installed to your PATH.")
-            return
-
     def to_dict(self) -> dict:
         d = dict()
         inner_dict = dict()

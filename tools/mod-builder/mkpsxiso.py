@@ -9,6 +9,7 @@ import shutil
 import os
 import importlib
 import pyxdelta
+import pymkpsxiso
 
 MB = 1024 * 1024
 
@@ -55,7 +56,7 @@ class Mkpsxiso:
             has_iso = self.find_iso(gv)
         rom_path = ISO_PATH + gv.rom_name
         create_directory(extract_folder)
-        os.system("dumpsxiso -x " + extract_folder + " -s " + xml + " " + rom_path)
+        pymkpsxiso.dump(rom_path, extract_folder, xml)
         self.plugin.extract(self.python_path + PLUGIN_PATH, self.python_path + extract_folder + "/")
 
     def abort_build_request(self) -> bool:
@@ -218,7 +219,7 @@ class Mkpsxiso:
         if self.patch_iso(gv.version, gv.build_id, build_files_folder, modified_rom_name, new_xml):
             print("Building iso...")
             self.plugin.build(self.python_path + PLUGIN_PATH, self.python_path + build_files_folder + "/")
-            os.system("mkpsxiso -y -q -o " + build_bin + " -c " + build_cue + " " + new_xml)
+            pymkpsxiso.make(build_bin, build_cue, new_xml)
             print("Build completed.")
         else:
             print("\n[ISO-py] WARNING: No files changed. ISO building skipped.\n")
