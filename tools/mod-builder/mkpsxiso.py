@@ -8,6 +8,7 @@ import xml.etree.ElementTree as et
 import shutil
 import os
 import importlib
+import pyxdelta
 
 MB = 1024 * 1024
 
@@ -233,17 +234,11 @@ class Mkpsxiso:
             return
         if not os.path.isfile(modded_game):
             print("\n[ISO-py] ERROR: couldn't find " + modded_game)
-            print("Make sure that you compiled and built your mod before trying to generate a PPF patch.\n")
+            print("Make sure that you compiled and built your mod before trying to generate a xdelta patch.\n")
             return
         print("Generating xdelta patch...")
-        command = os.getcwd().replace("\\", "/") + "/" + TOOLS_PATH + "xdelta/xdelta3.exe"
-        if not os.path.isfile(command):
-            print("\n[ISO-py] ERROR: xdelta not found. Make sure to download xdelta https://github.com/jmacd/xdelta-gpl/releases/tag/v3.0.11")
-            print("rename it to xdelta3, then place it in tools/xdelta.\n")
         output = ISO_PATH + mod_name + ".xdelta"
-        delete_file(output)
-        flags = " -S none -s " + original_game + " " + modded_game + " " + output
-        os.system(command + flags)
+        pyxdelta.run(original_game, modded_game, output)
         print(output + " generated!")
 
     def clean(self, all=False) -> None:

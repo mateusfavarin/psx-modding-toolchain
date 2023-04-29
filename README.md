@@ -24,6 +24,7 @@ Open the command prompt and install the dependencies:
 ```
 pip install requests
 pip install opencv-python
+pip install pyxdelta
 ```
 
 ## Getting Started
