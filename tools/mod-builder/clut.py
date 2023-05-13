@@ -1,3 +1,5 @@
+from PIL import Image as PILImage
+
 cluts = []
 num_clut = [0]
 
@@ -36,6 +38,15 @@ class CLUT:
         if self.valid:
             return self.color_offset[psx_color]
         return -1
+
+    def add_indexed_colors(self, img: PILImage) -> None:
+        pal = img.getpalette("RGBA")
+        for col in range(0, len(pal), 4):
+            r = pal[col]
+            g = pal[col+1]
+            b = pal[col+2]
+            a = pal[col+3]
+            self.colors.append(rgb2psx(r, g, b, a))
 
     def cmp_coords(self, x: int, y: int) -> bool:
         return (self.x == x * 16) and (self.y == y)

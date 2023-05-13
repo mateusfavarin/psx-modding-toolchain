@@ -4,6 +4,8 @@ import cv2
 
 import os
 
+from PIL import Image as PILImage
+
 imgs = []
 
 class Image:
@@ -25,31 +27,59 @@ class Image:
         self.h = int(filename[6])
         self.clut = get_clut(int(filename[3]), int(filename[4]), self.mode)
         self.img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        self.pil_img = PILImage.open(path)
+        if self.pil_img.mode == "P":
+            self.pil_img = self.pil_img.convert("PA")
         self.psx_img = bytearray()
         self.img_len = 0
         self.output_path = None
 
     def img2psx(self) -> None:
-        for row in self.img:
-            if self.mode == 4:
-                for i in range(0, len(row), 2):
-                    px1 = self.clut.get_offset(row[i])
-                    px2 = self.clut.get_offset(row[i + 1])
-                    if px1 == -1 or px2 == -1:
-                        return
-                    px = (px2 << 4) | px1
-                    self.psx_img.append(px)
-            elif self.mode == 8:
-                for px in row:
-                    px = self.clut.get_offset(px)
-                    if px == -1:
-                        return
-                    self.psx_img.append(px)
-            elif self.mode == 16:
-                for px in row:
-                    px = rgb2psx(px[2], px[1], px[0], px[3])
-                    self.psx_img.append(px & 0xFF)
-                    self.psx_img.append((px >> 8) & 0xFF)
+        count = 0 #lol
+        if self.pil_img.mode != "PA":
+            for row in self.img:
+                if self.mode == 4:
+                    for i in range(0, len(row), 2):
+                        px1 = self.clut.get_offset(row[i])
+                        px2 = self.clut.get_offset(row[i + 1])
+                        if px1 == -1 or px2 == -1:
+                            return
+                        px = (px2 << 4) | px1
+                        self.psx_img.append(px)
+                elif self.mode == 8:
+                    for px in row:
+                        px = self.clut.get_offset(px)
+                        if px == -1:
+                            return
+                        self.psx_img.append(px)
+                elif self.mode == 16:
+                    for px in row:
+                        px = rgb2psx(px[2], px[1], px[0], px[3])
+                        self.psx_img.append(px & 0xFF)
+                        self.psx_img.append((px >> 8) & 0xFF)
+        else:
+            for row in self.img:
+                if self.mode == 4:
+                    for i in range(0, len(row), 2):
+                        px1 = list(self.pil_img.getdata(0))[count]
+                        px2 = list(self.pil_img.getdata(0))[count+1]
+                        count = count + 2
+                        if px1 == -1 or px2 == -1:
+                            return
+                        px = (px2 << 4) | px1
+                        self.psx_img.append(px)
+                elif self.mode == 8:
+                    for px in row:
+                        px = list(self.pil_img.getdata(0))[count]
+                        count = count + 1
+                        if px == -1:
+                            return
+                        self.psx_img.append(px)
+                elif self.mode == 16:
+                    for px in row:
+                        px = rgb2psx(px[2], px[1], px[0], px[3])
+                        self.psx_img.append(px & 0xFF)
+                        self.psx_img.append((px >> 8) & 0xFF)
 
     def set_path(self, path: str) -> None:
         self.output_path = path
@@ -122,4 +152,6 @@ def create_images(directory: str) -> int:
                 if img.is_valid():
                     imgs.append(img)
                     img.img2psx()
+                    if img.pil_img.mode == "PA":
+                        img.clut.add_indexed_colors(img.pil_img)
     return total
