@@ -1,3 +1,7 @@
+"""
+TODO: Replace with Click
+"""
+
 import _files # check_file, delete_file, create_directory, delete_directory
 from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, TOOLS_PATH, request_user_input, cli_pause, get_build_id
 from game_options import game_options
@@ -5,12 +9,16 @@ from disc import Disc
 from compile_list import CompileList, free_sections
 from syms import Syms
 
-import xml.etree.ElementTree as et
-import shutil
-import os
 import importlib
+import logging
+import os
+import pathlib
 import pyxdelta
 import pymkpsxiso
+import shutil
+import xml.etree.ElementTree as et
+
+logger = logging.getLogger(__name__)
 
 MB = 1024 * 1024
 
@@ -26,16 +34,15 @@ shutil.copyfileobj = _copyfileobj_patched
 
 class Mkpsxiso:
     def __init__(self) -> None:
-        path = os.path.abspath(PLUGIN_PATH + "plugin.py")
+        path = (PLUGIN_PATH / "plugin.py").resolve() # absolute
         spec = importlib.util.spec_from_file_location("plugin", path)
         self.plugin = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.plugin)
-        self.python_path = os.getcwd().replace("\\", "/") + "/"
+        self.python_path = pathlib.Path.cwd()
 
     def find_iso(self, gv) -> bool:
-        if (not os.path.isfile(ISO_PATH + gv.rom_name)):
-            print("ERROR:")
-            print(ISO_PATH + gv.rom_name + " not found.")
+        if not (ISO_PATH / gv.rom_name).exists():
+            logger.exception(f"{ISO_PATH / gv.rom_name} not found.")
             print("Please insert your " + gv.version + " game in the " + ISO_PATH + " directory,")
             print("and rename it to " + gv.rom_name)
             return False
@@ -58,7 +65,7 @@ class Mkpsxiso:
         rom_path = ISO_PATH + gv.rom_name
         _files.create_directory(extract_folder)
         pymkpsxiso.dump(rom_path, extract_folder, xml)
-        self.plugin.extract(self.python_path + PLUGIN_PATH, self.python_path + extract_folder + "/")
+        self.plugin.extract(self.python_path / PLUGIN_PATH, self.python_path / (extract_folder + "/"))
 
     def abort_build_request(self) -> bool:
         intro_msg = (
@@ -80,7 +87,7 @@ class Mkpsxiso:
         build_lists = ["./"]
         while build_lists:
             prefix = build_lists.pop(0)
-            bl = prefix + COMPILE_LIST
+            bl = pathlib.Path(prefix) / COMPILE_LIST # TODO: Double check
             free_sections()
             with open(bl, "r") as file:
                 for line in file:
@@ -107,8 +114,8 @@ class Mkpsxiso:
 
                         # checking whether the original file exists and retrieving its size
                         game_file = build_files_folder + df.physical_file
-                        if not os.path.isfile(game_file):
-                            print("\n[ISO-py] ERROR: " + game_file + " not found.\n")
+                        if not pathlib.Path(game_file).exists():
+                            logger.exeption(f"{game_file} not found.")
                             if self.abort_build_request():
                                 return False
                             continue
@@ -219,7 +226,7 @@ class Mkpsxiso:
         print("Patching files...")
         if self.patch_iso(gv.version, gv.build_id, build_files_folder, modified_rom_name, new_xml):
             print("Building iso...")
-            self.plugin.build(self.python_path + PLUGIN_PATH, self.python_path + build_files_folder + "/")
+            self.plugin.build(self.python_path / PLUGIN_PATH, self.python_path / (build_files_folder + "/"))
             pymkpsxiso.make(build_bin, build_cue, new_xml)
             print("Build completed.")
         else:
@@ -227,35 +234,36 @@ class Mkpsxiso:
 
     def xdelta(self) -> None:
         gv = self.ask_user_for_version()
-        original_game = ISO_PATH + gv.rom_name
+        original_game = ISO_PATH / gv.rom_name
         mod_name = gv.rom_name.split(".")[0] + "_" + MOD_NAME
-        modded_game = ISO_PATH + mod_name + ".bin"
-        if not os.path.isfile(original_game):
-            print("\n[ISO-py] ERROR: couldn't find " + original_game)
-            print("Make sure to put your original game in the " + ISO_PATH + " folder.\n")
+        modded_game = ISO_PATH / (mod_name + ".bin")
+        if not original_game.exists():
+            logger.exception(f"Couldn't find {original_game}")
+            print(f"Make sure to put your original game in the {ISO_PATH} folder.\n")
             return
-        if not os.path.isfile(modded_game):
-            print("\n[ISO-py] ERROR: couldn't find " + modded_game)
+        if not modded_game.exists():
+            logger.exception(f"Couldn't find {modded_game}")
             print("Make sure that you compiled and built your mod before trying to generate a xdelta patch.\n")
             return
         print("Generating xdelta patch...")
-        output = ISO_PATH + mod_name + ".xdelta"
+        output = ISO_PATH / (mod_name + ".xdelta")
         pyxdelta.run(original_game, modded_game, output)
-        print(output + " generated!")
+        logger.info(f"{output} generated!")
 
     def clean(self, all=False) -> None:
         for version in game_options.get_version_names():
             gv = game_options.get_gv_by_name(version)
             rom_name = gv.rom_name.split(".")[0]
             modified_rom_name = rom_name + "_" + MOD_NAME
-            build_files_folder = ISO_PATH + modified_rom_name
+            build_files_folder = ISO_PATH / modified_rom_name
             build_cue = build_files_folder + ".cue"
             build_bin = build_files_folder + ".bin"
             build_xml = build_files_folder + ".xml"
             build_xdelta = build_files_folder + ".xdelta"
             if all:
-                extract_folder = ISO_PATH + rom_name
-                extract_xml = extract_folder + ".xml"
+                extract_xml = ISO_PATH / (rom_name + ".xml")
+                extract_folder = extract_xml.stem
+
                 _files.delete_directory(extract_folder)
                 _files.delete_file(extract_xml)
             _files.delete_directory(build_files_folder)
