@@ -1,5 +1,5 @@
 from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, TOOLS_PATH, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file, get_build_id
-import _files # create_directory, delete_file, delete_directory
+import _files # check_file, delete_file, create_directory, delete_directory
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -201,7 +201,7 @@ class Mkpsxiso:
         if only_extract:
             self.extract(gv, extract_folder, xml)
             return
-        if not check_compile_list():
+        if not _files.check_file(COMPILE_LIST):
             print("\n[ISO-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         if not os.path.isfile(xml):

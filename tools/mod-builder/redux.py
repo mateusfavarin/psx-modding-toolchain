@@ -1,3 +1,4 @@
+import _files # check_file
 from syms import Syms
 from compile_list import CompileList, free_sections
 from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, MOD_NAME, request_user_input, get_build_id, check_compile_list, cli_pause
@@ -221,7 +222,7 @@ class Redux:
                     file.close()
 
     def hot_reload(self) -> None:
-        if not check_compile_list():
+        if not _files.check_file(COMPILE_LIST):
             print("\n[Redux-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         is_running = bool()

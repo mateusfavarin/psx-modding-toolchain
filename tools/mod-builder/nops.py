@@ -1,3 +1,4 @@
+import _files # check_file
 from syms import Syms
 from compile_list import CompileList, free_sections
 from common import COMPILE_LIST, SETTINGS_PATH, BACKUP_FOLDER, get_build_id, request_user_input, check_compile_list
@@ -49,7 +50,7 @@ class Nops:
                     self.fire_command("/bin " + hex(cl.address) + " " + bin)
 
     def hot_reload(self) -> None:
-        if not check_compile_list():
+        if not _files.check_file(COMPILE_LIST):
             print("\n[NoPS-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         intro_msg = (
@@ -66,7 +67,7 @@ class Nops:
         self.fire_command("/cont")
 
     def restore(self) -> None:
-        if not check_compile_list():
+        if not _files.check_file(COMPILE_LIST):
             print("\n[NoPS-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         self.fire_command("/halt")

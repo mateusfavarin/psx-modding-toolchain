@@ -1,5 +1,9 @@
 """
 Ensures reproducibility amongst the paths
+
+Arrange
+Action
+Assert
 """
 import pytest
 
@@ -7,6 +11,7 @@ import _files
 cases_file = (
     ("common.py", True),
     ("../../games/Example_CrashTeamRacing/config.json", True),
+    ("buildList.txt", True), # common.COMPILE_LIST
     ("fake-file.txt", False)
 )
 @pytest.mark.parametrize("fname, expected", cases_file)

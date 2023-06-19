@@ -1,4 +1,4 @@
-import _files # check_files, create_directory, delete_file, delete_directory
+import _files # check_file, check_files, delete_file, create_directory, delete_directory
 from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
@@ -100,7 +100,7 @@ class Main:
     def compile(self) -> None:
         if os.path.isfile(ABORT_PATH):
             return # Abort ongoing compilation chain due to an error that occured
-        if not check_compile_list():
+        if not _files.check_file(COMPILE_LIST):
             print("\n[Compile-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         root = False
