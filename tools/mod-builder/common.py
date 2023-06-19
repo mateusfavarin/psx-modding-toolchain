@@ -1,6 +1,5 @@
 import copy
 import os
-import shutil
 import sys
 
 remaining_args = copy.deepcopy(sys.argv[1:])
@@ -103,15 +102,6 @@ def rename_psyq_sections() -> None:
     with open(PSYQ_RENAME_CONFIRM_FILE, "w"):
         pass
     print("[Common-py] PSYQ sections renamed successfully.\n")
-
-
-def delete_directory(dirname: str) -> None:
-    if os.path.isdir(dirname):
-        try:
-            shutil.rmtree(dirname)
-        except Exception:
-            print("\n[Common-py] ERROR: Cannot delete folder " + dirname)
-            print("Please make sure that no external processes are accessing files in the folder.\n")
 
 def request_user_input(first_option: int, last_option: int, intro_msg: str, error_msg: str) -> int:
     if using_cl_args and len(remaining_args) == 0:

@@ -1,4 +1,4 @@
-import _files # check_files, create_directory, delete_file
+import _files # check_files, create_directory, delete_file, delete_directory
 from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
@@ -148,10 +148,13 @@ class Main:
             self.update_title()
 
     def clean(self) -> None:
-        delete_directory(DEBUG_FOLDER)
-        delete_directory(BACKUP_FOLDER)
-        delete_directory(OUTPUT_FOLDER)
-        delete_directory(TEXTURES_OUTPUT_FOLDER)
+        """
+        TODO: rename method to clean_files for explicit
+        """
+        _file.delete_directory(DEBUG_FOLDER)
+        _file.delete_directory(BACKUP_FOLDER)
+        _file.delete_directory(OUTPUT_FOLDER)
+        _file.delete_directory(TEXTURES_OUTPUT_FOLDER)
         for file in COMPILATION_RESIDUES:
             _files.delete_file(file)
 

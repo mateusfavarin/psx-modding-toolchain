@@ -1,5 +1,5 @@
 from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, TOOLS_PATH, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file, get_build_id
-import _files # create_directory, delete_file
+import _files # create_directory, delete_file, delete_directory
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -209,7 +209,7 @@ class Mkpsxiso:
         modified_rom_name = rom_name + "_" + MOD_NAME
         build_files_folder = ISO_PATH + modified_rom_name
         new_xml = build_files_folder + ".xml"
-        delete_directory(build_files_folder)
+        _files.delete_directory(build_files_folder)
         print("Copying files...")
         shutil.copytree(extract_folder, build_files_folder)
         print("Converting XML...")
@@ -256,9 +256,9 @@ class Mkpsxiso:
             if all:
                 extract_folder = ISO_PATH + rom_name
                 extract_xml = extract_folder + ".xml"
-                delete_directory(extract_folder)
+                _files.delete_directory(extract_folder)
                 _files.delete_file(extract_xml)
-            delete_directory(build_files_folder)
+            _files.delete_directory(build_files_folder)
             _files.delete_file(build_bin)
             _files.delete_file(build_cue)
             _files.delete_file(build_xml)
