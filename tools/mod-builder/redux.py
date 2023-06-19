@@ -6,11 +6,14 @@ from image import get_image_list
 from clut import get_clut_list
 from game_options import game_options
 
-import os
-from subprocess import Popen, DETACHED_PROCESS
-
+import logging
 import json
+import os
+import pathlib
 import requests
+from subprocess import Popen, DETACHED_PROCESS # WINDOWS ONLY
+
+logger = logging.getLogger(__name__)
 
 REDUX_EXES = ["pcsx-redux", "pcsx-redux.exe", "PCSX-Redux.app"]
 
@@ -24,17 +27,15 @@ class Redux:
             self.port = str(data["port"])
             self.url = "http://127.0.0.1:" + str(self.port)
             self.found_redux = False
-            self.path = data["path"].replace("\\", "/")
-            if self.path[-1] != "/":
-                self.path += "/"
-            if not os.path.isdir(self.path):
-                print("\n[Redux-py] WARNING: Invalid redux directory: " + self.path)
+            self.path = data["path"] # pathlib object
+            if not _files.check_file(self.path):
+                print(f"\n[Redux-py] WARNING: Invalid redux directory: {self.path}")
                 return False
-            self.command = str()
-            for exe in REDUX_EXES:
-                cmd = self.path + exe
-                if os.path.isfile(cmd):
-                    self.command = cmd
+            self.command = []
+            for exe in REDUX_EXES: # find the REDUX file
+                cmd = self.path / exe
+                if _files.check_file(cmd):
+                    self.command.append[str(cmd)]
                     self.found_redux = True
                     return True
             return False
@@ -54,20 +55,22 @@ class Redux:
                 print("\n[Redux-py] Could not find a valid path to PCSX-Redux emulator.")
                 print("Please check your settings.json and provide a valid path to redux.\n")
                 cli_pause()
-            print("\n[Redux-py] Found PCSX-Redux executable at " + self.command + "\n")
-        curr_dir = os.getcwd() + "/"
+            logger.info(f"Found PCSX-Redux executable at {self.command}")
+        curr_dir = pathlib.Path.cwd()
         game_name = self.get_game_name()
         mod_name = game_name.split(".")[0] + "_" + MOD_NAME + ".bin"
-        generic_path = curr_dir + ISO_PATH
-        game_path = generic_path + mod_name
-        if not os.path.isfile(game_path):
+        generic_path = curr_dir / ISO_PATH
+        game_path = generic_path / mod_name
+        if not _files.check_file(game_path):
             # if modded game not found, fallback to original game
-            game_path = generic_path + game_name
-            if not os.path.isfile(game_path):
-                print("\n[Redux-py] WARNING: game file not found at " + game_path)
+            game_path = generic_path / game_name
+            if not _files.check_file(game_path):
                 print("PCSX-Redux will start without booting the iso.")
         os.chdir(self.path)
-        Popen(self.command + " -run -loadiso " + game_path, shell=True, start_new_session=True, close_fds=True, creationflags=DETACHED_PROCESS)
+        self.command.append("-run")
+        self.command.append("-loadiso")
+        self.command.append(str(game_path))
+        Popen(self.command, shell=False, start_new_session=True, close_fds=True, creationflags=DETACHED_PROCESS)
         os.chdir(curr_dir)
         self.load_map(warnings=False)
 

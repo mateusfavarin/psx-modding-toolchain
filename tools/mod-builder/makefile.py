@@ -221,7 +221,7 @@ class Makefile:
     def make(self) -> bool:
         """
         TODO: Creating all of these directories right now instead of upfront is bad design
-        TODO: 
+        TODO: Keep track of all files incase this fails to clean up after ourselves
         """
         _files.create_directory(OUTPUT_FOLDER)
         _files.create_directory(BACKUP_FOLDER)
