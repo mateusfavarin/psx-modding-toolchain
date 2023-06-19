@@ -118,7 +118,7 @@ class Makefile:
         with open(filename, "w") as file:
             file.write(buffer)
 
-        create_directory(DEBUG_FOLDER)
+        _files.create_directory(DEBUG_FOLDER)
         with open(TRIMBIN_OFFSET, "w") as file:
             file.write(offset_buffer)
 
@@ -208,10 +208,13 @@ class Makefile:
                     shutil.move(line[0], line[1])
 
     def make(self) -> bool:
-        create_directory(OUTPUT_FOLDER)
-        create_directory(BACKUP_FOLDER)
-        create_directory(OBJ_FOLDER)
-        create_directory(DEP_FOLDER)
+        """
+        TODO: Creating all of these directories right now instead of upfront is bad design
+        """
+        _files.create_directory(OUTPUT_FOLDER)
+        _files.create_directory(BACKUP_FOLDER)
+        _files.create_directory(OBJ_FOLDER)
+        _files.create_directory(DEP_FOLDER)
         self.restore_temp_files()
         cli_clear()
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")

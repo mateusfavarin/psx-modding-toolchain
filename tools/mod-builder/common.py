@@ -105,11 +105,6 @@ def rename_psyq_sections() -> None:
     print("[Common-py] PSYQ sections renamed successfully.\n")
 
 
-
-def create_directory(dirname: str) -> None:
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname)
-
 def delete_directory(dirname: str) -> None:
     if os.path.isdir(dirname):
         try:

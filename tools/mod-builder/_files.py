@@ -36,3 +36,11 @@ def delete_file(fname):
         is_successful = False
 
     return is_successful
+
+def create_directory(dirname):
+    """
+    TODO: Check if parents True produces intended result
+    """
+    path_dir = pathlib.Path(dirname)
+    path_dir.mkdir(exist_ok=True, parents=True)
+

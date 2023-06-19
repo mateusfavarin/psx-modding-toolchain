@@ -164,7 +164,7 @@ class Main:
         self.clean_pch()
 
     def replace_textures(self) -> None:
-        create_directory(TEXTURES_OUTPUT_FOLDER)
+        _files.create_directory(TEXTURES_OUTPUT_FOLDER)
         img_count = create_images(TEXTURES_FOLDER)
         if img_count == 0:
             print("\n[Image-py] WARNING: 0 images found. No textures were replaced.\n")
