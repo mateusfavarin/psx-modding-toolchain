@@ -14,19 +14,17 @@ Watch the demo:
 
 To discuss PSX development, hacking, and reverse engineering in general, please join the PSXDev Network Discord server: [![Discord](https://img.shields.io/discord/642647820683444236)](https://discord.gg/QByKPpH)
 
+## Setup
+
 ## Pre requisites
 ```
 python 3+
 ```
 Note: some python instalations might be incomplete. Make sure that you have installed `python`, `pip` and add them to your `PATH`.
 
-Open the command prompt and install the dependencies:
+Install the dependencies from the command line
 ```
-pip install requests
-pip install opencv-python
-pip install pymkpsxiso
-pip install pyxdelta
-pip install pillow
+$ pip install -r requirements.txt
 ```
 
 ## Getting Started
