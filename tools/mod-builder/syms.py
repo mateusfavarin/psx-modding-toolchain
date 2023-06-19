@@ -1,9 +1,13 @@
 from __future__ import annotations # to use type in python 3.7
 
+import _files # check_file
 from common import request_user_input, is_number
 from game_options import game_options
 
+import logging
 import os
+
+logger = logging.getLogger(__name__)
 
 class Syms():
     def __init__(self, build_id=None) -> None:
@@ -24,19 +28,17 @@ class Syms():
         self.version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         return game_options.get_gv_by_name(names[self.version - 1])
 
-    def parse_gcc_file(self, filename: str) -> None:
-        if not os.path.isfile(filename):
-            print("\n[Syms-py] ERROR: " + filename + " not found.\n")
+    def parse_gcc_file(self, fname: str) -> None:
+        if not _files.check_file(fname):
             return
-        with open(filename, "r") as file:
+        with open(fname, "r") as file:
             for line in file:
                 if line.strip() == "":
                     continue
                 original_line = line
                 line = [l.strip() for l in line.split("=")]
                 if len(line) != 2:
-                    print("\n[Syms-py] ERROR: syntax error in file: " + filename)
-                    print("[Syms-py] at line: " + original_line + "\n")
+                    logger.error(f"Syntax error in file: {fname} at line {original_line}")
                     continue
                 symbol = line[0]
                 address = line[1].split(";")[0].strip()

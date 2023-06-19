@@ -1,6 +1,7 @@
 """
 Parses the buildList.txt file line by line assuming a tabluar format 
 """
+import _files # check_file
 from common import COMMENT_SYMBOL, CONFIG_PATH, OUTPUT_FOLDER, MOD_PATH, is_number
 from syms import Syms
 
@@ -63,7 +64,7 @@ class CompileList:
                 if list_tokens[1][-1] != "/":
                     list_tokens[1] += "/"
                 self.path_build_list = MOD_PATH / list_tokens[1]
-                if self.path_build_list.exists():
+                if _files.check_file(self.path_build_list):
                     self.cl = True
                 else:
                     error_print(f"Mod directory not found at line {line_count[0]}: {self.path_build_list}\n")

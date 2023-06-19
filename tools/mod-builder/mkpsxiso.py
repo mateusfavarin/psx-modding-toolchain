@@ -41,8 +41,7 @@ class Mkpsxiso:
         self.python_path = pathlib.Path.cwd()
 
     def find_iso(self, gv) -> bool:
-        if not (ISO_PATH / gv.rom_name).exists():
-            logger.exception(f"{ISO_PATH / gv.rom_name} not found.")
+        if not _files.check_file(ISO_PATH / gv.rom_name):
             print("Please insert your " + gv.version + " game in the " + ISO_PATH + " directory,")
             print("and rename it to " + gv.rom_name)
             return False
@@ -114,8 +113,7 @@ class Mkpsxiso:
 
                         # checking whether the original file exists and retrieving its size
                         game_file = build_files_folder + df.physical_file
-                        if not pathlib.Path(game_file).exists():
-                            logger.exeption(f"{game_file} not found.")
+                        if not _files.check_file(game_file):
                             if self.abort_build_request():
                                 return False
                             continue
@@ -237,12 +235,10 @@ class Mkpsxiso:
         original_game = ISO_PATH / gv.rom_name
         mod_name = gv.rom_name.split(".")[0] + "_" + MOD_NAME
         modded_game = ISO_PATH / (mod_name + ".bin")
-        if not original_game.exists():
-            logger.exception(f"Couldn't find {original_game}")
-            print(f"Make sure to put your original game in the {ISO_PATH} folder.\n")
+        if not _files.check_file(original_game):
+            print(f"Make sure your original game is in {ISO_PATH}.\n")
             return
-        if not modded_game.exists():
-            logger.exception(f"Couldn't find {modded_game}")
+        if not _files.check_file(modded_game):
             print("Make sure that you compiled and built your mod before trying to generate a xdelta patch.\n")
             return
         print("Generating xdelta patch...")

@@ -107,13 +107,13 @@ class Main:
                 return
 
     def compile(self) -> None:
-        if ABORT_PATH.exists():
+        if _files.check_file(ABORT_PATH):
             return # Abort ongoing compilation chain due to an error that occured
         if not _files.check_file(COMPILE_LIST):
             logger.exception(f"{COMPILE_LIST} not found.")
             return
         root = False
-        if not RECURSIVE_COMP_PATH.exists():
+        if not _files.check_file(RECURSIVE_COMP_PATH):
             with open(RECURSIVE_COMP_PATH, "w") as _:
                 root = True
         else:

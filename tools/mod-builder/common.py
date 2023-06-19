@@ -25,7 +25,7 @@ def get_build_id(fname = "Makefile") -> int:
     Assumes only one set of CPPFLAGS
     """
     path_file = pathlib.Path(fname)
-    if not path_file.exists():
+    if not _files.check_file(path_file):
         return None
     with open(path_file, "r") as file:
         for line in file:

@@ -203,7 +203,7 @@ class Makefile:
 
     # Restoring the saved .o and .dep for faster compilation
     def restore_temp_files(self) -> None:
-        if os.path.isfile(COMP_SOURCE):
+        if _files.check_file(COMP_SOURCE):
             with open(COMP_SOURCE, "r") as file:
                 for line in file:
                     line = [l.strip() for l in line.split()]
