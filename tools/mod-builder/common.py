@@ -105,14 +105,6 @@ def rename_psyq_sections() -> None:
     print("[Common-py] PSYQ sections renamed successfully.\n")
 
 
-def check_prerequisite_files() -> bool:
-    status = check_file(COMPILE_LIST)
-    status = check_file(DISC_PATH) and status
-    status = check_file(SETTINGS_PATH) and status
-    if not status:
-        print("[Common-py] Please set up these prerequisite files before continuing.")
-
-    return status
 
 def create_directory(dirname: str) -> None:
     if not os.path.isdir(dirname):

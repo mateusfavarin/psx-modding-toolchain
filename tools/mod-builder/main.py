@@ -1,3 +1,4 @@
+import _files # check_files, create_directory, delete_file
 from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
@@ -179,7 +180,7 @@ class Main:
         print("\nDisassembly saved at " + DEBUG_FOLDER + "disasm.txt\n")
 
     def exec(self):
-        while not check_prerequisite_files():
+        while not _files.check_files([COMPILE_LIST, DISC_PATH, SETTINGS_PATH]):
             cli_pause()
         game_options.load_config()
         while True:
