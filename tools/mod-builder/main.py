@@ -120,14 +120,14 @@ class Main:
             with open(RECURSIVE_COMP_PATH, "r") as file:
                 if MOD_NAME in file.readline().split():
                     return # checking whether the mod was already compiled
-        game_syms = Syms()
-        make = Makefile(game_syms.get_build_id(), game_syms.get_files())
+        instance_symbols = Syms()
+        make = Makefile(instance_symbols.get_build_id(), instance_symbols.get_files())
         dependencies = []
         # parsing compile list
         free_sections()
         with open(COMPILE_LIST, "r") as file:
             for line in file:
-                cl = CompileList(line, game_syms, "./")
+                cl = CompileList(line, instance_symbols, "./")
                 if cl.is_cl():
                     dependencies.append(cl.bl_path)
                 if not cl.should_ignore():
@@ -150,7 +150,7 @@ class Main:
             os.chdir(dep)
             path_module = CONFIG_PATH.parents[1] / "tools" / "mod-builder" / "main.py"
             # use to use get_distance_to_file(False, CONFIG_FILE), same as CONFIG_PATH?
-            command = f"{self.python} {str(path_module)} 1 {game_syms.version}"
+            command = f"{self.python} {str(path_module)} 1 {instance_symbols.version}"
             os.system(command)
         os.chdir(curr_dir)
         if root:

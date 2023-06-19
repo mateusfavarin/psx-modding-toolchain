@@ -10,7 +10,7 @@ import os
 from subprocess import Popen, DETACHED_PROCESS
 
 import json
-import requests as r
+import requests
 
 REDUX_EXES = ["pcsx-redux", "pcsx-redux.exe", "PCSX-Redux.app"]
 
@@ -72,14 +72,14 @@ class Redux:
         self.load_map(warnings=False)
 
     def flush_cache(self) -> None:
-        response = r.post(self.url + "/api/v1/cpu/cache?function=flush")
+        response = requests.post(self.url + "/api/v1/cpu/cache?function=flush")
         if response.status_code == 200:
             print("Cache flushed.")
         else:
             print("\n[Redux - Web Server] error flushing cache.\n")
 
     def get_emulation_running_state(self) -> bool:
-        response = r.get(self.url + "/api/v1/execution-flow")
+        response = requests.get(self.url + "/api/v1/execution-flow")
         if response.status_code == 200:
             print("Retrieved emulation state.")
         else:
@@ -88,21 +88,21 @@ class Redux:
         return response.json()["running"]
 
     def pause_emulation(self) -> None:
-        response = r.post(self.url + "/api/v1/execution-flow?function=pause")
+        response = requests.post(self.url + "/api/v1/execution-flow?function=pause")
         if response.status_code == 200:
             print("Paused the emulator.")
         else:
             print("\n[Redux - Web Server] error pausing the emulator.\n")
 
     def resume_emulation(self) -> None:
-        response = r.post(self.url + "/api/v1/execution-flow?function=resume")
+        response = requests.post(self.url + "/api/v1/execution-flow?function=resume")
         if response.status_code == 200:
             print("Resumed the emulation.")
         else:
             print("\n[Redux - Web Server] error resuming the emulation.\n")
 
     def reset_map(self) -> None:
-        response = r.post(self.url + "/api/v1/assembly/symbols?function=reset")
+        response = requests.post(self.url + "/api/v1/assembly/symbols?function=reset")
         if response.status_code == 200:
             print("Successfully reset redux map symbols.")
         else:
@@ -116,7 +116,7 @@ class Redux:
             return
         file = open(REDUX_MAP_FILE, "rb")
         files = {"file": file}
-        response = r.post(self.url + "/api/v1/assembly/symbols?function=upload", files=files)
+        response = requests.post(self.url + "/api/v1/assembly/symbols?function=upload", files=files)
         if response.status_code == 200:
             print("Successfully loaded " + REDUX_MAP_FILE)
         else:
@@ -131,7 +131,7 @@ class Redux:
         url = self.url + "/api/v1/cpu/ram/raw"
         psx_ram = bytearray()
         if backup:
-            response = r.get(url)
+            response = requests.get(url)
             if response.status_code == 200:
                 psx_ram = response.content
                 print("Successfully retrieved a backup of the RAM.")
@@ -149,8 +149,8 @@ class Redux:
                         build_lists.append(cl.bl_path)
                     if not cl.should_build():
                         continue
-                    bin = cl.get_output_name()
-                    backup_bin = prefix + BACKUP_FOLDER + "redux_" + cl.section_name + ".bin"
+                    bin = cl.get_output_name() # pathlib object
+                    backup_bin = pathlib.Path(prefix) / BACKUP_FOLDER / ("redux_" + cl.section_name + ".bin")
                     offset = cl.address & 0xFFFFFFF
                     if not os.path.isfile(bin):
                         print("\n[Redux-py] ERROR: " + bin + " not found.\n")
@@ -168,7 +168,7 @@ class Redux:
                         size = os.path.getsize(bin)
                     file = open(bin, "rb")
                     files = {"file": file}
-                    response = r.post(url + "?offset=" + str(offset) + "&size=" + str(size), files=files)
+                    response = requests.post(url + "?offset=" + str(offset) + "&size=" + str(size), files=files)
                     if response.status_code == 200:
                         if restore:
                             print(bin + " successfully restored.")
@@ -182,7 +182,7 @@ class Redux:
         url = self.url + "/api/v1/gpu/vram/raw"
         vram_path = TEXTURES_OUTPUT_FOLDER + "vram.bin"
         if backup:
-            response = r.get(url)
+            response = requests.get(url)
             if response.status_code == 200:
                 vram = response.content
                 print("Successfully retrieved a backup of the VRAM.")
@@ -196,7 +196,7 @@ class Redux:
                 vram_height = 512
                 file = open(vram_path, "rb")
                 files = {"file": file}
-                response = r.post(url + "?x=" + str(0) + "&y=" + str(0) + "&width=" + str(vram_width) + "&height=" + str(vram_height), files=files)
+                response = requests.post(url + "?x=" + str(0) + "&y=" + str(0) + "&width=" + str(vram_width) + "&height=" + str(vram_height), files=files)
                 if response.status_code == 200:
                     print(vram_path + " successfully restored.")
                 else:
@@ -214,7 +214,7 @@ class Redux:
                 if path is not None:
                     file = open(path, "rb")
                     files = {"file": file}
-                    response = r.post(url + "?x=" + str(img.x) + "&y=" + str(img.y) + "&width=" + str(img.w) + "&height=" + str(img.h), files=files)
+                    response = requests.post(url + "?x=" + str(img.x) + "&y=" + str(img.y) + "&width=" + str(img.w) + "&height=" + str(img.h), files=files)
                     if response.status_code == 200:
                         print(path + " successfully injected.")
                     else:
