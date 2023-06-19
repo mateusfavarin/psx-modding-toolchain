@@ -1,6 +1,8 @@
+from __future__ import annotations # to use type in python 3.7
+
 from compile_list import CompileList
 import _files # create_directory, delete_file
-from common import request_user_input, rename_psyq_sections, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE, MOD_NAME
+from common import request_user_input, rename_psyq_sections, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, CONFIG_PATH, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE, MOD_NAME
 
 import re
 import json
@@ -165,7 +167,7 @@ class Makefile:
         buffer += "PCHS = $(GAMEINCLUDEDIR)" + self.pch + "\n"
         buffer += "TRIMBIN_OFFSET = $(MODDIR)" + TRIMBIN_OFFSET + "\n"
         buffer += "\n"
-        buffer += "include " + FOLDER_DISTANCE + "../common.mk\n"
+        buffer += f"include {str(CONFIG_PATH.parents[1] / 'common.mk')}\n"
 
         with open(MAKEFILE, "w") as file:
             file.write(buffer)

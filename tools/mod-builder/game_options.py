@@ -1,3 +1,5 @@
+from __future__ import annotations # to use type in python 3.7
+
 from common import SYMS_PATH, CONFIG_PATH
 
 import json
@@ -9,16 +11,21 @@ class GameVersion:
         self.syms_files = syms_files
         self.build_id = build_id
 
+
 class GameOptions:
     def __init__(self) -> None:
         self.versions_by_name = dict()
         self.versions_by_build_id = dict()
+        # hardcoded but doesn't change functionality
+        self.path_config = CONFIG_PATH
+        self.path_sym = SYMS_PATH
 
     def load_config(self):
         """
-        Just pass in the data directly to avoid trouble
+        TODO: Just pass in the data directly to avoid trouble
+        TODO: Just pass in the paths directly to avoid more trouble
         """
-        with open(CONFIG_PATH) as file:
+        with open(self.path_config) as file:
             data = json.load(file)
             versions = data["versions"]
             for ver in versions:
@@ -27,7 +34,7 @@ class GameOptions:
                 rom_name = ver_contents["name"]
                 syms_files = ver_contents["symbols"]
                 for i in range(len(syms_files)):
-                    syms_files[i] = SYMS_PATH / syms_files[i]
+                    syms_files[i] = self.path_sym / syms_files[i]
                 build_id = ver_contents["build_id"]
                 gv = GameVersion(version, rom_name, syms_files, build_id)
                 self.versions_by_name[version] = gv
@@ -49,4 +56,4 @@ class GameOptions:
             return self.versions_by_build_id[build_id]
         return None
 
-game_options = GameOptions()
+game_options = GameOptions() # why is this initialized here?

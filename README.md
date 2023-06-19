@@ -18,7 +18,7 @@ To discuss PSX development, hacking, and reverse engineering in general, please 
 
 ## Pre requisites
 ```
-python 3+
+python 3.7+
 ```
 Note: some python instalations might be incomplete. Make sure that you have installed `python`, `pip` and add them to your `PATH`.
 

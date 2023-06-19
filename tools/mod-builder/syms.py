@@ -1,3 +1,5 @@
+from __future__ import annotations # to use type in python 3.7
+
 from common import request_user_input, is_number
 from game_options import game_options
 

@@ -51,7 +51,7 @@ def cli_pause() -> None:
 IS_WINDOWS_OS = sys.platform == "win32"
 LOG_FILE = "crash.log"
 CONFIG_FILE = "config.json"
-CONFIG_PATH = _files.get_file_directory(fname = "config.json", folder = "games", max_iterations = 5)
+CONFIG_PATH = _files.get_file_directory(fname = "config.json", folder = "games")
 logger.debug(f"FOLDER_DISTANCE: {CONFIG_PATH}")
 logger.debug(f"CWD: {pathlib.Path.cwd()}")
 DISTANCE_LENGTH = str(CONFIG_PATH).count("/") + 1
