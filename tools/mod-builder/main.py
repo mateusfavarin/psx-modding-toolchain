@@ -9,7 +9,7 @@ from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
 from redux import Redux
-from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_FILE, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, rename_psyq_sections, DISC_PATH, SETTINGS_PATH, CONFIG_PATH
+from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_PATH, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, rename_psyq_sections, DISC_PATH, SETTINGS_PATH, CONFIG_PATH
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
