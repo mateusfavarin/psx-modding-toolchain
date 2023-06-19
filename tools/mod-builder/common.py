@@ -104,11 +104,6 @@ def rename_psyq_sections() -> None:
         pass
     print("[Common-py] PSYQ sections renamed successfully.\n")
 
-def check_file(filename: str) -> bool:
-    if not os.path.isfile(filename):
-        print("[Common-py] ERROR: no " + filename + " found.")
-        return False
-    return True
 
 def check_prerequisite_files() -> bool:
     status = check_file(COMPILE_LIST)
