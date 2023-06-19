@@ -21,7 +21,7 @@ class CompileList:
         self.ignore = False
         self.is_bin = False
         self.cl = False
-        self.bl_path = str()
+        self.path_build_list = None
         self.pch = str()
         self.min_addr = 0x80000000
         self.max_addr = 0x807FFFFF if self.is_8mb() else 0x801FFFFF
@@ -50,6 +50,8 @@ class CompileList:
                     line[1] += "/"
                 self.bl_path = MOD_PATH + line[1]
                 if os.path.isdir(self.bl_path):
+                self.path_build_list = MOD_PATH / list_tokens[1]
+                if self.path_build_list.exists():
                     self.cl = True
                 else:
                     error_print("\n[BuildList-py] ERROR: mod directory not found at line " + str(line_count[0]) + ": " + self.bl_path + "\n")
@@ -89,7 +91,7 @@ class CompileList:
                 for _, _, files in os.walk(directory):
                     folders[directory] = files
                     break
-            if directory.rsplit("/", 1)[-1] == OUTPUT_FOLDER and output_name in sections:
+            if directory.rsplit("/", 1)[-1] == str(OUTPUT_FOLDER) and output_name in sections:
                 self.source.append(directory + src[1])
             else:
                 if directory in folders:
@@ -134,6 +136,7 @@ class CompileList:
             sections[self.section_name] = True
 
     def get_section_name_from_filepath(self, filepath: str) -> str:
+        """ TODO: Get an example """
         return filepath.rsplit("/", 1)[-1].replace(".", "").replace("-", "_")
 
     def calculate_address_base(self, symbol: str, offset: int) -> int:
@@ -148,7 +151,7 @@ class CompileList:
     def get_output_name(self) -> str:
         if self.is_bin:
             return self.source[0]
-        return self.prefix + OUTPUT_FOLDER + self.section_name + ".bin"
+        return pathlib.Path(self.prefix) / OUTPUT_FOLDER / (self.section_name + ".bin")
 
     def should_ignore(self) -> bool:
         return self.ignore

@@ -2,6 +2,10 @@ from common import TEXTURES_FOLDER
 from image import create_images, clear_images, get_image_list
 from clut import clear_cluts, get_clut_list
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 RECT_SIZE = 8
 CHAR_SIZE = 1
 SHORT_SIZE = 2
