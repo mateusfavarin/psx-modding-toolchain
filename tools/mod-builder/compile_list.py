@@ -1,16 +1,26 @@
+"""
+Parses the buildList.txt file line by line assuming a tabluar format 
+"""
 from common import COMMENT_SYMBOL, CONFIG_PATH, OUTPUT_FOLDER, MOD_PATH, is_number
 from syms import Syms
 
 import json
+import logging
 import re
 import os
+import pathlib
+
+logger = logging.getLogger(__name__)
 
 sections = dict()
 line_count = [0]
 print_errors = [False]
 
 def error_print(error: str):
-    print(error)
+    """
+    TODO: Find out what print_errors is for
+    """
+    logger.error(error)
     print_errors[0] = True
 
 class CompileList:
@@ -33,34 +43,36 @@ class CompileList:
             data = json.load(file)["compiler"]
             return data["8mb"] == 1
 
-    def parse_line(self, line: str) -> None:
-        line = line.replace(COMMENT_SYMBOL, "," + COMMENT_SYMBOL + ",")
-        line = [l.strip() for l in line.split(",") if l.strip() != ""]
-        for i in range(len(line)):
-            if line[i] == COMMENT_SYMBOL:
-                if i == 0:
-                    line = []
+    def parse_line(self, string) -> None:
+        """
+        TODO: This does much more than just parse a line
+        """
+        string_p = string.replace(COMMENT_SYMBOL, f",{COMMENT_SYMBOL},")
+        list_tokens = [l.strip() for l in string_p.split(",") if l.strip() != ""]
+        # TODO: Prone to bugs as it's modifying the list as we iterate through it
+        for index, token in enumerate(list_tokens):
+            if token == COMMENT_SYMBOL:
+                if index == 0:
+                    list_tokens = []
                 else:
-                    line = line[:i]
+                    list_tokens = list_tokens[:index]
                 break
-        if len(line) < 5:
-            if len(line) == 2 and line[0] == "add":
-                line[1] = line[1].replace("\\", "/")
-                if line[1][-1] != "/":
-                    line[1] += "/"
-                self.bl_path = MOD_PATH + line[1]
-                if os.path.isdir(self.bl_path):
+        if len(list_tokens) < 5:
+            if len(list_tokens) == 2 and list_tokens[0] == "add":
+                list_tokens[1] = list_tokens[1].replace("\\", "/")
+                if list_tokens[1][-1] != "/":
+                    list_tokens[1] += "/"
                 self.path_build_list = MOD_PATH / list_tokens[1]
                 if self.path_build_list.exists():
                     self.cl = True
                 else:
-                    error_print("\n[BuildList-py] ERROR: mod directory not found at line " + str(line_count[0]) + ": " + self.bl_path + "\n")
-            if (not self.cl) and (len(line) > 0):
-                error_print("\n[BuildList-py] ERROR: wrong syntax at line " + str(line_count[0]) + ": " + self.original_line + "\n")
+                    error_print(f"Mod directory not found at line {line_count[0]}: {self.path_build_list}\n")
+            if (not self.cl) and (len(list_tokens) > 0):
+                error_print(f"Wrong syntax at line {line_count[0]}: {self.original_line}\n")
             self.ignore = True
             return
 
-        version = line[0]
+        version = list_tokens[0]
         if is_number(version):
             version = int(version, 0)
             if version != self.sym.get_build_id():
@@ -71,15 +83,15 @@ class CompileList:
                 self.ignore = True
                 return
 
-        self.game_file = line[1]
+        self.game_file = list_tokens[1]
         offset = 0
         try:
-            offset = eval(line[3])
+            offset = eval(list_tokens[3])
         except Exception:
-            error_print("\n[BuildList-py] ERROR: invalid arithmetic expression for offset at line " + str(line_count[0]) + ": " + self.original_line + "\n")
+            error_print("Invalid arithmetic expression for offset at line {line_count[0]}: {self.original_line}\n")
 
-        self.address = self.calculate_address_base(line[2], offset)
-        srcs = [l.strip() for l in line[4].split()]
+        self.address = self.calculate_address_base(list_tokens[2], offset)
+        srcs = [l.strip() for l in list_tokens[4].split()]
         self.source = list()
         folders = dict()
         for src in srcs:
@@ -100,17 +112,16 @@ class CompileList:
                             self.source.append(directory + file)
                 else:
                     error_print("\n[BuildList-py] WARNING: directory " + directory + " not found.")
-                    error_print("at line: " + str(line_count[0]) + ": " + self.original_line + "\n")
+                    error_print(f"at line: {line_count[0]}: {self.original_line}\n")
                     self.ignore = True
                     return
 
         if len(self.source) == 0:
-            error_print("\n[BuildList-py] WARNING: no file(s) found.")
-            error_print("at line: " + str(line_count[0]) + ": " + self.original_line + "\n")
+            error_print(f"\n[BuildList-py] WARNING: no file(s) found at line: {line_count[0]}: {self.original_line}\n")
             self.ignore = True
             return
-        if len(line) == 6:
-            self.section_name = line[5].split(".")[0]
+        if len(list_tokens) == 6:
+            self.section_name = list_tokens[5].split(".")[0]
         else:
             self.section_name = self.get_section_name_from_filepath(self.source[0])
 
@@ -122,15 +133,15 @@ class CompileList:
 
         if (self.address != 0) and ((self.address < self.min_addr) or (self.address > self.max_addr)):
             if self.address != -1:
-                error_print("\n[BuildList-py] ERROR: address specified is not in the [" + hex(self.min_addr) + ", " + hex(self.max_addr) + "] range.")
-                error_print("[BuildList-py] at line " + str(line_count[0]) + ": " + self.original_line + "\n")
+                error_print(f"address specified is not in the [{hex(self.min_addr)}, {hex(self.max_addr)}] range.")
+                error_print(f"at line {line_count[0]}: {self.original_line}\n")
             self.ignore = True
             return
 
         if self.section_name in sections:
             self.ignore = True
-            error_print("\n[BuildList-py] ERROR: binary filename already in use, please define another alias.")
-            error_print("[BuildList-py] at line " + str(line_count[0]) + ": " + self.original_line + "\n")
+            error_print("Binary filename already in use, please define another alias.")
+            error_print(f"at line {line_count[0]}: {self.original_line}\n")
             return
         else:
             sections[self.section_name] = True
@@ -145,7 +156,7 @@ class CompileList:
             return addr + offset
         if is_number(symbol):
             return int(symbol, 0) + offset
-        error_print("\n[BuildList-py] ERROR: undefined symbol: " + symbol + " at line: " + str(line_count[0]) + ": " + self.original_line + "\n")
+        error_print(f"Undefined symbol: {symbol} at line: {line_count[0]}: {self.original_line}\n")
         return -1
 
     def get_output_name(self) -> str:

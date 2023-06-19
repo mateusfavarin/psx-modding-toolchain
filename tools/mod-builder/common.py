@@ -94,13 +94,13 @@ GAME_NAME = pathlib.Path.cwd().parents[DISTANCE_LENGTH].name # not sure, number 
 logger.debug(f"GAME_NAME: {GAME_NAME}")
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
 
-def rename_psyq_sections() -> None:
+def rename_psyq_sections():
     sections = ["text", "data", "bss", "rdata", "sdata", "sbss", "note"]
     prefix = "mipsel-none-elf-"
     command = prefix + "objcopy"
     for section in sections:
-        command += " --rename-section ." + section + "=.psyq" + section
-    print("\n[Common-py] Renaming PSYQ sections...")
+        command += f" --rename-section .{section}=.psyq{section}"
+
     logger.info("Renaming PSYQ sections...")
     curr_directory = ""
     for root, _, files in os.walk(PSYQ_CONVERTED_PATH):
