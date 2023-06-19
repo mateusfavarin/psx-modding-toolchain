@@ -1,7 +1,7 @@
 import _files # check_file
 from syms import Syms
 from compile_list import CompileList, free_sections
-from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, MOD_NAME, request_user_input, get_build_id, check_compile_list, cli_pause
+from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, MOD_NAME, request_user_input, get_build_id, cli_pause
 from image import get_image_list
 from clut import get_clut_list
 from game_options import game_options

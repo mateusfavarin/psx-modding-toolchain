@@ -1,7 +1,7 @@
 import _files # check_file
 from syms import Syms
 from compile_list import CompileList, free_sections
-from common import COMPILE_LIST, SETTINGS_PATH, BACKUP_FOLDER, get_build_id, request_user_input, check_compile_list
+from common import COMPILE_LIST, SETTINGS_PATH, BACKUP_FOLDER, get_build_id, request_user_input
 
 import os
 import json
