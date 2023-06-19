@@ -91,7 +91,7 @@ class Main:
             print("[Compile-py] Aborting ongoing compilations.")
             cli_pause()
         if root:
-            delete_file(RECURSIVE_COMP_PATH)
+            _files.delete_file(RECURSIVE_COMP_PATH)
             return
         else:
             with open(ABORT_PATH, "w") as _:
@@ -143,8 +143,8 @@ class Main:
             os.system(command)
         os.chdir(curr_dir)
         if root:
-            delete_file(RECURSIVE_COMP_PATH)
-            delete_file(ABORT_PATH)
+            _files.delete_file(RECURSIVE_COMP_PATH)
+            _files.delete_file(ABORT_PATH)
             self.update_title()
 
     def clean(self) -> None:
@@ -153,7 +153,7 @@ class Main:
         delete_directory(OUTPUT_FOLDER)
         delete_directory(TEXTURES_OUTPUT_FOLDER)
         for file in COMPILATION_RESIDUES:
-            delete_file(file)
+            _files.delete_file(file)
 
     def clean_pch(self) -> None:
         clean_pch()
@@ -194,7 +194,7 @@ if __name__ == "__main__":
         main = Main()
         main.exec()
     except Exception as e:
-        delete_file(RECURSIVE_COMP_PATH)
-        delete_file(ABORT_PATH)
+        _files.delete_file(RECURSIVE_COMP_PATH)
+        _files.delete_file(ABORT_PATH)
         logging.basicConfig(filename=LOG_FILE, filemode="w", format='%(levelname)s:%(message)s')
         logging.exception(e)

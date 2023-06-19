@@ -1,5 +1,6 @@
 from compile_list import CompileList
 from common import create_directory, request_user_input, rename_psyq_sections, delete_file, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE, MOD_NAME
+import _files # create_directory, delete_file
 
 import re
 import json
@@ -12,7 +13,7 @@ def clean_pch() -> None:
         data = json.load(file)["compiler"]
         if "pch" in data:
             pch = data["pch"] + ".gch"
-            delete_file(GAME_INCLUDE_PATH + pch)
+            _files.delete_file(GAME_INCLUDE_PATH + pch)
 
 class Makefile:
     def __init__(self, build_id: int, sym_file: list[str]) -> None:
@@ -175,8 +176,8 @@ class Makefile:
         for ovr in self.ovrs:
             for src in ovr[1]:
                 src = src.rsplit(".", 1)[0]
-                delete_file(src + ".o")
-                delete_file(src + ".dep")
+                _files.delete_file(src + ".o")
+                _files.delete_file(src + ".dep")
 
     # Moving the .o and .dep to debug/
     def move_temp_files(self) -> None:

@@ -118,14 +118,6 @@ def delete_directory(dirname: str) -> None:
             print("\n[Common-py] ERROR: Cannot delete folder " + dirname)
             print("Please make sure that no external processes are accessing files in the folder.\n")
 
-def delete_file(filename: str) -> None:
-    if os.path.isfile(filename):
-        try:
-            os.remove(filename)
-        except Exception:
-            print("\n[Common-py] ERROR: Cannot delete file " + filename)
-            print("Please make sure that no external processes are accessing this file.\n")
-
 def request_user_input(first_option: int, last_option: int, intro_msg: str, error_msg: str) -> int:
     if using_cl_args and len(remaining_args) == 0:
         raise Exception("ERROR: Not enough arguments to complete command.")

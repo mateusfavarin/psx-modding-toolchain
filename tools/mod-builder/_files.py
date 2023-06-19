@@ -20,3 +20,19 @@ def check_files(list_files):
             return False
 
     return True
+
+def delete_file(fname):
+    """
+    Returns bool based on success
+    """
+    message = "Please make sure that no external processes are accessing this file."
+    path = pathlib.Path(fname)
+    is_successful = True # default
+    try:
+        path.unlink(fname)
+    except Exception as error: # usually existence, permission, or simultaneous access issues
+        logger.exception("Cannot delete file: {}".format(fname), exc_info=error.__cause__)
+        print(message, "\n")
+        is_successful = False
+
+    return is_successful

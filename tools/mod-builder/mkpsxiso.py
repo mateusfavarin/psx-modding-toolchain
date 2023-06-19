@@ -1,4 +1,5 @@
 from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, TOOLS_PATH, request_user_input, create_directory, cli_pause, check_compile_list, delete_directory, delete_file, get_build_id
+import _files # create_directory, delete_file
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -256,12 +257,12 @@ class Mkpsxiso:
                 extract_folder = ISO_PATH + rom_name
                 extract_xml = extract_folder + ".xml"
                 delete_directory(extract_folder)
-                delete_file(extract_xml)
+                _files.delete_file(extract_xml)
             delete_directory(build_files_folder)
-            delete_file(build_bin)
-            delete_file(build_cue)
-            delete_file(build_xml)
-            delete_file(build_xdelta)
+            _files.delete_file(build_bin)
+            _files.delete_file(build_cue)
+            _files.delete_file(build_xml)
+            _files.delete_file(build_xdelta)
 
     def extract_iso(self) -> None:
         self.build(only_extract=True)
