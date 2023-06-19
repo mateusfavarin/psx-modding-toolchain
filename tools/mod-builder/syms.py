@@ -10,7 +10,7 @@ class Syms():
         self.version = int()
         self.gv = self.ask_user_for_version(build_id)
         self.syms = dict()
-        for file in self.gv.syms_files:
+        for file in self.gv.files_symbols:
             self.parse_gcc_file(file)
 
     def ask_user_for_version(self, build_id: int):
@@ -50,7 +50,7 @@ class Syms():
     def get_files(self) -> list[str]:
         if self.gv is None:
             return None
-        return self.gv.syms_files
+        return self.gv.files_symbols
 
     def get_address(self, symbol: str) -> int:
         if symbol in self.syms:

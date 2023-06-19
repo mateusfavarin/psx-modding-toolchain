@@ -18,9 +18,9 @@ def clean_pch() -> None:
             _files.delete_file(GAME_INCLUDE_PATH + pch)
 
 class Makefile:
-    def __init__(self, build_id: int, sym_file: list[str]) -> None:
+    def __init__(self, build_id: int, files_symbols: list[str]) -> None:
         self.build_id = build_id
-        self.sym_file = sym_file
+        self.files_symbols = files_symbols
         self.cl = list()
         self.pch = str()
         self.opt_ccflags = str()
@@ -149,8 +149,8 @@ class Makefile:
         buffer += "SRCS = " + self.srcs + "\n"
         buffer += "CPPFLAGS = -DBUILD=" + str(self.build_id) + "\n"
         buffer += "LDSYMS = "
-        for sym in self.sym_file:
-            buffer += "-T$(MODDIR)" + sym + " "
+        for sym in self.files_symbols:
+            buffer += f"-T$(MODDIR) {str(sym)} "
         buffer += "\n"
         buffer += "USE_FUNCTION_SECTIONS ?= " + self.use_function_sections + "\n"
         buffer += "DISABLE_FUNCTION_REORDER ?= " + self.disable_function_reorder + "\n"
