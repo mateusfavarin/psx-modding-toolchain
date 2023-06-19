@@ -51,16 +51,16 @@ def cli_pause() -> None:
 IS_WINDOWS_OS = sys.platform == "win32"
 LOG_FILE = "crash.log"
 CONFIG_FILE = "config.json"
-GAME_FOLDER = _files.get_file_directory(fname = "config.json", folder = "games")
-CONFIG_PATH = GAME_FOLDER / CONFIG_FILE
-logger.debug(f"FOLDER_DISTANCE: {GAME_FOLDER}")
+DIR_GAME = _files.get_file_directory(fname = "config.json", folder = "games")
+CONFIG_PATH = DIR_GAME / CONFIG_FILE
+logger.debug(f"FOLDER_DISTANCE: {DIR_GAME}")
 logger.debug(f"CWD: {pathlib.Path.cwd()}")
-DISTANCE_LENGTH = str(GAME_FOLDER).count("/") + 1
-ISO_PATH = GAME_FOLDER / "build"
-SYMS_PATH = GAME_FOLDER / "symbols"
-PLUGIN_PATH = GAME_FOLDER / "plugins"
-GAME_INCLUDE_PATH = GAME_FOLDER / "include"
-MOD_PATH = GAME_FOLDER / "mods"
+DISTANCE_LENGTH = str(DIR_GAME).count("/") + 1
+ISO_PATH = DIR_GAME / "build"
+DIR_SYMBOLS = DIR_GAME / "symbols"
+PLUGIN_PATH = DIR_GAME / "plugins"
+GAME_INCLUDE_PATH = DIR_GAME / "include"
+MOD_PATH = DIR_GAME / "mods"
 MAKEFILE = "Makefile"
 COMPILE_LIST = "buildList.txt"
 SRC_FOLDER = "src/"
@@ -78,14 +78,14 @@ TRIMBIN_OFFSET = DEBUG_FOLDER + "offset.txt"
 COMPILATION_RESIDUES = ["overlay.ld", MAKEFILE, "comport.txt"]
 REDUX_MAP_FILE = DEBUG_FOLDER + "redux.map"
 SETTINGS_FILE = "settings.json"
-SETTINGS_PATH = GAME_FOLDER.parent / SETTINGS_FILE
+SETTINGS_PATH = DIR_GAME.parent / SETTINGS_FILE
 RECURSIVE_COMP_FILE = ".recursive"
-RECURSIVE_COMP_PATH = GAME_FOLDER / RECURSIVE_COMP_FILE
+RECURSIVE_COMP_PATH = DIR_GAME / RECURSIVE_COMP_FILE
 ABORT_FILE = ".abort"
-ABORT_PATH = GAME_FOLDER / ABORT_FILE
+ABORT_PATH = DIR_GAME / ABORT_FILE
 DISC_FILE = "disc.json"
-DISC_PATH = GAME_FOLDER / DISC_FILE
-TOOLS_PATH = GAME_FOLDER.parents[1] / "tools"
+DISC_PATH = DIR_GAME / DISC_FILE
+TOOLS_PATH = DIR_GAME.parents[1] / "tools"
 PSYQ_CONVERTED_PATH = TOOLS_PATH / "gcc-psyq-converted" / "lib"
 PSYQ_RENAME_CONFIRM_FILE = PSYQ_CONVERTED_PATH / ".sections-renamed"
 COMMENT_SYMBOL = "//"
