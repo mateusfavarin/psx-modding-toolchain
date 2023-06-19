@@ -2,6 +2,36 @@ import copy
 import os
 import pathlib
 import sys
+import logging
+
+import _files
+
+logging.basicConfig(level = logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+def extract_build_id(list_tokens):
+    """
+    Assumes -DBUILD=value
+    TODO: Is the build id always from DBUILD?
+    """
+    for token in list_tokens:
+        if "DBUILD" in token.upper():
+            return int(token.split("=")[-1].strip())
+
+    return None
+
+def get_build_id(fname = "Makefile") -> int:
+    """
+    Assumes only one set of CPPFLAGS
+    """
+    path_file = pathlib.Path(fname)
+    if not path_file.exists():
+        return None
+    with open(path_file, "r") as file:
+        for line in file:
+            list_tokens = line.split()
+            if len(list_tokens) and list_tokens[0] == "CPPFLAGS":
+                return extract_build_id(list_tokens[1:])
 
 remaining_args = copy.deepcopy(sys.argv[1:])
 using_cl_args = len(sys.argv) > 1
@@ -119,17 +149,6 @@ def request_user_input(first_option: int, last_option: int, intro_msg: str, erro
 
     return i
 
-def get_build_id() -> int:
-    if not os.path.isfile(MAKEFILE):
-        return None
-    with open(MAKEFILE, "r") as file:
-        for line in file:
-            line = line.split()
-            if len(line) and line[0] == "CPPFLAGS":
-                build_var = line[-1]
-                build_id = int(build_var.split("=")[-1].strip())
-                return build_id
-
 def is_number(s: str) -> bool:
     is_hex = False
     if len(s) > 1 and s[0] == "-":
@@ -149,8 +168,3 @@ def cli_clear() -> None:
         os.system("cls")
     else:
         os.system("clear")
-
-def check_compile_list() -> bool:
-    if os.path.isfile(COMPILE_LIST):
-        return True
-    return False
