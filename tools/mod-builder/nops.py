@@ -35,7 +35,7 @@ class Nops:
                     if not cl.should_build():
                         continue
                     bin = cl.get_output_name()
-                    backup_bin = prefix + BACKUP_FOLDER + "nops_" + cl.section_name + ".bin"
+                    backup_bin = pathlib.Path(prefix) / BACKUP_FOLDER / ("nops_" + cl.section_name + ".bin")
                     if backup:
                         if not os.path.isfile(bin):
                             print("\n[NoPS-py] ERROR: " + bin + " not found.\n")
