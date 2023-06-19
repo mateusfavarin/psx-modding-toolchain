@@ -1,3 +1,5 @@
+from __future__ import annotations # to use type in python 3.7
+
 from PIL import Image as PILImage
 
 cluts = []
