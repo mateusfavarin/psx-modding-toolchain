@@ -1,5 +1,6 @@
 import copy
 import os
+import pathlib
 import sys
 
 remaining_args = copy.deepcopy(sys.argv[1:])
@@ -13,36 +14,18 @@ def cli_pause() -> None:
         print("Press Enter to continue...")
         input()
 
-def get_distance_to_file(print_error: bool, file: str) -> str:
-    if print_error:
-        print("No config.json found. Make sure to set this prerequisite file before continuing.")
-        cli_pause()
-    search = file
-    distance = str()
-    max_depth = 100
-    k = 0
-    failed = False
-    while not os.path.isfile(search):
-        distance += "../"
-        search = distance + file
-        k += 1
-        if k == max_depth:
-            failed = True
-            break
-    if not failed:
-        return distance
-    return get_distance_to_file(True, file)
-
 IS_WINDOWS_OS = sys.platform == "win32"
 LOG_FILE = "crash.log"
 CONFIG_FILE = "config.json"
-FOLDER_DISTANCE = get_distance_to_file(False, CONFIG_FILE)
-DISTANCE_LENGTH = FOLDER_DISTANCE.count("/") + 1
-ISO_PATH = FOLDER_DISTANCE + "build/"
-SYMS_PATH = FOLDER_DISTANCE + "symbols/"
-PLUGIN_PATH = FOLDER_DISTANCE + "plugins/"
-GAME_INCLUDE_PATH = FOLDER_DISTANCE + "include/"
-MOD_PATH = FOLDER_DISTANCE + "mods/"
+CONFIG_PATH = _files.get_file_directory(fname = "config.json", folder = "games", max_iterations = 5)
+logger.debug(f"FOLDER_DISTANCE: {CONFIG_PATH}")
+logger.debug(f"CWD: {pathlib.Path.cwd()}")
+DISTANCE_LENGTH = str(CONFIG_PATH).count("/") + 1
+ISO_PATH = CONFIG_PATH / "build"
+SYMS_PATH = CONFIG_PATH / "symbols"
+PLUGIN_PATH = CONFIG_PATH / "plugins"
+GAME_INCLUDE_PATH = CONFIG_PATH / "include"
+MOD_PATH = CONFIG_PATH / "mods"
 MAKEFILE = "Makefile"
 COMPILE_LIST = "buildList.txt"
 SRC_FOLDER = "src/"
@@ -59,21 +42,22 @@ GCC_OUT_FILE = DEBUG_FOLDER + "gcc_out.txt"
 TRIMBIN_OFFSET = DEBUG_FOLDER + "offset.txt"
 COMPILATION_RESIDUES = ["overlay.ld", MAKEFILE, "comport.txt"]
 REDUX_MAP_FILE = DEBUG_FOLDER + "redux.map"
-CONFIG_PATH = FOLDER_DISTANCE + CONFIG_FILE
+CONFIG_PATH = CONFIG_PATH / CONFIG_FILE
 SETTINGS_FILE = "settings.json"
-SETTINGS_PATH = FOLDER_DISTANCE + "../" + SETTINGS_FILE
+SETTINGS_PATH = CONFIG_PATH.parent / SETTINGS_FILE
 RECURSIVE_COMP_FILE = ".recursive"
-RECURSIVE_COMP_PATH = FOLDER_DISTANCE + RECURSIVE_COMP_FILE
+RECURSIVE_COMP_PATH = CONFIG_PATH / RECURSIVE_COMP_FILE
 ABORT_FILE = ".abort"
-ABORT_PATH = FOLDER_DISTANCE + ABORT_FILE
+ABORT_PATH = CONFIG_PATH / ABORT_FILE
 DISC_FILE = "disc.json"
-DISC_PATH = FOLDER_DISTANCE + DISC_FILE
-TOOLS_PATH = FOLDER_DISTANCE + "../../tools/"
-PSYQ_CONVERTED_PATH = TOOLS_PATH + "gcc-psyq-converted/lib/"
-PSYQ_RENAME_CONFIRM_FILE = PSYQ_CONVERTED_PATH + ".sections-renamed"
+DISC_PATH = CONFIG_PATH / DISC_FILE
+TOOLS_PATH = CONFIG_PATH.parents[1] / "tools"
+PSYQ_CONVERTED_PATH = TOOLS_PATH / "gcc-psyq-converted" / "lib"
+PSYQ_RENAME_CONFIRM_FILE = PSYQ_CONVERTED_PATH / ".sections-renamed"
 COMMENT_SYMBOL = "//"
-MOD_NAME = os.getcwd().replace("\\", "/").split("/")[-1]
-GAME_NAME = os.getcwd().replace("\\", "/").split("/")[-DISTANCE_LENGTH]
+MOD_NAME = pathlib.Path.cwd().name # TODO: Pass this as an arg 
+GAME_NAME = pathlib.Path.cwd().parents[DISTANCE_LENGTH].name # not sure, number of folders?
+logger.debug(f"GAME_NAME: {GAME_NAME}")
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
 
 def rename_psyq_sections() -> None:

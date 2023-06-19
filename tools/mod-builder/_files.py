@@ -5,6 +5,34 @@ import pathlib
 import shutil
 
 logger = logging.getLogger(__name__)
+
+def get_file_directory(fname = "config.json", folder = "games"):
+    """
+    Search each parent folder until the fname is found (if found at all)
+    Returns the path with the fname
+
+    Stop looking when target folder is reached or max iterations reached
+
+    Assumes exactly one file on path
+    Assumes folder exists on path
+    TODO: Prompt user to give absolute path
+    """
+    # message = "No config.json found. Make sure to set this prerequisite file before continuing."
+    path_search = pathlib.Path.cwd() # relative to where the script is run
+
+    count_iterations = 0
+    while (path_search != path_search.root):
+        logger.debug(f"CWD Parent(x{count_iterations}): {path_search}")
+        current = path_search / fname
+        if current.exists():
+            return path_search
+        path_search = path_search.parent # move up one directory
+        if path_search.name == folder:
+            break
+        count_iterations += 1
+
+    return path_search
+
 def check_file(fname):
     if not os.path.isfile(fname):
         logger.error("fname not found: {}".format(fname))
