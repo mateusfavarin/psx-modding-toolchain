@@ -24,6 +24,7 @@ Note: some python instalations might be incomplete. Make sure that you have inst
 
 Install the dependencies from the command line
 ```
+$ pip install --upgrade pip setuptools wheel
 $ pip install -r requirements.txt
 ```
 
