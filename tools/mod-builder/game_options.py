@@ -15,6 +15,9 @@ class GameOptions:
         self.versions_by_build_id = dict()
 
     def load_config(self):
+        """
+        Just pass in the data directly to avoid trouble
+        """
         with open(CONFIG_PATH) as file:
             data = json.load(file)
             versions = data["versions"]
@@ -24,7 +27,7 @@ class GameOptions:
                 rom_name = ver_contents["name"]
                 syms_files = ver_contents["symbols"]
                 for i in range(len(syms_files)):
-                    syms_files[i] = SYMS_PATH + syms_files[i]
+                    syms_files[i] = SYMS_PATH / syms_files[i]
                 build_id = ver_contents["build_id"]
                 gv = GameVersion(version, rom_name, syms_files, build_id)
                 self.versions_by_name[version] = gv

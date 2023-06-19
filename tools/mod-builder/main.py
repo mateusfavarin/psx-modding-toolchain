@@ -1,9 +1,15 @@
+"""
+Reads in the all the diretories
+Does stuff with them
+Runs in basically an infinite while loop
+TODO: Replace with Click
+"""
 import _files # check_file, check_files, delete_file, create_directory, delete_directory
 from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
 from redux import Redux
-from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_FILE, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, rename_psyq_sections, get_distance_to_file, DISC_PATH, SETTINGS_PATH
+from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_FILE, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, rename_psyq_sections, get_distance_to_file, DISC_PATH, SETTINGS_PATH, CONFIG_PATH
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
@@ -11,8 +17,11 @@ from image import create_images, clear_images, dump_images
 from clut import clear_cluts, dump_cluts
 from c import export_as_c
 
-import os
 import logging
+import os
+import pathlib
+
+logger = logging.getLogger(__name__)
 
 class Main:
     def __init__(self) -> None:
@@ -43,11 +52,11 @@ class Main:
         }
         self.num_options = len(self.actions)
         self.window_title = GAME_NAME + " - " + MOD_NAME
-        self.python = str()
+        self.python = None
         if IS_WINDOWS_OS:
-            self.python = "python "
+            self.python = "python"
         else:
-            self.python = "python3 "
+            self.python = "python3"
         self.update_title()
 
     def update_title(self):
@@ -98,13 +107,13 @@ class Main:
                 return
 
     def compile(self) -> None:
-        if os.path.isfile(ABORT_PATH):
+        if ABORT_PATH.exists():
             return # Abort ongoing compilation chain due to an error that occured
         if not _files.check_file(COMPILE_LIST):
-            print("\n[Compile-py] ERROR: " + COMPILE_LIST + " not found.\n")
+            logger.exception(f"{COMPILE_LIST} not found.")
             return
         root = False
-        if not os.path.isfile(RECURSIVE_COMP_PATH):
+        if not RECURSIVE_COMP_PATH.exists():
             with open(RECURSIVE_COMP_PATH, "w") as _:
                 root = True
         else:
@@ -136,10 +145,12 @@ class Main:
                 self.abort_compilation(root=root, warning=True)
         else:
             self.abort_compilation(root=root, warning=True)
-        curr_dir = os.getcwd() + "/"
-        for dep in dependencies:
+        curr_dir = pathlib.Path.cwd()
+        for dep in dependencies: # Does this matter since we know the full path?
             os.chdir(dep)
-            command =  self.python + get_distance_to_file(False, CONFIG_FILE) + "../../tools/mod-builder/main.py 1 " + str(game_syms.version)
+            path_module = CONFIG_PATH.parents[1] / "tools" / "mod-builder" / "main.py"
+            # use to use get_distance_to_file(False, CONFIG_FILE), same as CONFIG_PATH?
+            command = f"{self.python} {str(path_module)} 1 {game_syms.version}"
             os.system(command)
         os.chdir(curr_dir)
         if root:
@@ -151,10 +162,10 @@ class Main:
         """
         TODO: rename method to clean_files for explicit
         """
-        _file.delete_directory(DEBUG_FOLDER)
-        _file.delete_directory(BACKUP_FOLDER)
-        _file.delete_directory(OUTPUT_FOLDER)
-        _file.delete_directory(TEXTURES_OUTPUT_FOLDER)
+        _files.delete_directory(DEBUG_FOLDER)
+        _files.delete_directory(BACKUP_FOLDER)
+        _files.delete_directory(OUTPUT_FOLDER)
+        _files.delete_directory(TEXTURES_OUTPUT_FOLDER)
         for file in COMPILATION_RESIDUES:
             _files.delete_file(file)
 
@@ -179,8 +190,11 @@ class Main:
         clear_cluts()
 
     def disasm(self) -> None:
-        os.system("mipsel-none-elf-objdump -d " + DEBUG_FOLDER + "mod.elf >> " + DEBUG_FOLDER + "disasm.txt")
-        print("\nDisassembly saved at " + DEBUG_FOLDER + "disasm.txt\n")
+        path_in = DEBUG_FOLDER / 'mod.elf'
+        path_out = DEBUG_FOLDER / 'disasm.txt'
+        command = f"mipsel-none-elf-objdump -d {str(path_in)} >> {str(path_out)}"
+        os.system(command)
+        logger.info(f"Disassembly saved at {path_out}")
 
     def exec(self):
         while not _files.check_files([COMPILE_LIST, DISC_PATH, SETTINGS_PATH]):
