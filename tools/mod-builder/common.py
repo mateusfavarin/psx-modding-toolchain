@@ -37,6 +37,10 @@ remaining_args = copy.deepcopy(sys.argv[1:])
 using_cl_args = len(sys.argv) > 1
 
 def cli_pause() -> None:
+    """
+    Continues to prompt user unless they manually kill it.
+    TODO: Replace with click()
+    """
     if using_cl_args:
         if len(remaining_args) == 0:
             sys.exit(0)
@@ -97,6 +101,7 @@ def rename_psyq_sections() -> None:
     for section in sections:
         command += " --rename-section ." + section + "=.psyq" + section
     print("\n[Common-py] Renaming PSYQ sections...")
+    logger.info("Renaming PSYQ sections...")
     curr_directory = ""
     for root, _, files in os.walk(PSYQ_CONVERTED_PATH):
         for filename in files:
@@ -110,14 +115,17 @@ def rename_psyq_sections() -> None:
                 directory = root.split("/")[-2]
                 if directory != curr_directory:
                     curr_directory = directory
-                    print("[Common-py] Converting " + directory + "/ directory...")
+                    logger.info(f"Converting directory: {directory}...")
                 filepath = root + filename
                 os.system(command + " " + filepath)
     with open(PSYQ_RENAME_CONFIRM_FILE, "w"):
         pass
-    print("[Common-py] PSYQ sections renamed successfully.\n")
+    logger.info("PSYQ sections renamed successfully.")
 
 def request_user_input(first_option: int, last_option: int, intro_msg: str, error_msg: str) -> int:
+    """
+    TODO: Convert this to click
+    """
     if using_cl_args and len(remaining_args) == 0:
         raise Exception("ERROR: Not enough arguments to complete command.")
 

@@ -34,7 +34,8 @@ def get_file_directory(fname = "config.json", folder = "games"):
     return path_search
 
 def check_file(fname):
-    if not os.path.isfile(fname):
+    path = pathlib.Path(fname)
+    if not path.exists():
         logger.error("fname not found: {}".format(fname))
         return False
     return True
@@ -54,7 +55,7 @@ def delete_file(fname):
     """
     Returns bool based on success
     """
-    message = "Please make sure that no external processes are accessing this file."
+    message = "Please make sure no external processes are accessing this file."
     path = pathlib.Path(fname)
     is_successful = True # default
     try:
