@@ -67,8 +67,8 @@ def export_as_c() -> None:
     buffer += export_objects(get_image_list(), True)
     buffer += export_objects(get_clut_list(), False)
     buffer += create_texture_struct()
-    filepath = TEXTURES_FOLDER + "newtex.c"
+    filepath = TEXTURES_FOLDER / "newtex.c"
     with open(filepath, "w") as file:
         file.write(buffer)
-    print("[Image-py] Textures successfully exported in " + filepath)
+    logger.info(f"Textures successfully exported in {filepath}")
     clear_cache()
