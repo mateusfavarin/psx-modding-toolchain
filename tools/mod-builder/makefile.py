@@ -1,14 +1,19 @@
 from __future__ import annotations # to use type in python 3.7
 
+"""Constructs the makefile"""
+
 from compile_list import CompileList
 import _files # create_directory, delete_file
 from common import request_user_input, rename_psyq_sections, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, CONFIG_PATH, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE, MOD_NAME
 
-import re
+import logging
 import json
+import re
 import os
 import shutil
 from time import time
+
+logger = logging.getLogger(__name__)
 
 def clean_pch() -> None:
     with open(CONFIG_PATH, "r") as file:
@@ -158,9 +163,9 @@ class Makefile:
         buffer += "OVERLAYSECTION ?= " + self.ovr_section + "\n"
         buffer += "OVR_START_ADDR = " + hex(self.base_addr) + "\n"
         buffer += "OVERLAYSCRIPT = " + self.build_linker_script() + "\n"
-        buffer += "BUILDDIR = $(MODDIR)" + OUTPUT_FOLDER + "\n"
-        buffer += "SRCINCLUDEDIR = $(MODDIR)" + SRC_FOLDER + "\n"
-        buffer += "GAMEINCLUDEDIR = $(MODDIR)" + GAME_INCLUDE_PATH + "\n"
+        buffer += f"BUILDDIR = $(MODDIR){OUTPUT_FOLDER}\n"
+        buffer += f"SRCINCLUDEDIR = $(MODDIR){SRC_FOLDER}\n"
+        buffer += f"GAMEINCLUDEDIR = $(MODDIR){str(GAME_INCLUDE_PATH)}\n"
         buffer += "EXTRA_CC_FLAGS = " + self.compiler_flags + "\n"
         buffer += "OPT_CC_FLAGS = " + self.opt_ccflags + "\n"
         buffer += "OPT_LD_FLAGS = " + self.opt_ldflags + "\n"
