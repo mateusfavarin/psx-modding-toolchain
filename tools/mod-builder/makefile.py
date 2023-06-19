@@ -1,6 +1,9 @@
 from __future__ import annotations # to use type in python 3.7
 
-"""Constructs the makefile"""
+"""
+Constructs the makefile
+TODO: Use subprocess instead of os.system
+"""
 
 from compile_list import CompileList
 import _files # create_directory, delete_file
@@ -11,6 +14,7 @@ import json
 import re
 import os
 import shutil
+import sys
 from time import time
 
 logger = logging.getLogger(__name__)
@@ -217,6 +221,7 @@ class Makefile:
     def make(self) -> bool:
         """
         TODO: Creating all of these directories right now instead of upfront is bad design
+        TODO: 
         """
         _files.create_directory(OUTPUT_FOLDER)
         _files.create_directory(BACKUP_FOLDER)
@@ -226,7 +231,14 @@ class Makefile:
         cli_clear()
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
-        os.system("make -s -j8 > " + GCC_OUT_FILE + " 2>&1")
+        try:
+            command = f"make -s -j8 > {GCC_OUT_FILE} 2>&1"
+            os.system(command)
+            if os.system(command) != 0:
+                raise Exception('make is not installed on your system')
+        except Exception as error:
+            logger.exception("make is not installed on your system", exc_info=False)
+            sys.exit(9)
         end_time = time()
         total_time = str(round(end_time - start_time, 3))
         with open(GCC_OUT_FILE, "r") as file:
