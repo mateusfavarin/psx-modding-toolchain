@@ -54,15 +54,14 @@ def check_files(list_files):
 def delete_file(fname):
     """
     Returns bool based on success
+    TODO: missing_ok=True only available for python3.8, but exception handles not found
     """
-    message = "Please make sure no external processes are accessing this file."
     path = pathlib.Path(fname)
     is_successful = True # default
     try:
-        path.unlink(fname)
+        path.unlink(missing_ok=True) # only on python3.8
     except Exception as error: # usually existence, permission, or simultaneous access issues
         logger.exception("Cannot delete file: {}".format(fname), exc_info=error.__cause__)
-        print(message, "\n")
         is_successful = False
 
     return is_successful
@@ -75,14 +74,12 @@ def create_directory(dirname):
     path_dir.mkdir(exist_ok=True, parents=True)
 
 def delete_directory(dirname):
-    message = "Please make sure no external processes are accessing files in this folder."
     path_dir = pathlib.Path(dirname)
     is_successful = True
     try:
-        shutil.rmtree(path_dir)
+        shutil.rmtree(path_dir, ignore_errors=True)
     except Exception as error: # usually existence, permission, or simultaneous access issues
         logger.exception("Cannot delete folder: {}".format(dirname), exc_info=error.__cause__)
-        print(message, "\n")
         is_successful = False
 
     return is_successful    
