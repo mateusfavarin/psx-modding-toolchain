@@ -252,10 +252,10 @@ class Mkpsxiso:
             rom_name = gv.rom_name.split(".")[0]
             modified_rom_name = rom_name + "_" + MOD_NAME
             build_files_folder = ISO_PATH / modified_rom_name
-            build_cue = build_files_folder + ".cue"
-            build_bin = build_files_folder + ".bin"
-            build_xml = build_files_folder + ".xml"
-            build_xdelta = build_files_folder + ".xdelta"
+            build_cue = build_files_folder.with_suffix(".cue")
+            build_bin = build_files_folder.with_suffix(".bin")
+            build_xml = build_files_folder.with_suffix(".xml")
+            build_xdelta = build_files_folder.with_suffix(".xdelta")
             if all:
                 extract_xml = ISO_PATH / (rom_name + ".xml")
                 extract_folder = extract_xml.stem
