@@ -1,7 +1,7 @@
 import _files # check_file
 from syms import Syms
 from compile_list import CompileList, free_sections
-from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, MOD_NAME, request_user_input, get_build_id, cli_pause
+from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, MOD_NAME, DISC_PATH, request_user_input, get_build_id, cli_pause
 from image import get_image_list
 from clut import get_clut_list
 from game_options import game_options
@@ -11,7 +11,7 @@ import json
 import os
 import pathlib
 import requests
-from subprocess import Popen, DETACHED_PROCESS # WINDOWS ONLY
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +47,12 @@ class Redux:
             intro_msg += str(i + 1) + " - " + names[i] + "\n"
         error_msg = "ERROR: Invalid version. Please select a number from 1-" + str(len(names)) +"."
         version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
-        return game_options.get_gv_by_name(names[version - 1]).rom_name
+        out = game_options.get_gv_by_name(names[version - 1]).rom_name
 
-    def start_emulation(self) -> None:
+        return out
+
+    def construct_path_game(self):
+        """ TODO: This can be simplified """
         if not self.found_redux:
             while not self.load_config():
                 print("\n[Redux-py] Could not find a valid path to PCSX-Redux emulator.")
@@ -60,17 +63,46 @@ class Redux:
         game_name = self.get_game_name()
         mod_name = game_name.split(".")[0] + "_" + MOD_NAME + ".bin"
         generic_path = curr_dir / ISO_PATH
-        game_path = generic_path / mod_name
-        if not _files.check_file(game_path):
+        path_game = generic_path / mod_name
+        if not _files.check_file(path_game):
             # if modded game not found, fallback to original game
-            game_path = generic_path / game_name
-            if not _files.check_file(game_path):
+            path_game = generic_path / game_name
+            if not _files.check_file(path_game):
                 print("PCSX-Redux will start without booting the iso.")
+
+        return path_game
+
+    def start_emulation(self) -> None:
+        """ TODO: Way too much going on here """
+        path_game = self.construct_path_game()
         os.chdir(self.path)
         self.command.append("-run")
         self.command.append("-loadiso")
-        self.command.append(str(game_path))
-        Popen(self.command, shell=False, start_new_session=True, close_fds=True, creationflags=DETACHED_PROCESS)
+        self.command.append(str(path_game))
+
+        dict_params = {
+            "shell": False,
+            "stdout": None,
+            "stderr": None,
+            "start_new_session": True,
+            "close_fds": True, # prevent deadlocks
+            # "check": True
+        }
+        if os.name == "posix": # linux
+            dict_params["preexec_fn"]=os.setpgrp
+            self.command.insert("nohup", 0)
+        elif os.name == 'nt': # windows
+            dict_params["stdin"]=None
+            dict_params["creationflags"] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+
+        try:
+            result = subprocess.Popen(self.command, **dict_params)
+            # output, error = instance_process.communicate()
+            # if instance_process.returncode != 0:
+            #     logger.exception(f"Process failed: {instance_process.returncode} {output} {error}", exc_info=False)
+        except subprocess.CalledProcessError as error:
+            logger.exception(error, exc_info = False)
+
         os.chdir(curr_dir)
         self.load_map(warnings=False)
 
@@ -253,7 +285,7 @@ class Redux:
             self.resume_emulation()
 
     def restore(self) -> None:
-        if not check_compile_list():
+        if not _files.check_files([COMPILE_LIST, DISC_PATH, SETTINGS_PATH]):
             print("\n[Redux-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         is_running = bool()

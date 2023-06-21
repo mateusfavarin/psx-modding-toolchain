@@ -138,7 +138,7 @@ class Makefile:
         return filename
 
     def build_makefile(self) -> bool:
-        if self.use_psyq and not os.path.isfile(PSYQ_RENAME_CONFIRM_FILE):
+        if self.use_psyq and not _files.check_file(PSYQ_RENAME_CONFIRM_FILE):
             print("\n[Makefile-py] WARNING: your project configuration may be trying to import PSYQ functions,")
             print("but you haven't renamed your psyq sections.")
             min_option = 1
