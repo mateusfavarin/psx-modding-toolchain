@@ -1,8 +1,9 @@
 import copy
+import logging
 import os
 import pathlib
+import subprocess
 import sys
-import logging
 
 import _files
 
@@ -96,10 +97,11 @@ HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
 
 def rename_psyq_sections():
     sections = ["text", "data", "bss", "rdata", "sdata", "sbss", "note"]
-    prefix = "mipsel-none-elf-"
-    command = prefix + "objcopy"
+    command = ["mipsel-none-elf-"]
+    command.append("objcopy")
     for section in sections:
-        command += f" --rename-section .{section}=.psyq{section}"
+        command.append("--rename-section")
+        command.append(f".{section}=.psyq{section}")
 
     logger.info("Renaming PSYQ sections...")
     curr_directory = ""
@@ -117,7 +119,14 @@ def rename_psyq_sections():
                     curr_directory = directory
                     logger.info(f"Converting directory: {directory}...")
                 filepath = root + filename
-                os.system(command + " " + filepath)
+                command.append(filepath)
+                try:
+                    result = subprocess.call(command, shell=True)
+                    if result != 0:
+                        print("There was an error in the process")
+                except subprocess.CalledProcessError as error:
+                    logger.exception(error, exc_info = False)
+
     with open(PSYQ_RENAME_CONFIRM_FILE, "w"):
         pass
     logger.info("PSYQ sections renamed successfully.")
