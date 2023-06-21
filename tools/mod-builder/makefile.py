@@ -14,8 +14,10 @@ import json
 import re
 import os
 import shutil
+import subprocess
 import sys
 from time import time
+
 
 logger = logging.getLogger(__name__)
 
@@ -159,7 +161,7 @@ class Makefile:
         buffer += "CPPFLAGS = -DBUILD=" + str(self.build_id) + "\n"
         buffer += "LDSYMS = "
         for sym in self.files_symbols:
-            buffer += f"-T$(MODDIR) {str(sym)} "
+            buffer += f"-T{str(sym)} "
         buffer += "\n"
         buffer += "USE_FUNCTION_SECTIONS ?= " + self.use_function_sections + "\n"
         buffer += "DISABLE_FUNCTION_REORDER ?= " + self.disable_function_reorder + "\n"
@@ -169,7 +171,7 @@ class Makefile:
         buffer += "OVERLAYSCRIPT = " + self.build_linker_script() + "\n"
         buffer += f"BUILDDIR = $(MODDIR){OUTPUT_FOLDER}\n"
         buffer += f"SRCINCLUDEDIR = $(MODDIR){SRC_FOLDER}\n"
-        buffer += f"GAMEINCLUDEDIR = $(MODDIR){str(GAME_INCLUDE_PATH)}\n"
+        buffer += f"GAMEINCLUDEDIR = {str(GAME_INCLUDE_PATH)}\n"
         buffer += "EXTRA_CC_FLAGS = " + self.compiler_flags + "\n"
         buffer += "OPT_CC_FLAGS = " + self.opt_ccflags + "\n"
         buffer += "OPT_LD_FLAGS = " + self.opt_ldflags + "\n"
@@ -232,13 +234,12 @@ class Makefile:
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
         try:
-            command = f"make -s -j8 > {GCC_OUT_FILE} 2>&1"
-            os.system(command)
-            if os.system(command) != 0:
-                raise Exception('make is not installed on your system')
-        except Exception as error:
-            logger.exception("make is not installed on your system", exc_info=False)
-            sys.exit(9)
+            command = ["make", "-s", "-j8", ">", GCC_OUT_FILE, "2>&1"]
+            result = subprocess.call(command, shell=True)
+            if result != 0:
+                print("There was an error in the makefile")
+        except subprocess.CalledProcessError as error:
+            logger.exception(error, exc_info = False)
         end_time = time()
         total_time = str(round(end_time - start_time, 3))
         with open(GCC_OUT_FILE, "r") as file:
