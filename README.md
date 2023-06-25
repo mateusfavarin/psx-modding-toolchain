@@ -26,7 +26,7 @@ Note: some python installations might be incomplete. Make sure that you have ins
 To compile the GCC mipsel toolchain (incomplete)
 ```
 make
-libgl1
+libgl1 with GLIBC_2.35
 ```
 
 ## Setup
