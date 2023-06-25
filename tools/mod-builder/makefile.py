@@ -234,10 +234,11 @@ class Makefile:
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
         try:
-            command = ["make", "-s", "-j8", ">", GCC_OUT_FILE, "2>&1"]
-            result = subprocess.call(command, shell=True)
-            if result != 0:
-                print("There was an error in the makefile")
+            command = ["make", "--silent"]
+            with open(GCC_OUT_FILE, "w") as outfile:
+                result = subprocess.run(command, stdout=outfile, stderr=outfile)
+                if result != 0:
+                    print("There was an error in the makefile")
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
         end_time = time()
