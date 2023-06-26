@@ -14,6 +14,9 @@ img_names = []
 clut_names = []
 
 def declare_header() -> str:
+    """
+    TODO: Rename this with triple quoted string
+    """
     buffer = "typedef struct\n"
     buffer += "{\n"
     buffer += " " * 4 + "short x, y, w, h;\n"

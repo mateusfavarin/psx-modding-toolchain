@@ -154,31 +154,31 @@ class Makefile:
 
         self.set_base_address()
         self.build_makefile_objects()
-        buffer =  "MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))\n"
-        buffer += "TARGET = mod\n"
-        buffer += "\n"
-        buffer += "SRCS = " + self.srcs + "\n"
-        buffer += "CPPFLAGS = -DBUILD=" + str(self.build_id) + "\n"
-        buffer += "LDSYMS = "
-        for sym in self.files_symbols:
-            buffer += f"-T{str(sym)} "
-        buffer += "\n"
-        buffer += "USE_FUNCTION_SECTIONS ?= " + self.use_function_sections + "\n"
-        buffer += "DISABLE_FUNCTION_REORDER ?= " + self.disable_function_reorder + "\n"
-        buffer += "USE_PSYQ ?= " + self.use_psyq_str + "\n"
-        buffer += "OVERLAYSECTION ?= " + self.ovr_section + "\n"
-        buffer += "OVR_START_ADDR = " + hex(self.base_addr) + "\n"
-        buffer += "OVERLAYSCRIPT = " + self.build_linker_script() + "\n"
-        buffer += f"BUILDDIR = $(MODDIR){OUTPUT_FOLDER}\n"
-        buffer += f"SRCINCLUDEDIR = $(MODDIR){SRC_FOLDER}\n"
-        buffer += f"GAMEINCLUDEDIR = {str(GAME_INCLUDE_PATH)}\n"
-        buffer += "EXTRA_CC_FLAGS = " + self.compiler_flags + "\n"
-        buffer += "OPT_CC_FLAGS = " + self.opt_ccflags + "\n"
-        buffer += "OPT_LD_FLAGS = " + self.opt_ldflags + "\n"
-        buffer += "PCHS = $(GAMEINCLUDEDIR)" + self.pch + "\n"
-        buffer += "TRIMBIN_OFFSET = $(MODDIR)" + TRIMBIN_OFFSET + "\n"
-        buffer += "\n"
-        buffer += f"include {str(CONFIG_PATH.parents[1] / 'common.mk')}\n"
+        buffer = f"""
+        MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+        TARGET = mod
+
+        SRCS = {self.srcs}
+        CPPFLAGS = -DBUILD={self.build_id}
+        LDSYMS = {" ".join(f"-T{str(sym)}" for sym in self.files_symbols)}
+
+        USE_FUNCTION_SECTIONS ?= {self.use_function_sections}
+        DISABLE_FUNCTION_REORDER ?= {self.disable_function_reorder}
+        USE_PSYQ ?= {self.use_psyq_str}
+        OVERLAYSECTION ?= {self.ovr_section}
+        OVR_START_ADDR = {hex(self.base_addr)}
+        OVERLAYSCRIPT = {self.build_linker_script()}
+        BUILDDIR = $(MODDIR){OUTPUT_FOLDER}
+        SRCINCLUDEDIR = $(MODDIR){SRC_FOLDER}
+        GAMEINCLUDEDIR = {str(GAME_INCLUDE_PATH)}
+        EXTRA_CC_FLAGS = {self.compiler_flags}
+        OPT_CC_FLAGS = {self.opt_ccflags}
+        OPT_LD_FLAGS = {self.opt_ldflags}
+        PCHS = $(GAMEINCLUDEDIR){self.pch}
+        TRIMBIN_OFFSET = $(MODDIR){TRIMBIN_OFFSET}
+
+        include {str(CONFIG_PATH.parents[1] / 'common.mk')}
+        """
 
         with open(MAKEFILE, "w") as file:
             file.write(buffer)

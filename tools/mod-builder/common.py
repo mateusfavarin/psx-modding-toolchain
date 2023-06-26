@@ -1,3 +1,6 @@
+"""
+Contains all of the global directory names and functions for user input
+"""
 import copy
 import logging
 import os
@@ -97,6 +100,7 @@ logger.debug(f"GAME_NAME: {GAME_NAME}")
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
 
 def rename_psyq_sections():
+    """TODO: Convert to pathlib"""
     sections = ["text", "data", "bss", "rdata", "sdata", "sbss", "note"]
     command = ["mipsel-none-elf-"]
     command.append("objcopy")
