@@ -104,11 +104,11 @@ class Main:
         error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(self.num_options) + ".\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
 
-    def abort_compilation(self, root: bool, warning: bool) -> None:
-        if warning:
-            print("[Compile-py] Aborting ongoing compilations.")
+    def abort_compilation(self, is_root: bool, is_warning: bool) -> None:
+        if is_warning:
+            logger.warning("Aborting ongoing compilations.")
             cli_pause()
-        if root:
+        if is_root:
             _files.delete_file(RECURSIVE_COMP_PATH)
             return
         else:
@@ -145,15 +145,15 @@ class Main:
             intro_msg = "[Compile-py] Would you like to continue to compilation process?\n\n1 - Yes\n2 - No\n"
             error_msg = "ERROR: Wrong option. Please type a number from 1-2.\n"
             if request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 2:
-                self.abort_compilation(root=root, warning=False)
+                self.abort_compilation(is_root=root, is_warning=False)
         if make.build_makefile():
             if make.make():
                 with open(RECURSIVE_COMP_PATH, "a") as file:
                     file.write(MOD_NAME + " ")
             else:
-                self.abort_compilation(root=root, warning=True)
+                self.abort_compilation(is_root=root, is_warning=True)
         else:
-            self.abort_compilation(root=root, warning=True)
+            self.abort_compilation(is_root=root, is_warning=True)
         curr_dir = pathlib.Path.cwd()
         for dep in dependencies: # Does this matter since we know the full path?
             os.chdir(dep)
@@ -192,7 +192,7 @@ class Main:
         _files.create_directory(TEXTURES_OUTPUT_FOLDER)
         img_count = create_images(TEXTURES_FOLDER)
         if img_count == 0:
-            print("\n[Image-py] WARNING: 0 images found. No textures were replaced.\n")
+            logger.warning("0 images found. No textures were replaced")
             return
         dump_images(TEXTURES_OUTPUT_FOLDER)
         dump_cluts(TEXTURES_OUTPUT_FOLDER)
