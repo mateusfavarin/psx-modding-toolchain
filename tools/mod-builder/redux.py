@@ -110,7 +110,7 @@ class Redux:
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
 
-        os.chdir(curr_dir)
+        os.chdir(dir_current) # go back to cwd
         self.load_map(warnings=False)
 
     def flush_cache(self) -> None:
@@ -298,8 +298,7 @@ class Redux:
             self.resume_emulation()
 
     def restore(self) -> None:
-        if not _files.check_files([COMPILE_LIST, DISC_PATH, SETTINGS_PATH]):
-            print("\n[Redux-py] ERROR: " + COMPILE_LIST + " not found.\n")
+        if not _files.check_file(COMPILE_LIST):
             return
         is_running = bool()
         try:
