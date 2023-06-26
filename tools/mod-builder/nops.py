@@ -16,11 +16,10 @@ class Nops:
         """ TODO: Put in try/except """
         with open(SETTINGS_PATH) as file:
             data = json.load(file)["nops"]
-            self.comport = " " + data["comport"].upper()
-            mode = data["mode"]
-            self.prefix = "nops /" + mode.lower() + " "
+            self.prefix = ["nops", f"/{data['mode'].lower()}"]
+            self.comport = [data["comport"].upper()]
 
-    def fire_command(self, list_args: str) -> None:
+    def fire_command(self, list_args):
         """TODO: Put this in logging"""
         command = [self.prefix]
         command.extend(list_args)
@@ -28,6 +27,9 @@ class Nops:
         result = subprocess.run(command)
 
     def inject(self, backup: bool, restore: bool) -> None:
+        """
+        COMPILE_LIST is a string
+        """
         sym = Syms(get_build_id())
         build_lists = ["./"]
         while build_lists:
@@ -44,8 +46,7 @@ class Nops:
                     bin = cl.get_output_name()
                     backup_bin = pathlib.Path(prefix) / BACKUP_FOLDER / ("nops_" + cl.section_name + ".bin")
                     if backup:
-                        if not os.path.isfile(bin):
-                            print("\n[NoPS-py] ERROR: " + bin + " not found.\n")
+                        if not _files.check_file(bin):
                             continue
                         size = os.path.getsize(bin)
                         self.fire_command(["/dump", hex(cl.address), hex(size),backup_bin])
