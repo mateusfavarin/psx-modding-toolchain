@@ -12,6 +12,7 @@ import os
 import pathlib
 import requests
 import subprocess
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,6 @@ class Redux:
             self.found_redux = False
             self.path = data["path"] # pathlib object
             if not _files.check_file(self.path):
-                print(f"\n[Redux-py] WARNING: Invalid redux directory: {self.path}")
                 return False
             self.command = []
             for exe in REDUX_EXES: # find the REDUX file
@@ -43,9 +43,9 @@ class Redux:
     def get_game_name(self) -> str:
         names = game_options.get_version_names()
         intro_msg = "Select the game version:\n"
-        for i in range(len(names)):
-            intro_msg += str(i + 1) + " - " + names[i] + "\n"
-        error_msg = "ERROR: Invalid version. Please select a number from 1-" + str(len(names)) +"."
+        for i, name in enumerate(names):
+            intro_msg += f"{i + 1} - {name}"
+        error_msg = f"ERROR: Invalid version. Please select a number from 1-{len(names)}."
         version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         out = game_options.get_gv_by_name(names[version - 1]).rom_name
 
@@ -54,13 +54,19 @@ class Redux:
     def construct_path_game(self):
         """ TODO: This can be simplified """
         if not self.found_redux:
+            count_retries = 0
             while not self.load_config():
                 print("\n[Redux-py] Could not find a valid path to PCSX-Redux emulator.")
                 print("Please check your settings.json and provide a valid path to redux.\n")
                 cli_pause()
+                count_retries += 1
+                if 5 <= count_retries:
+                    logger.critical("Max retries exeeced to find iso. Exiting")
+                    sys.exit(9)
             logger.info(f"Found PCSX-Redux executable at {self.command}")
         curr_dir = pathlib.Path.cwd()
         game_name = self.get_game_name()
+        logger.debug("game_name: {game_name}")
         mod_name = game_name.split(".")[0] + "_" + MOD_NAME + ".bin"
         generic_path = curr_dir / ISO_PATH
         path_game = generic_path / mod_name
@@ -138,10 +144,11 @@ class Redux:
 
     def reset_map(self) -> None:
         response = requests.post(self.url + "/api/v1/assembly/symbols?function=reset")
-        if response.status_code == 200:
-            print("Successfully reset redux map symbols.")
+        if response.ok:
+            if response.status_code == 200:
+                logger.info("Successfully reset redux map symbols.")
         else:
-            print("\n[Redux - Web Server] error resetting the map file.\n")
+            logger.error("Web Server: error resetting the map file.")
 
     def load_map(self, warnings=True) -> None:
         self.reset_map()
@@ -152,10 +159,11 @@ class Redux:
         file = open(REDUX_MAP_FILE, "rb")
         files = {"file": file}
         response = requests.post(self.url + "/api/v1/assembly/symbols?function=upload", files=files)
-        if response.status_code == 200:
-            print("Successfully loaded " + REDUX_MAP_FILE)
+        if response.ok:
+            if response.status_code == 200:
+                logger.info("Successfully loaded {REDUX_MAP_FILE}")
         else:
-            print("\n[Redux - Web Server] error loading " + REDUX_MAP_FILE + "\n")
+            logger.error("Web Server: error loading {REDUX_MAP_FILE}")
 
     def inject(self, backup: bool, restore: bool) -> None:
         build_id = get_build_id()
@@ -167,21 +175,25 @@ class Redux:
         psx_ram = bytearray()
         if backup:
             response = requests.get(url)
-            if response.status_code == 200:
-                psx_ram = response.content
-                print("Successfully retrieved a backup of the RAM.")
+            if response.ok:
+                if response.status_code == 200:
+                    psx_ram = response.content
+                    logger.info("Successfully retrieved a backup of the RAM.")
             else:
-                print("\n[Redux - Web Server] error backing up the RAM.\n")
+                logger.error("Web Server: error backing up the RAM.")
         build_lists = ["./"]
         while build_lists:
             prefix = build_lists.pop(0)
-            bl = prefix + COMPILE_LIST
+            build_list = prefix + COMPILE_LIST
             free_sections()
-            with open(bl, "r") as file:
+            with open(build_list, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
                     if cl.is_cl():
-                        build_lists.append(cl.bl_path)
+                        if cl.path_build_list is not None:
+                            build_lists.append(str(cl.path_build_list))
+                        else:
+                            logger.warning("buildList path not set")
                     if not cl.should_build():
                         continue
                     bin = cl.get_output_name() # pathlib object
@@ -204,13 +216,14 @@ class Redux:
                     file = open(bin, "rb")
                     files = {"file": file}
                     response = requests.post(url + "?offset=" + str(offset) + "&size=" + str(size), files=files)
-                    if response.status_code == 200:
-                        if restore:
-                            print(bin + " successfully restored.")
-                        else:
-                            print(bin + " successfully injected.")
+                    if response.ok:
+                        if response.status_code == 200:
+                            if restore:
+                                logger.info(f"{bin} successfully restored.")
+                            else:
+                                logger.info(f"{bin} successfully injected.")
                     else:
-                        print("\n[Redux - Web Server] error injecting " + bin + "\n")
+                        logger.error(f"Web Server: error injecting {bin}")
                     file.close()
 
     def inject_textures(self, backup: bool, restore: bool) -> None:
@@ -218,11 +231,12 @@ class Redux:
         vram_path = TEXTURES_OUTPUT_FOLDER + "vram.bin"
         if backup:
             response = requests.get(url)
-            if response.status_code == 200:
-                vram = response.content
-                print("Successfully retrieved a backup of the VRAM.")
+            if response.ok:
+                if response.status_code == 200:
+                    vram = response.content
+                    logger.info("Successfully retrieved a backup of the VRAM.")
             else:
-                print("\n[Redux - Web Server] Error backing up the VRAM.\n")
+                logger.error("Web Server: Error backing up the VRAM.")
             with open(vram_path, "wb") as file:
                 file.write(vram)
         if restore:
@@ -247,18 +261,18 @@ class Redux:
             for img in textures:
                 path = img.get_path()
                 if path is not None:
-                    file = open(path, "rb")
-                    files = {"file": file}
-                    response = requests.post(url + "?x=" + str(img.x) + "&y=" + str(img.y) + "&width=" + str(img.w) + "&height=" + str(img.h), files=files)
-                    if response.status_code == 200:
-                        print(path + " successfully injected.")
-                    else:
-                        print("\n[Redux - Web Server] error injecting " + path + "\n")
-                    file.close()
+                    with open(path, "rb"):
+                        files = {"file": file}
+                        url_endpoint = f"{url}?x={img.x}&y={img.y}&width={img.w}&height={img.h}"
+                        response = requests.post(url_endpoint, files=files)
+                        if response.ok:
+                            if response.status_code == 200:
+                                logger.info(f"{path} successfully injected.")
+                        else:
+                            logger.error(f"Web Server: error injecting {path}")
 
     def hot_reload(self) -> None:
         if not _files.check_file(COMPILE_LIST):
-            print("\n[Redux-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         is_running = bool()
         try:
