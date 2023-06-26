@@ -55,9 +55,14 @@ class Mkpsxiso:
         version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         return game_options.get_gv_by_name(names[version - 1])
 
-    def extract(self, gv, extract_folder: str, xml: str) -> None:
+    def extract_iso_to_xml(self, gv, dir_out, fname_out: str) -> None:
+        """
+        NOTE: We're converting some of the pathlibs to strings
+            because we don't know if the pymkpsxiso or self.plugin support pathlib yet
+        """
         has_iso = self.find_iso(gv)
-        while not has_iso:
+        count_retries = 0
+        while (not has_iso):
             cli_pause()
             has_iso = self.find_iso(gv)
             count_retries += 1
@@ -65,6 +70,10 @@ class Mkpsxiso:
                 logger.critical("Max retries exeeced to find iso. Exiting")
                 sys.exit(9)
         rom_path = ISO_PATH / gv.rom_name
+        _files.create_directory(dir_out)
+        # TODO: Find out if the plugin and pymk... support pathlib
+        pymkpsxiso.dump(str(rom_path), str(dir_out), str(fname_out))
+        self.plugin.extract(str(self.python_path / PLUGIN_PATH), str(self.python_path / dir_out))
 
     def abort_build_request(self) -> bool:
         """ TODO: Replace with click """
@@ -76,13 +85,16 @@ class Mkpsxiso:
         error_msg = "Invalid input. Please type a number from 1-2."
         return request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 
-    def patch_iso(self, version: str, build_id: int, build_files_folder: str, modified_rom_name: str, xml: str) -> bool:
+    def patch_iso(self, version: str, build_id: int, dir_in_build, modified_rom_name: str, fname_xml: str) -> bool:
+        """
+        dir_in_build and xml are paths
+        TODO: Refactor this since it's doing way too much
+        """
         disc = Disc(version)
         sym = Syms(build_id)
         modded_files = dict()
         iso_changed = False
-        build_files_folder += "/"
-        xml_tree = et.parse(xml)
+        xml_tree = et.parse(fname_xml)
         dir_tree = xml_tree.findall(".//directory_tree")[0]
         build_lists = ["./"]
         while build_lists:
@@ -113,7 +125,7 @@ class Mkpsxiso:
                             continue
 
                         # checking whether the original file exists and retrieving its size
-                        game_file = build_files_folder + df.physical_file
+                        game_file = dir_in_build / df.physical_file
                         if not _files.check_file(game_file):
                             if self.abort_build_request():
                                 return False
@@ -122,8 +134,7 @@ class Mkpsxiso:
 
                         # checking whether the modded file exists and retrieving its size
                         mod_file = cl.get_output_name()
-                        if not os.path.isfile(mod_file):
-                            print("\n[ISO-py] ERROR: " + mod_file + " not found.\n")
+                        if not _files.check_file(mod_file):
                             if self.abort_build_request():
                                 return False
                             continue
@@ -138,8 +149,8 @@ class Mkpsxiso:
                         with open(mod_file, "rb") as mod:
                             mod_data = bytearray(mod.read())
                         if game_file not in modded_files:
-                            modified_game_file = build_files_folder + df.physical_file
-                            modded_stream = open(modified_game_file, "r+b")
+                            modified_game_file = dir_in_build / df.physical_file
+                            modded_stream = open(modified_game_file, "r+b") # BUG: Should this be closed?
                             modded_files[game_file] = [modded_stream, bytearray(modded_stream.read())]
                             iso_changed = True
 
@@ -157,9 +168,9 @@ class Mkpsxiso:
                         filename = (cl.section_name + ".bin").upper()
                         filename_len = len(filename)
                         if filename_len > 12:
-                            filename = filename[(filename_len - 12):]
+                            filename = filename[(filename_len - 12):] # truncate
                         mod_file = OUTPUT_FOLDER + cl.section_name + ".bin"
-                        dst = build_files_folder + filename
+                        dst = dir_in_build / filename
                         shutil.copyfile(mod_file, dst)
                         contents = {
                             "name": filename,
@@ -178,12 +189,12 @@ class Mkpsxiso:
                     modded_stream.write(modded_buffer)
                     modded_stream.close()
                 if iso_changed:
-                    xml_tree.write(xml)
+                    xml_tree.write(fname_xml)
 
         return iso_changed
 
-    def convert_xml(self, xml: str, new_xml: str, modified_rom_name: str) -> None:
-        xml_tree = et.parse(xml)
+    def convert_xml(self, fname, fname_out, modified_rom_name: str) -> None:
+        xml_tree = et.parse(fname) # filename
         for element in xml_tree.iter():
             key = "source"
             if key in element.attrib:
@@ -191,7 +202,7 @@ class Mkpsxiso:
                 element_source[0] = modified_rom_name
                 element_source = "/".join(element_source)
                 element.attrib[key] = element_source
-        xml_tree.write(new_xml)
+        xml_tree.write(fname_out)
 
     def build(self, only_extract=False) -> None:
         gv = self.ask_user_for_version()
@@ -209,18 +220,18 @@ class Mkpsxiso:
             return
         if not _files.check_file(COMPILE_LIST):
             return
-        if not os.path.isfile(xml):
-            self.extract(gv, extract_folder, xml)
+        if not pathlib.Path(xml).exists: # don't need to log error
+            self.extract_iso_to_xml(gv, extract_folder, xml)
         modified_rom_name = f"{rom_name}_{MOD_NAME}"
         build_files_folder = ISO_PATH / modified_rom_name
-        new_xml = build_files_folder + ".xml"
+        new_xml = build_files_folder.with_suffix(".xml")
         _files.delete_directory(build_files_folder)
         logger.info("Copying files...")
         shutil.copytree(extract_folder, build_files_folder)
         logger.info("Converting XML...")
         self.convert_xml(xml, new_xml, modified_rom_name)
-        build_bin = build_files_folder + ".bin"
-        build_cue = build_files_folder + ".cue"
+        build_bin = build_files_folder.with_suffix(".bin")
+        build_cue = build_files_folder.with_suffix(".cue")
         logger.info("Patching files...")
         if self.patch_iso(gv.version, gv.build_id, build_files_folder, modified_rom_name, new_xml):
             logger.info("Building iso...")
