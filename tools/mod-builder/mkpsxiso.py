@@ -16,8 +16,8 @@ import pathlib
 import pyxdelta
 import pymkpsxiso
 import shutil
+import sys
 import xml.etree.ElementTree as et
-
 logger = logging.getLogger(__name__)
 
 MB = 1024 * 1024
@@ -49,9 +49,9 @@ class Mkpsxiso:
     def ask_user_for_version(self):
         names = game_options.get_version_names()
         intro_msg = "Select the game version:\n"
-        for i in range(len(names)):
-            intro_msg += str(i + 1) + " - " + names[i] + "\n"
-        error_msg = "ERROR: Invalid version. Please select a number from 1-" + str(len(names)) +"."
+        for i, name in enumerate(names):
+            intro_msg += f"{i + 1} - {name}\n"
+        error_msg = f"ERROR: Invalid version. Please select a number from 1-{len(names)}."
         version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         return game_options.get_gv_by_name(names[version - 1])
 
@@ -66,6 +66,7 @@ class Mkpsxiso:
         self.plugin.extract(self.python_path / PLUGIN_PATH, self.python_path / (extract_folder + "/"))
 
     def abort_build_request(self) -> bool:
+        """ TODO: Replace with click """
         intro_msg = (
             "Abort iso build?\n"
             "1 - Yes\n"
@@ -101,9 +102,9 @@ class Mkpsxiso:
                         # checking file start boundaries
                         if cl.address < df.address:
                             error_msg = (
-                                "\n[ISO-py] ERROR: Cannot overwrite " + df.physical_file + "\n"
-                                "Base address " + hex(df.address) + " is bigger than the requested address " + hex(cl.address) + "\n"
-                                "At line: " + cl.original_line + "\n\n"
+                                f"\n[ISO-py] ERROR: Cannot overwrite {df.physical_file}\n"
+                                f"Base address {hex(df.address)} is bigger than the requested address {hex(cl.address)}\n"
+                                f"At line: {cl.original_line}\n\n"
                             )
                             print(error_msg)
                             if self.abort_build_request():
@@ -130,7 +131,7 @@ class Mkpsxiso:
                         # Checking potential file size overflows and warning the user about them
                         offset = cl.address - df.address + df.offset
                         if (mod_size + offset) > game_file_size:
-                            print("\n[ISO-py] WARNING: " + mod_file + " will change the total file size of " + game_file + "\n")
+                            logger.warning(f"{mod_file} will increase total file size of {game_file}\n")
 
                         mod_data = bytearray()
                         with open(mod_file, "rb") as mod:
@@ -203,10 +204,9 @@ class Mkpsxiso:
         extract_folder = ISO_PATH / rom_name
         xml = extract_folder.with_suffix(".xml")
         if only_extract:
-            self.extract(gv, extract_folder, xml)
+            self.extract_iso_to_xml(gv, extract_folder, xml)
             return
         if not _files.check_file(COMPILE_LIST):
-            print("\n[ISO-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         if not os.path.isfile(xml):
             self.extract(gv, extract_folder, xml)
@@ -214,20 +214,20 @@ class Mkpsxiso:
         build_files_folder = ISO_PATH / modified_rom_name
         new_xml = build_files_folder + ".xml"
         _files.delete_directory(build_files_folder)
-        print("Copying files...")
+        logger.info("Copying files...")
         shutil.copytree(extract_folder, build_files_folder)
-        print("Converting XML...")
+        logger.info("Converting XML...")
         self.convert_xml(xml, new_xml, modified_rom_name)
         build_bin = build_files_folder + ".bin"
         build_cue = build_files_folder + ".cue"
-        print("Patching files...")
+        logger.info("Patching files...")
         if self.patch_iso(gv.version, gv.build_id, build_files_folder, modified_rom_name, new_xml):
-            print("Building iso...")
-            self.plugin.build(self.python_path / PLUGIN_PATH, self.python_path / (build_files_folder + "/"))
+            logger.info("Building iso...")
+            self.plugin.build(self.python_path / PLUGIN_PATH, self.python_path / build_files_folder)
             pymkpsxiso.make(build_bin, build_cue, new_xml)
-            print("Build completed.")
+            logger.info("Build completed.")
         else:
-            print("\n[ISO-py] WARNING: No files changed. ISO building skipped.\n")
+            logger.warning("No files changed. ISO building skipped.")
 
     def xdelta(self) -> None:
         gv = self.ask_user_for_version()
@@ -238,7 +238,7 @@ class Mkpsxiso:
             print(f"Make sure your original game is in {ISO_PATH}.\n")
             return
         if not _files.check_file(modded_game):
-            print("Make sure that you compiled and built your mod before trying to generate a xdelta patch.\n")
+            print("Make sure you compiled and built your mod before trying to generate a xdelta patch.\n")
             return
         print("Generating xdelta patch...")
         output = ISO_PATH / (mod_name + ".xdelta")

@@ -35,8 +35,8 @@ class Main:
         self.actions = {
             1   :   self.compile,
             2   :   self.clean,
-            3   :   self.mkpsxiso.extract_iso,
-            4   :   self.mkpsxiso.build,
+            3   :   self.mkpsxiso.extract_iso, # makes it awkward to pass arguments
+            4   :   self.mkpsxiso.build_iso,
             5   :   self.mkpsxiso.xdelta,
             6   :   self.mkpsxiso.clean,
             7   :   self.redux.hot_reload,

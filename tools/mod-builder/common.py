@@ -41,6 +41,7 @@ def cli_pause() -> None:
     """
     Continues to prompt user unless they manually kill it.
     TODO: Replace with click()
+    TODO: Give the user the option to exit
     """
     if using_cl_args:
         if len(remaining_args) == 0:
