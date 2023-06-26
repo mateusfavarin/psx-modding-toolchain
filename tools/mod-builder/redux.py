@@ -64,11 +64,11 @@ class Redux:
                     logger.critical("Max retries exeeced to find iso. Exiting")
                     sys.exit(9)
             logger.info(f"Found PCSX-Redux executable at {self.command}")
-        curr_dir = pathlib.Path.cwd()
+        dir_current = pathlib.Path.cwd()
         game_name = self.get_game_name()
         logger.debug("game_name: {game_name}")
         mod_name = game_name.split(".")[0] + "_" + MOD_NAME + ".bin"
-        generic_path = curr_dir / ISO_PATH
+        generic_path = dir_current / ISO_PATH
         path_game = generic_path / mod_name
         if not _files.check_file(path_game):
             # if modded game not found, fallback to original game
@@ -81,6 +81,7 @@ class Redux:
     def start_emulation(self) -> None:
         """ TODO: Way too much going on here """
         path_game = self.construct_path_game()
+        dir_current = pathlib.Path.cwd()
         os.chdir(self.path)
         self.command.append("-run")
         self.command.append("-loadiso")
@@ -152,7 +153,7 @@ class Redux:
 
     def load_map(self, warnings=True) -> None:
         self.reset_map()
-        if not os.path.isfile(REDUX_MAP_FILE):
+        if not _files.check_file(REDUX_MAP_FILE):
             if warnings:
                 print("\n[Redux-py] ERROR: No map file found. Make sure you have compiled your mod before trying to hot reload.\n")
             return
@@ -199,8 +200,7 @@ class Redux:
                     bin = cl.get_output_name() # pathlib object
                     backup_bin = pathlib.Path(prefix) / BACKUP_FOLDER / ("redux_" + cl.section_name + ".bin")
                     offset = cl.address & 0xFFFFFFF
-                    if not os.path.isfile(bin):
-                        print("\n[Redux-py] ERROR: " + bin + " not found.\n")
+                    if not _files.check_file(bin):
                         continue
                     size = os.path.getsize(bin)
                     if backup:
@@ -209,8 +209,7 @@ class Redux:
                             file.write(section)
                     if restore:
                         bin = backup_bin
-                        if not os.path.isfile(bin):
-                            print("\n[Redux-py] ERROR: backup file " + bin + " not found.\n")
+                        if not _files.check_file(bin):
                             continue
                         size = os.path.getsize(bin)
                     file = open(bin, "rb")
