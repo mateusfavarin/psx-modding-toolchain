@@ -20,6 +20,7 @@ from c import export_as_c
 import logging
 import os
 import pathlib
+import sys 
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,7 @@ class Main:
             16  :   export_as_c,
             17  :   rename_psyq_sections,
             18  :   self.clean_all,
+            19  :   self.shutdown
         }
         self.num_options = len(self.actions)
         self.window_title = GAME_NAME + " - " + MOD_NAME
@@ -58,6 +60,10 @@ class Main:
         else:
             self.python = "python3"
         self.update_title()
+
+    def shutdown(self):
+        logger.info("EXITING")
+        sys.exit(0)
 
     def update_title(self):
         if IS_WINDOWS_OS:
@@ -91,6 +97,7 @@ class Main:
             "16 - Export textures as C file\n"
             "17 - Rename PSYQ Sections\n"
             "18 - Clean All\n"
+            "19 - Quit\n"
         )
         error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(self.num_options) + ".\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
