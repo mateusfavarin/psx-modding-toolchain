@@ -238,7 +238,7 @@ class Makefile:
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
-                    logger.critical("There was an error in the makefile")
+                    logger.critical("Compilation failed")
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
         end_time = time()

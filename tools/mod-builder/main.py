@@ -20,7 +20,8 @@ from c import export_as_c
 import logging
 import os
 import pathlib
-import sys 
+import subprocess
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class Main:
             19  :   self.shutdown
         }
         self.num_options = len(self.actions)
-        self.window_title = GAME_NAME + " - " + MOD_NAME
+        self.window_title = f"{GAME_NAME} - {MOD_NAME}"
         self.python = None
         if IS_WINDOWS_OS:
             self.python = "python"
@@ -66,6 +67,7 @@ class Main:
         sys.exit(0)
 
     def update_title(self):
+        """ TODO: Identify these commands """
         if IS_WINDOWS_OS:
             os.system("title " + self.window_title)
         else:
@@ -157,8 +159,10 @@ class Main:
             os.chdir(dep)
             path_module = CONFIG_PATH.parents[1] / "tools" / "mod-builder" / "main.py"
             # use to use get_distance_to_file(False, CONFIG_FILE), same as CONFIG_PATH?
-            command = f"{self.python} {str(path_module)} 1 {instance_symbols.version}"
-            os.system(command)
+            command = [self.python, str(path_module), "1", instance_symbols.version]
+            result = subprocess.call(command) # only returns code
+            if result != 0:
+                logger.critical("Couldn't run the symbols version")
         os.chdir(curr_dir)
         if root:
             _files.delete_file(RECURSIVE_COMP_PATH)
@@ -199,8 +203,11 @@ class Main:
     def disasm(self) -> None:
         path_in = DEBUG_FOLDER / 'mod.elf'
         path_out = DEBUG_FOLDER / 'disasm.txt'
-        command = f"mipsel-none-elf-objdump -d {str(path_in)} >> {str(path_out)}"
-        os.system(command)
+        with open(path_out, "w") as file:
+            command = ["mipsel-none-elf-objdump", "-d", str(path_in)]
+            result = subprocess.call(command, stdout=file, stderr=subprocess.STDOUT)
+            if result.returncode != 0:
+                logger.critical("Disassembly failed")
         logger.info(f"Disassembly saved at {path_out}")
 
     def exec(self):
