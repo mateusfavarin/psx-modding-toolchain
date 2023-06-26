@@ -204,7 +204,7 @@ class Mkpsxiso:
                 element.attrib[key] = element_source
         xml_tree.write(fname_out)
 
-    def build(self, only_extract=False) -> None:
+    def build_iso(self, only_extract=False) -> None:
         instance_version = self.ask_user_for_version()
         last_compiled_version = get_build_id()
         if last_compiled_version is not None and instance_version.build_id != last_compiled_version:
@@ -280,4 +280,4 @@ class Mkpsxiso:
             _files.delete_file(build_xdelta)
 
     def extract_iso(self) -> None:
-        self.build(only_extract=True)
+        self.build_iso(only_extract=True)
