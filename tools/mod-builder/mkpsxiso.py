@@ -40,9 +40,9 @@ class Mkpsxiso:
         spec.loader.exec_module(self.plugin)
         self.python_path = pathlib.Path.cwd()
 
-    def find_iso(self, gv) -> bool:
-        if not _files.check_file(ISO_PATH / gv.rom_name):
-            print(f"Please insert your {gv.version} game in {ISO_PATH} and rename it to {gv.rom_name}")
+    def find_iso(self, instance_version) -> bool:
+        if not _files.check_file(ISO_PATH / instance_version.rom_name):
+            print(f"Please insert your {instance_version.version} game in {ISO_PATH} and rename it to {instance_version.rom_name}")
             return False
         return True
 
@@ -55,21 +55,21 @@ class Mkpsxiso:
         version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         return game_options.get_gv_by_name(names[version - 1])
 
-    def extract_iso_to_xml(self, gv, dir_out, fname_out: str) -> None:
+    def extract_iso_to_xml(self, instance_version, dir_out, fname_out: str) -> None:
         """
         NOTE: We're converting some of the pathlibs to strings
             because we don't know if the pymkpsxiso or self.plugin support pathlib yet
         """
-        has_iso = self.find_iso(gv)
+        has_iso = self.find_iso(instance_version)
         count_retries = 0
         while (not has_iso):
             cli_pause()
-            has_iso = self.find_iso(gv)
+            has_iso = self.find_iso(instance_version)
             count_retries += 1
             if 5 <= count_retries:
                 logger.critical("Max retries exeeced to find iso. Exiting")
                 sys.exit(9)
-        rom_path = ISO_PATH / gv.rom_name
+        rom_path = ISO_PATH / instance_version.rom_name
         _files.create_directory(dir_out)
         # TODO: Find out if the plugin and pymk... support pathlib
         pymkpsxiso.dump(str(rom_path), str(dir_out), str(fname_out))
@@ -205,23 +205,23 @@ class Mkpsxiso:
         xml_tree.write(fname_out)
 
     def build(self, only_extract=False) -> None:
-        gv = self.ask_user_for_version()
+        instance_version = self.ask_user_for_version()
         last_compiled_version = get_build_id()
-        if last_compiled_version is not None and gv.build_id != last_compiled_version:
-            print("\n[ISO-py] WARNING: iso build was requested for version: " + gv.version + ", but last compiled version was: " + game_options.get_gv_by_build_id(last_compiled_version).version)
+        if last_compiled_version is not None and instance_version.build_id != last_compiled_version:
+            print("\n[ISO-py] WARNING: iso build was requested for version: " + instance_version.version + ", but last compiled version was: " + game_options.get_gv_by_build_id(last_compiled_version).version)
             print("This could mean that some output files may contain data for the wrong version, resulting in a corrupted disc.")
             if self.abort_build_request():
                 return
-        rom_name = gv.rom_name.split(".")[0]
+        rom_name = instance_version.rom_name.split(".")[0]
         extract_folder = ISO_PATH / rom_name
         xml = extract_folder.with_suffix(".xml")
         if only_extract:
-            self.extract_iso_to_xml(gv, extract_folder, xml)
+            self.extract_iso_to_xml(instance_version, extract_folder, xml)
             return
         if not _files.check_file(COMPILE_LIST):
             return
         if not pathlib.Path(xml).exists: # don't need to log error
-            self.extract_iso_to_xml(gv, extract_folder, xml)
+            self.extract_iso_to_xml(instance_version, extract_folder, xml)
         modified_rom_name = f"{rom_name}_{MOD_NAME}"
         build_files_folder = ISO_PATH / modified_rom_name
         new_xml = build_files_folder.with_suffix(".xml")
@@ -233,7 +233,7 @@ class Mkpsxiso:
         build_bin = build_files_folder.with_suffix(".bin")
         build_cue = build_files_folder.with_suffix(".cue")
         logger.info("Patching files...")
-        if self.patch_iso(gv.version, gv.build_id, build_files_folder, modified_rom_name, new_xml):
+        if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml):
             logger.info("Building iso...")
             self.plugin.build(self.python_path / PLUGIN_PATH, self.python_path / build_files_folder)
             pymkpsxiso.make(build_bin, build_cue, new_xml)
@@ -242,9 +242,9 @@ class Mkpsxiso:
             logger.warning("No files changed. ISO building skipped.")
 
     def xdelta(self) -> None:
-        gv = self.ask_user_for_version()
-        original_game = ISO_PATH / gv.rom_name
-        mod_name = gv.rom_name.split(".")[0] + "_" + MOD_NAME
+        instance_version = self.ask_user_for_version()
+        original_game = ISO_PATH / instance_version.rom_name
+        mod_name = instance_version.rom_name.split(".")[0] + "_" + MOD_NAME
         modded_game = ISO_PATH / (mod_name + ".bin")
         if not _files.check_file(original_game):
             print(f"Make sure your original game is in {ISO_PATH}.\n")
@@ -259,8 +259,8 @@ class Mkpsxiso:
 
     def clean(self, all=False) -> None:
         for version in game_options.get_version_names():
-            gv = game_options.get_gv_by_name(version)
-            rom_name = gv.rom_name.split(".")[0]
+            instance_version = game_options.get_gv_by_name(version)
+            rom_name = instance_version.rom_name.split(".")[0]
             modified_rom_name = rom_name + "_" + MOD_NAME
             build_files_folder = ISO_PATH / modified_rom_name
             build_cue = build_files_folder.with_suffix(".cue")
