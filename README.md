@@ -26,7 +26,7 @@ Note: some python installations might be incomplete. Make sure that you have ins
 To compile the GCC mipsel toolchain (incomplete)
 ```
 make
-libgl1 with GLIBC_2.35
+libgl1 with GLIBC_2.35 # if using prebuilt
 ```
 
 ## Setup
@@ -80,6 +80,7 @@ The `install_toolchain_prebuilt.sh` extracts them to /opt/gcc-mipsel-none-elf/ (
 export PATH="$PATH:/opt/gcc-mipsel-none-elf/bin"
 export PATH="$PATH:/opt/gcc-mipsel-none-elf/mipsel-none-elf/bin"
 ```
+Note: This isn't permanent and only works in a single terminal at a time.
 
 OR you can run the dockerfile (EXPERIMENTAL) from the root of this directory
 ```
