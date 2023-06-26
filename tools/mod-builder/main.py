@@ -121,10 +121,10 @@ class Main:
         if not _files.check_file(COMPILE_LIST):
             logger.exception(f"{COMPILE_LIST} not found.")
             return
-        root = False
+        is_root = False
         if not _files.check_file(RECURSIVE_COMP_PATH):
             with open(RECURSIVE_COMP_PATH, "w") as _:
-                root = True
+                is_root = True
         else:
             with open(RECURSIVE_COMP_PATH, "r") as file:
                 if MOD_NAME in file.readline().split():
@@ -145,15 +145,15 @@ class Main:
             intro_msg = "[Compile-py] Would you like to continue to compilation process?\n\n1 - Yes\n2 - No\n"
             error_msg = "ERROR: Wrong option. Please type a number from 1-2.\n"
             if request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 2:
-                self.abort_compilation(is_root=root, is_warning=False)
+                self.abort_compilation(is_root, is_warning=False)
         if make.build_makefile():
             if make.make():
                 with open(RECURSIVE_COMP_PATH, "a") as file:
                     file.write(MOD_NAME + " ")
             else:
-                self.abort_compilation(is_root=root, is_warning=True)
+                self.abort_compilation(is_root, is_warning=True)
         else:
-            self.abort_compilation(is_root=root, is_warning=True)
+            self.abort_compilation(is_root, is_warning=True)
         curr_dir = pathlib.Path.cwd()
         for dep in dependencies: # Does this matter since we know the full path?
             os.chdir(dep)
@@ -164,7 +164,7 @@ class Main:
             if result != 0:
                 logger.critical("Couldn't run the symbols version")
         os.chdir(curr_dir)
-        if root:
+        if is_root:
             _files.delete_file(RECURSIVE_COMP_PATH)
             _files.delete_file(ABORT_PATH)
             self.update_title()
