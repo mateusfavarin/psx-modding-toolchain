@@ -17,6 +17,7 @@ import shutil
 import subprocess
 from time import time
 
+import pdb
 
 logger = logging.getLogger(__name__)
 
@@ -237,7 +238,7 @@ class Makefile:
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
-                    print("There was an error in the makefile")
+                    logger.critical("There was an error in the makefile")
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
         end_time = time()
