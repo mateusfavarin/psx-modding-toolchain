@@ -15,7 +15,6 @@ import re
 import os
 import shutil
 import subprocess
-import sys
 from time import time
 
 
@@ -236,8 +235,8 @@ class Makefile:
         try:
             command = ["make", "--silent"]
             with open(GCC_OUT_FILE, "w") as outfile:
-                result = subprocess.run(command, stdout=outfile, stderr=outfile)
-                if result != 0:
+                result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
+                if result.returncode != 0:
                     print("There was an error in the makefile")
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
