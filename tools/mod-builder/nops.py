@@ -5,20 +5,27 @@ from common import COMPILE_LIST, SETTINGS_PATH, BACKUP_FOLDER, get_build_id, req
 
 import os
 import json
+import pathlib
+import subprocess
 
 class Nops:
     def __init__(self) -> None:
         pass
 
     def load_config(self) -> None:
+        """ TODO: Put in try/except """
         with open(SETTINGS_PATH) as file:
             data = json.load(file)["nops"]
             self.comport = " " + data["comport"].upper()
             mode = data["mode"]
             self.prefix = "nops /" + mode.lower() + " "
 
-    def fire_command(self, command: str) -> None:
-        os.system(self.prefix + command + self.comport)
+    def fire_command(self, list_args: str) -> None:
+        """TODO: Put this in logging"""
+        command = [self.prefix]
+        command.extend(list_args)
+        command.append(self.comport)
+        result = subprocess.run(command)
 
     def inject(self, backup: bool, restore: bool) -> None:
         sym = Syms(get_build_id())
@@ -41,17 +48,15 @@ class Nops:
                             print("\n[NoPS-py] ERROR: " + bin + " not found.\n")
                             continue
                         size = os.path.getsize(bin)
-                        self.fire_command("/dump " + hex(cl.address) + " " + hex(size) + " " + backup_bin)
+                        self.fire_command(["/dump", hex(cl.address), hex(size),backup_bin])
                     if restore:
                         bin = backup_bin
-                    if not os.path.isfile(bin):
-                        print("\n[NoPS-py] ERROR: " + bin + " not found.\n")
+                    if not _files.check_file(bin):
                         continue
-                    self.fire_command("/bin " + hex(cl.address) + " " + bin)
+                    self.fire_command(["/bin", hex(cl.address), bin])
 
     def hot_reload(self) -> None:
         if not _files.check_file(COMPILE_LIST):
-            print("\n[NoPS-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
         intro_msg = (
             "Would you like to backup the state?\n"
@@ -62,14 +67,13 @@ class Nops:
         )
         error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
         backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
-        self.fire_command("/halt")
+        self.fire_command(["/halt"])
         self.inject(backup, False)
-        self.fire_command("/cont")
+        self.fire_command(["/cont"])
 
     def restore(self) -> None:
         if not _files.check_file(COMPILE_LIST):
-            print("\n[NoPS-py] ERROR: " + COMPILE_LIST + " not found.\n")
             return
-        self.fire_command("/halt")
+        self.fire_command(["/halt"])
         self.inject(False, True)
-        self.fire_command("/cont")
+        self.fire_command(["/cont"])
