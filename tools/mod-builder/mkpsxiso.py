@@ -30,7 +30,7 @@ def _copyfileobj_patched(fsrc, fdst, length=64*MB):
             break
         fdst.write(buf)
 
-shutil.copyfileobj = _copyfileobj_patched
+shutil.copyfileobj = _copyfileobj_patched # overwrites a class method directly (dangerous)
 
 class Mkpsxiso:
     def __init__(self) -> None:
@@ -42,8 +42,7 @@ class Mkpsxiso:
 
     def find_iso(self, gv) -> bool:
         if not _files.check_file(ISO_PATH / gv.rom_name):
-            print("Please insert your " + gv.version + " game in the " + ISO_PATH + " directory,")
-            print("and rename it to " + gv.rom_name)
+            print(f"Please insert your {gv.version} game in {ISO_PATH} and rename it to {gv.rom_name}")
             return False
         return True
 
@@ -201,8 +200,8 @@ class Mkpsxiso:
             if self.abort_build_request():
                 return
         rom_name = gv.rom_name.split(".")[0]
-        extract_folder = ISO_PATH + rom_name
-        xml = extract_folder + ".xml"
+        extract_folder = ISO_PATH / rom_name
+        xml = extract_folder.with_suffix(".xml")
         if only_extract:
             self.extract(gv, extract_folder, xml)
             return
@@ -211,8 +210,8 @@ class Mkpsxiso:
             return
         if not os.path.isfile(xml):
             self.extract(gv, extract_folder, xml)
-        modified_rom_name = rom_name + "_" + MOD_NAME
-        build_files_folder = ISO_PATH + modified_rom_name
+        modified_rom_name = f"{rom_name}_{MOD_NAME}"
+        build_files_folder = ISO_PATH / modified_rom_name
         new_xml = build_files_folder + ".xml"
         _files.delete_directory(build_files_folder)
         print("Copying files...")
