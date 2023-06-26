@@ -60,10 +60,11 @@ class Mkpsxiso:
         while not has_iso:
             cli_pause()
             has_iso = self.find_iso(gv)
-        rom_path = ISO_PATH + gv.rom_name
-        _files.create_directory(extract_folder)
-        pymkpsxiso.dump(rom_path, extract_folder, xml)
-        self.plugin.extract(self.python_path / PLUGIN_PATH, self.python_path / (extract_folder + "/"))
+            count_retries += 1
+            if 5 <= count_retries:
+                logger.critical("Max retries exeeced to find iso. Exiting")
+                sys.exit(9)
+        rom_path = ISO_PATH / gv.rom_name
 
     def abort_build_request(self) -> bool:
         """ TODO: Replace with click """
