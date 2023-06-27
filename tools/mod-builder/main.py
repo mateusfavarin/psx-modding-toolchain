@@ -74,34 +74,38 @@ class Main:
             os.system('echo -n -e "\\033]0;' + self.window_title + '\\007"')
 
     def get_options(self) -> int:
-        intro_msg = (
-            "Please select an action:\n\n"
-            "Mod:\n"
-            "1 - Compile\n"
-            "2 - Clean\n\n"
-            "Iso:\n"
-            "3 - Extract Iso\n"
-            "4 - Build Iso\n"
-            "5 - Generate xdelta patch\n"
-            "6 - Clean Build\n\n"
-            "PCSX-Redux:\n"
-            "7 - Hot Reload Mod\n"
-            "8 - Restore Mod\n"
-            "9 - Replace Textures\n"
-            "10 - Restore Textures\n"
-            "11 - Start Emulation\n\n"
-            "NotPSXSerial:\n"
-            "12 - Hot Reload\n"
-            "13 - Restore\n\n"
-            "General:\n"
-            "14 - Clean Precompiled Header\n"
-            "15 - Disassemble Elf\n"
-            "16 - Export textures as C file\n"
-            "17 - Rename PSYQ Sections\n"
-            "18 - Clean All\n"
-            "19 - Quit\n"
-        )
-        error_msg = "ERROR: Wrong option. Please type a number from 1-" + str(self.num_options) + ".\n"
+        intro_msg = """
+        Please select an action:
+        Mod:
+        1 - Compile
+        2 - Clean
+
+        Iso:
+        3 - Extract Iso
+        4 - Build Iso
+        5 - Generate xdelta patch
+        6 - Clean Build
+
+        PCSX-Redux:
+        7 - Hot Reload Mod
+        8 - Restore Mod
+        9 - Replace Textures
+        10 - Restore Textures
+        11 - Start Emulation
+
+        NotPSXSerial:
+        12 - Hot Reload
+        13 - Restore
+
+        General:
+        14 - Clean Precompiled Header
+        15 - Disassemble Elf
+        16 - Export textures as C file
+        17 - Rename PSYQ Sections
+        18 - Clean All
+        19 - Quit
+        """
+        error_msg = "ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
 
     def abort_compilation(self, is_root: bool, is_warning: bool) -> None:

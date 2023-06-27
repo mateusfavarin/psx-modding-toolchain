@@ -50,7 +50,7 @@ class CompileList:
         """
         string_p = string.replace(COMMENT_SYMBOL, f",{COMMENT_SYMBOL},")
         list_tokens = [l.strip() for l in string_p.split(",") if l.strip() != ""]
-        # TODO: Prone to bugs as it's modifying the list as we iterate through it
+        # BUG: Prone to bugs as it's modifying the list as we iterate through it
         for index, token in enumerate(list_tokens):
             if token == COMMENT_SYMBOL:
                 if index == 0:
@@ -96,6 +96,7 @@ class CompileList:
         self.source = list()
         folders = dict()
         for src in srcs:
+            # TODO: Replace with pathlib
             src = (self.prefix + src).replace("\\", "/").rsplit("/", 1)
             directory = src[0] + "/"
             regex = re.compile(src[1].replace("*", "(.*)"))

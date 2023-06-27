@@ -77,11 +77,11 @@ class Mkpsxiso:
 
     def abort_build_request(self) -> bool:
         """ TODO: Replace with click """
-        intro_msg = (
-            "Abort iso build?\n"
-            "1 - Yes\n"
-            "2 - No\n"
-        )
+        intro_msg = """
+        Abort iso build?
+        1 - Yes
+        2 - No
+        """
         error_msg = "Invalid input. Please type a number from 1-2."
         return request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 
@@ -114,11 +114,11 @@ class Mkpsxiso:
                     if df is not None:
                         # checking file start boundaries
                         if cl.address < df.address:
-                            error_msg = (
-                                f"\n[ISO-py] ERROR: Cannot overwrite {df.physical_file}\n"
-                                f"Base address {hex(df.address)} is bigger than the requested address {hex(cl.address)}\n"
-                                f"At line: {cl.original_line}\n\n"
-                            )
+                            error_msg = f"""
+                            [ISO-py] ERROR: Cannot overwrite {df.physical_file}
+                            Base address {hex(df.address)} is bigger than the requested address {hex(cl.address)}
+                            At line: {cl.original_line}
+                            """
                             print(error_msg)
                             if self.abort_build_request():
                                 return False

@@ -59,13 +59,13 @@ class Nops:
     def hot_reload(self) -> None:
         if not _files.check_file(COMPILE_LIST):
             return
-        intro_msg = (
-            "Would you like to backup the state?\n"
-            "1 - Yes\n"
-            "2 - No\n"
-            "Note: this option is required if you want to uninstall the mod.\n"
-            "By selecting yes you'll overwrite the current backup.\n"
-        )
+        intro_msg = """
+        Would you like to backup the state?
+        1 - Yes
+        2 - No
+        Note: this option is required if you want to uninstall the mod.
+        By selecting yes you'll overwrite the current backup.
+        """
         error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
         backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
         self.fire_command(["/halt"])

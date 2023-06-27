@@ -44,7 +44,7 @@ class Redux:
         names = game_options.get_version_names()
         intro_msg = "Select the game version:\n"
         for i, name in enumerate(names):
-            intro_msg += f"{i + 1} - {name}"
+            intro_msg += f"{i + 1} - {name}\n"
         error_msg = f"ERROR: Invalid version. Please select a number from 1-{len(names)}."
         version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         out = game_options.get_gv_by_name(names[version - 1]).rom_name
@@ -281,13 +281,13 @@ class Redux:
             print("Make sure that redux is running, its web server is active, and")
             print("the port configuration saved in settings.json is correct.\n")
             return
-        intro_msg = (
-            "Would you like to backup the RAM?\n"
-            "1 - Yes\n"
-            "2 - No\n"
-            "Note: this option is required if you want to uninstall the mod.\n"
-            "By selecting yes you'll overwrite the current backup.\n"
-        )
+        intro_msg = """
+        Would you like to backup the RAM?
+        1 - Yes
+        2 - No
+        Note: this option is required if you want to uninstall the mod.
+        By selecting yes you'll overwrite the current backup.
+        """
         error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
         backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
         self.pause_emulation()
@@ -325,13 +325,13 @@ class Redux:
             print("the port configuration saved in settings.json is correct.\n")
             return
 
-        intro_msg = (
-            "Would you like to backup the VRAM?\n"
-            "1 - Yes\n"
-            "2 - No\n"
-            "Note: this option is required if you want to restore the original textures.\n"
-            "By selecting yes you'll overwrite the current backup.\n"
-        )
+        intro_msg = """
+        Would you like to backup the VRAM?
+        1 - Yes
+        2 - No
+        Note: this option is required if you want to restore the original textures.
+        By selecting yes you'll overwrite the current backup.
+        """
         error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
         backup = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 

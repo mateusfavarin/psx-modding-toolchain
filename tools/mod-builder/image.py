@@ -97,6 +97,9 @@ class Image:
         cv2.waitKey(0)
 
     def as_c_struct(self) -> str:
+        """
+        TODO: replace with triple quotes
+        """
         buffer = "// CLUT = " + self.clut.name + "\n"
         buffer += "char " + self.name + "[] = {"
         for px in self.psx_img:
@@ -111,6 +114,7 @@ class Image:
         return buffer
 
     def __str__(self) -> str:
+        """TODO: Replace with triple quotes"""
         buffer = ""
         if (self.clut is not None) and (self.clut.is_valid()):
             buffer += "IMG: " + self.name + "\n"

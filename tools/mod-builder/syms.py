@@ -5,7 +5,6 @@ from common import request_user_input, is_number
 from game_options import game_options
 
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +21,16 @@ class Syms():
             return game_options.get_gv_by_build_id(build_id)
         names = game_options.get_version_names()
         intro_msg = "Select the game version:\n"
-        for i in range(len(names)):
-            intro_msg += str(i + 1) + " - " + names[i] + "\n"
-        error_msg = "ERROR: Invalid version. Please select a number from 1-" + str(len(names)) +"."
+        for i, name in enumerate(names):
+            intro_msg += f"{i + 1} - {name}\n"
+        error_msg = f"ERROR: Invalid version. Please select a number from 1-{len(names)}."
         self.version = request_user_input(first_option=1, last_option=len(names), intro_msg=intro_msg, error_msg=error_msg)
         return game_options.get_gv_by_name(names[self.version - 1])
 
     def parse_gcc_file(self, fname: str) -> None:
+        """
+        TODO: Abstract this out
+        """
         if not _files.check_file(fname):
             return
         with open(fname, "r") as file:
@@ -43,8 +45,7 @@ class Syms():
                 symbol = line[0]
                 address = line[1].split(";")[0].strip()
                 if not is_number(address):
-                    print("\n[Syms-py] ERROR: invalid address in file: " + filename)
-                    print("[Syms-py] at line: " + original_line + "\n")
+                    logger.error("Invalid address in file: {fname} at line: {original_line}")
                     continue
                 address = int(address, 0)
                 self.syms[symbol] = address
