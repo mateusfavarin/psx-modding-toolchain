@@ -123,7 +123,6 @@ class Main:
         if ABORT_PATH.exists(): # Shouldn't log ERROR for this one
             return # Abort ongoing compilation chain due to an error that occured
         if not _files.check_file(COMPILE_LIST):
-            logger.exception(f"{COMPILE_LIST} not found.")
             return
         is_root = False
         if not _files.check_file(RECURSIVE_COMP_PATH):

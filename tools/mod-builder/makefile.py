@@ -240,6 +240,7 @@ class Makefile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
                     logger.critical("Compilation failed")
+                    return False
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
         end_time = time()
@@ -251,14 +252,14 @@ class Makefile:
         if (not os.path.isfile("mod.map")) or (not os.path.isfile("mod.elf")):
             self.move_temp_files()
             self.delete_temp_files()
-            print("\n[Makefile-py] ERROR: compilation was not successful. (" + total_time + "s)\n")
+            logger.critical(f"Compilation completed but unsuccessful. ({total_time}s)")
             return False
 
         shutil.move("mod.map", DEBUG_FOLDER + "mod.map")
         shutil.move("mod.elf", DEBUG_FOLDER + "mod.elf")
         self.move_temp_files()
 
-        print("\n[Makefile-py] Successful compilation in " + total_time + "s.\n")
+        logger.info(f"Compilation successful ({total_time}s)")
         pattern = re.compile(r"0x0000000080[0-7][0-9a-fA-F]{5}\s+([a-zA-Z]|_)\w*")
         special_symbols = ["__heap_base", "__ovr_start", "__ovr_end", "OVR_START_ADDR"]
         buffer = ""
