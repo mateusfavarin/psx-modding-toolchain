@@ -26,7 +26,7 @@ def clean_pch() -> None:
         data = json.load(file)["compiler"]
         if "pch" in data:
             pch = data["pch"] + ".gch"
-            _files.delete_file(GAME_INCLUDE_PATH + pch)
+            _files.delete_file(GAME_INCLUDE_PATH / pch)
 
 class Makefile:
     def __init__(self, build_id: int, files_symbols: list[str]) -> None:
