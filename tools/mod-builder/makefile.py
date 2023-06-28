@@ -174,7 +174,7 @@ class Makefile:
         EXTRA_CC_FLAGS = {self.compiler_flags}
         OPT_CC_FLAGS = {self.opt_ccflags}
         OPT_LD_FLAGS = {self.opt_ldflags}
-        PCHS = $(GAMEINCLUDEDIR){self.pch}
+        PCHS = {str(GAME_INCLUDE_PATH/self.pch)}
         TRIMBIN_OFFSET = $(MODDIR){TRIMBIN_OFFSET}
 
         include {str(CONFIG_PATH.parents[1] / 'common.mk')}
