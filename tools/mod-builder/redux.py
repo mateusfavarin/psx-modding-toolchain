@@ -28,7 +28,7 @@ class Redux:
             self.port = str(data["port"])
             self.url = "http://127.0.0.1:" + str(self.port)
             self.found_redux = False
-            self.path = data["path"] # pathlib object
+            self.path = pathlib.Path(data["path"]) # pathlib object
             if not _files.check_file(self.path):
                 return False
             self.command = []
