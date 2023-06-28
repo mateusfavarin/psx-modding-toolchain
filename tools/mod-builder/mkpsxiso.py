@@ -237,7 +237,7 @@ class Mkpsxiso:
         logger.info("Patching files...")
         if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml):
             logger.info("Building iso...")
-            self.plugin.build(self.python_path / PLUGIN_PATH, self.python_path / build_files_folder)
+            self.plugin.build(str(self.python_path / PLUGIN_PATH), str(self.python_path / build_files_folder))
             pymkpsxiso.make(str(build_bin), str(build_cue), str(new_xml))
             logger.info("Build completed.")
         else:
