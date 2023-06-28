@@ -256,7 +256,7 @@ class Mkpsxiso:
             return
         print("Generating xdelta patch...")
         output = ISO_PATH / (mod_name + ".xdelta")
-        pyxdelta.run(str(original_game), modded_game, output)
+        pyxdelta.run(str(original_game), str(modded_game), str(output))
         logger.info(f"{output} generated!")
 
     def clean(self, all=False) -> None:
