@@ -1,5 +1,6 @@
 """
 TODO: Replace with Click
+pyxdelta doesn't support pathlib
 """
 
 import _files # check_file, delete_file, create_directory, delete_directory
@@ -59,6 +60,7 @@ class Mkpsxiso:
         """
         NOTE: We're converting some of the pathlibs to strings
             because we don't know if the pymkpsxiso or self.plugin support pathlib yet
+
         """
         has_iso = self.find_iso(instance_version)
         count_retries = 0
@@ -236,7 +238,7 @@ class Mkpsxiso:
         if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml):
             logger.info("Building iso...")
             self.plugin.build(self.python_path / PLUGIN_PATH, self.python_path / build_files_folder)
-            pymkpsxiso.make(build_bin, build_cue, new_xml)
+            pymkpsxiso.make(str(build_bin), str(build_cue), str(new_xml))
             logger.info("Build completed.")
         else:
             logger.warning("No files changed. ISO building skipped.")
@@ -254,7 +256,7 @@ class Mkpsxiso:
             return
         print("Generating xdelta patch...")
         output = ISO_PATH / (mod_name + ".xdelta")
-        pyxdelta.run(original_game, modded_game, output)
+        pyxdelta.run(str(original_game), modded_game, output)
         logger.info(f"{output} generated!")
 
     def clean(self, all=False) -> None:
