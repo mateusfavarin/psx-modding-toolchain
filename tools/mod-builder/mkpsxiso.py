@@ -5,7 +5,7 @@ Assume all plugins.py don't support pathlib
 """
 
 import _files # check_file, delete_file, create_directory, delete_directory
-from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, TOOLS_PATH, request_user_input, cli_pause, get_build_id
+from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, request_user_input, cli_pause, get_build_id
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -36,7 +36,7 @@ shutil.copyfileobj = _copyfileobj_patched # overwrites a class method directly (
 
 class Mkpsxiso:
     def __init__(self) -> None:
-        path = (PLUGIN_PATH / "plugin.py").resolve() # absolute
+        path = PLUGIN_PATH / "plugin.py"
         spec = importlib.util.spec_from_file_location("plugin", path)
         self.plugin = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.plugin)
