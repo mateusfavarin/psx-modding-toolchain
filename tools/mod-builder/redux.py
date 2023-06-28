@@ -43,7 +43,7 @@ class Redux:
             for exe in REDUX_EXES: # find the REDUX file
                 cmd = self.path / exe
                 if _files.check_file(cmd):
-                    self.command.append[str(cmd)]
+                    self.command.append(str(cmd))
                     self.found_redux = True
                     return True
             return False
