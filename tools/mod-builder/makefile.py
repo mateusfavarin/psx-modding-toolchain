@@ -15,9 +15,10 @@ import re
 import os
 import shutil
 import subprocess
+import textwrap
 from time import time
 
-import pdb
+# import pdb # debugging
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +166,7 @@ class Makefile:
         USE_FUNCTION_SECTIONS ?= {self.use_function_sections}
         DISABLE_FUNCTION_REORDER ?= {self.disable_function_reorder}
         USE_PSYQ ?= {self.use_psyq_str}
-        OVERLAYSECTION ?= {self.ovr_section}
+        OVERLAYSECTION ?= {self.ovr_section}triple 
         OVR_START_ADDR = {hex(self.base_addr)}
         OVERLAYSCRIPT = {self.build_linker_script()}
         BUILDDIR = $(MODDIR){OUTPUT_FOLDER}
@@ -181,7 +182,7 @@ class Makefile:
         """
 
         with open(MAKEFILE, "w") as file:
-            file.write(buffer)
+            file.write(textwrap.dedent(buffer)) # removes indentation
 
         return True
 
