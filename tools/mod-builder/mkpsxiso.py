@@ -1,6 +1,7 @@
 """
 TODO: Replace with Click
 pyxdelta doesn't support pathlib
+Assume all plugins.py don't support pathlib
 """
 
 import _files # check_file, delete_file, create_directory, delete_directory
