@@ -8,6 +8,7 @@ import os
 import pathlib
 import subprocess
 import sys
+import textwrap
 
 import _files
 
@@ -149,7 +150,7 @@ def request_user_input(first_option: int, last_option: int, intro_msg: str, erro
         raise Exception("ERROR: Not enough arguments to complete command.")
 
     if not using_cl_args:
-        print(intro_msg)
+        print(textwrap.dedent(intro_msg))
 
     raise_exception = False
     i = 0
@@ -161,7 +162,7 @@ def request_user_input(first_option: int, last_option: int, intro_msg: str, erro
                     raise_exception = True
                     break
                 else:
-                    print(error_msg)
+                    print(textwrap.dedent(error_msg))
             else:
                 break
         except:
@@ -169,10 +170,10 @@ def request_user_input(first_option: int, last_option: int, intro_msg: str, erro
                 raise_exception = True
                 break
             else:
-                print(error_msg)
+                print(textwrap.dedent(error_msg))
 
     if raise_exception:
-        raise Exception(error_msg)
+        raise Exception(textwrap.dedent(error_msg))
 
     return i
 

@@ -3,6 +3,7 @@ from image import create_images, clear_images, get_image_list
 from clut import clear_cluts, get_clut_list
 
 import logging
+import textwrap
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ def construct_header() -> str:
     } CLUT;
 
     """
-    return buffer
+    return textwrap.dedent(buffer) # remove indentation
 
 def export_objects(obj_list, is_img: bool) -> str:
     buffer = str()
