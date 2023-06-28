@@ -1,5 +1,6 @@
 """
 Contains all of the global directory names and functions for user input
+TODO: Make the user pass in the game dir
 """
 import copy
 import logging
@@ -95,8 +96,12 @@ PSYQ_CONVERTED_PATH = TOOLS_PATH / "gcc-psyq-converted" / "lib"
 PSYQ_RENAME_CONFIRM_FILE = PSYQ_CONVERTED_PATH / ".sections-renamed"
 COMMENT_SYMBOL = "//"
 MOD_NAME = pathlib.Path.cwd().name # TODO: Pass this as an arg 
-GAME_NAME = pathlib.Path.cwd().parents[DISTANCE_LENGTH].name # not sure, number of folders?
-logger.debug(f"GAME_NAME: {GAME_NAME}")
+try:
+    GAME_NAME = pathlib.Path.cwd().parents[DISTANCE_LENGTH].name # not sure, number of folders?
+    logger.debug(f"GAME_NAME: {GAME_NAME}")
+except IndexError as error:
+    logger.exception("No GAME_NAME found")
+
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
 
 def rename_psyq_sections():

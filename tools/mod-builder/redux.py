@@ -69,7 +69,7 @@ class Redux:
                 cli_pause()
                 count_retries += 1
                 if 5 <= count_retries:
-                    logger.critical("Max retries exeeced to find iso. Exiting")
+                    logger.critical("Max retries exeeced to find redux path. Exiting")
                     sys.exit(9)
             logger.info(f"Found PCSX-Redux executable at {self.command}")
         dir_current = pathlib.Path.cwd()
