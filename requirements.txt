@@ -2,6 +2,7 @@ setuptools
 wheel
 requests
 opencv-python
+pillow
 pymkpsxiso
 pyxdelta
-pillow
+pytest

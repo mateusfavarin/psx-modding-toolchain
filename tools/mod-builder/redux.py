@@ -22,8 +22,16 @@ class Redux:
     def __init__(self) -> None:
         pass
 
-    def load_config(self) -> bool:
-        with open(SETTINGS_PATH) as file:
+    def load_config(self, fname) -> bool:
+        """
+        fname is a path to settings.json
+        Assumes of the form 
+        {
+            "redux": {"port": int, "path": absolute path }
+        }
+        TODO: Abstract loading a JSON and passing in this data directly
+        """
+        with open(fname) as file:
             data = json.load(file)["redux"]
             self.port = str(data["port"])
             self.url = "http://127.0.0.1:" + str(self.port)
@@ -55,7 +63,7 @@ class Redux:
         """ TODO: This can be simplified """
         if not self.found_redux:
             count_retries = 0
-            while not self.load_config():
+            while not self.load_config(SETTINGS_PATH):
                 print("\n[Redux-py] Could not find a valid path to PCSX-Redux emulator.")
                 print("Please check your settings.json and provide a valid path to redux.\n")
                 cli_pause()

@@ -31,7 +31,7 @@ class Main:
         self.mkpsxiso = Mkpsxiso()
         self.nops = Nops()
         self.nops.load_config()
-        self.redux.load_config()
+        self.redux.load_config(SETTINGS_PATH)
         self.actions = {
             1   :   self.compile,
             2   :   self.clean,
@@ -43,7 +43,7 @@ class Main:
             8   :   self.redux.restore,
             9   :   self.replace_textures,
             10  :   self.redux.restore_textures,
-            11  :   self.redux.start_emulation,
+            11  :   self.redux.start_emulation, # would like to pass settings path here
             12  :   self.nops.hot_reload,
             13  :   self.nops.restore,
             14  :   self.clean_pch,
