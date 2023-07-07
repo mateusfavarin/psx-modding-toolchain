@@ -6,6 +6,7 @@ import copy
 import logging
 import os
 import pathlib
+import pdb
 import subprocess
 import sys
 import textwrap
@@ -73,17 +74,17 @@ COMPILE_LIST = "buildList.txt"
 SRC_FOLDER = "src/"
 OUTPUT_FOLDER = "output/"
 BACKUP_FOLDER = "backup/"
-DEBUG_FOLDER = "debug/" # TODO: Reassign this to DIR_GAME / "debug"
-OBJ_FOLDER = DEBUG_FOLDER + "obj/"
-DEP_FOLDER = DEBUG_FOLDER + "dep/"
-COMP_SOURCE = DEBUG_FOLDER + "source.txt"
+DEBUG_FOLDER = pathlib.Path("debug") # TODO: Change to MOD_DIR / MOD name
+OBJ_FOLDER = DEBUG_FOLDER / "obj/"
+DEP_FOLDER = DEBUG_FOLDER / "dep/"
+COMP_SOURCE = DEBUG_FOLDER / "source.txt"
 TEXTURES_FOLDER = "newtex/"
 TEXTURES_OUTPUT_FOLDER = TEXTURES_FOLDER + "output/"
-GCC_MAP_FILE = DEBUG_FOLDER + "mod.map"
-GCC_OUT_FILE = DEBUG_FOLDER + "gcc_out.txt"
-TRIMBIN_OFFSET = DEBUG_FOLDER + "offset.txt"
+GCC_MAP_FILE = DEBUG_FOLDER / "mod.map"
+GCC_OUT_FILE = DEBUG_FOLDER / "gcc_out.txt"
+TRIMBIN_OFFSET = DEBUG_FOLDER / "offset.txt"
 COMPILATION_RESIDUES = ["overlay.ld", MAKEFILE, "comport.txt"]
-REDUX_MAP_FILE = DEBUG_FOLDER + "redux.map"
+REDUX_MAP_FILE = DEBUG_FOLDER / "redux.map"
 SETTINGS_FILE = "settings.json"
 SETTINGS_PATH = DIR_GAME.parent / SETTINGS_FILE
 RECURSIVE_COMP_FILE = ".recursive"

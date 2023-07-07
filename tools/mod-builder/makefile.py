@@ -176,7 +176,7 @@ class Makefile:
         OPT_CC_FLAGS = {self.opt_ccflags}
         OPT_LD_FLAGS = {self.opt_ldflags}
         PCHS = {str(GAME_INCLUDE_PATH/self.pch)}
-        TRIMBIN_OFFSET = $(MODDIR){TRIMBIN_OFFSET}
+        TRIMBIN_OFFSET = $(MODDIR){str(TRIMBIN_OFFSET)}
 
         include {str(CONFIG_PATH.parents[1] / 'common.mk')}
         """
@@ -204,8 +204,8 @@ class Makefile:
                 if os.path.isfile(obj_path) and os.path.isfile(dep_path):
                     obj_file = obj_path.rsplit("/", 1)[1]
                     dep_file = dep_path.rsplit("/", 1)[1]
-                    obj_dst = OBJ_FOLDER + obj_file
-                    dep_dst = DEP_FOLDER + dep_file
+                    obj_dst = str(OBJ_FOLDER / obj_file)
+                    dep_dst = str(DEP_FOLDER / dep_file)
                     buffer += obj_dst + " " + obj_path + "\n"
                     buffer += dep_dst + " " + dep_path + "\n"
                     shutil.move(obj_path, obj_dst)
