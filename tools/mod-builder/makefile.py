@@ -33,10 +33,11 @@ class Makefile:
     def __init__(self, build_id: int, files_symbols: list[str]) -> None:
         self.build_id = build_id
         self.files_symbols = files_symbols
-        self.cl = list()
+        self.list_compile_lists = []
         self.pch = str()
         self.opt_ccflags = str()
         self.opt_ldflags = str()
+        self.srcs = None # list
         self.load_config()
 
     def load_config(self) -> None:
@@ -60,25 +61,25 @@ class Makefile:
             if "ldflags" in data:
                 self.opt_ldflags = data["ldflags"]
 
-    def add_cl(self, cl: CompileList) -> None:
-        self.cl.append(cl)
+    def add_cl(self, instance: CompileList) -> None:
+        self.list_compile_lists.append(instance)
 
     def set_base_address(self) -> bool:
         address = 0x807FFFFF
-        for cl in self.cl:
-            address = min(address, cl.address)
+        for instance in self.list_compile_lists:
+            address = min(address, instance.address)
         self.base_addr = address
         return True
 
     def build_makefile_objects(self) -> None:
-        self.srcs = str()
+        self.srcs = []
         self.ovr_section = str()
         self.ovrs = list()
-        for cl in self.cl:
-            for src in cl.source:
-                self.srcs += src + " "
-            self.ovrs.append((cl.section_name, cl.source, cl.address))
-            self.ovr_section += "." + cl.section_name + " "
+        for instance in self.list_compile_lists:
+            for src in instance.source:
+                self.srcs.append(src)
+            self.ovrs.append((instance.section_name, instance.source, instance.address))
+            self.ovr_section += "." + instance.section_name + " "
 
     def build_linker_script(self, filename="overlay.ld") -> str:
         offset_buffer = str()
@@ -159,7 +160,7 @@ class Makefile:
         MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
         TARGET = mod
 
-        SRCS = {self.srcs}
+        SRCS = {" ".join(self.srcs)}
         CPPFLAGS = -DBUILD={self.build_id}
         LDSYMS = {" ".join(f"-T{str(sym)}" for sym in self.files_symbols)}
 
@@ -235,7 +236,7 @@ class Makefile:
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
         try:
-            command = ["make", "--silent"]
+            command = ["make", "--silent"] # TODO: Point to the CWD directory 
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
@@ -249,14 +250,15 @@ class Makefile:
             for line in file:
                 print(line)
 
+        # These are relaive to the current Makefile
         if (not os.path.isfile("mod.map")) or (not os.path.isfile("mod.elf")):
             self.move_temp_files()
             self.delete_temp_files()
             logger.critical(f"Compilation completed but unsuccessful. ({total_time}s)")
             return False
 
-        shutil.move("mod.map", DEBUG_FOLDER + "mod.map")
-        shutil.move("mod.elf", DEBUG_FOLDER + "mod.elf")
+        shutil.move("mod.map", DEBUG_FOLDER / "mod.map")
+        shutil.move("mod.elf", DEBUG_FOLDER / "mod.elf")
         self.move_temp_files()
 
         logger.info(f"Compilation successful ({total_time}s)")
