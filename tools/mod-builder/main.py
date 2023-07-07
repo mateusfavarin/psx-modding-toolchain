@@ -141,7 +141,7 @@ class Main:
             for line in file:
                 cl = CompileList(line, instance_symbols, "./")
                 if cl.is_cl():
-                    dependencies.append(cl.bl_path)
+                    dependencies.append(cl.path_build_list)
                 if not cl.should_ignore():
                     make.add_cl(cl)
         if print_errors[0]:
