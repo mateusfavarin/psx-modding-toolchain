@@ -40,7 +40,7 @@ class Nops:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
                     if cl.is_cl():
-                        build_lists.append(cl.bl_path)
+                        build_lists.append(cl.path_build_list)
                     if not cl.should_build():
                         continue
                     bin = cl.get_output_name()
