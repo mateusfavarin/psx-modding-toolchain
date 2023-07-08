@@ -182,6 +182,8 @@ class Main:
         _files.delete_directory(TEXTURES_OUTPUT_FOLDER)
         for file in COMPILATION_RESIDUES:
             _files.delete_file(file)
+        _files.delete_file(ABORT_PATH)
+        _files.delete_file(RECURSIVE_COMP_PATH)
 
     def clean_pch(self) -> None:
         clean_pch()

@@ -76,7 +76,7 @@ class Makefile:
         self.ovr_section = str()
         self.ovrs = list()
         for instance in self.list_compile_lists:
-            for src in instance.source:
+            for src in instance.source: #pathlibs
                 self.srcs.append(src)
             self.ovrs.append((instance.section_name, instance.source, instance.address))
             self.ovr_section += "." + instance.section_name + " "
@@ -92,7 +92,7 @@ class Makefile:
         buffer += " " * 4 + "OVERLAY __ovr_start : SUBALIGN(4) {\n"
         for ovr in self.ovrs:
             section_name = ovr[0]
-            source = ovr[1]
+            source = ovr[1] # list of pathlib
             addr = ovr[2]
             offset = addr - self.base_addr
             offset_buffer += section_name + " " + hex(offset) + "\n"
@@ -101,18 +101,18 @@ class Makefile:
                 buffer += " " * 12 + ". = . + " + hex(offset) + ";\n"
             text, rodata, sdata, data, sbss, bss, ctors, psyq = [], [], [], [], [], [], [], []
             sections = [text, rodata, sdata, data, sbss, bss, ctors, psyq]
-            for src in source:
-                full_source = src.rsplit(".", 1)
-                src = full_source[0]
+            for src in source: # pathlib objects
+                # TODO: Utilize pathlib completely
+                src_o = src.with_suffix(".o") # remove suffix
                 is_c = False
-                if len(full_source) == 2 and full_source[1] != "s":
-                    is_c = True
-                text.append(" " * 12 + "KEEP(" + src + ".o(.text*))\n")
-                rodata.append(" " * 12 + "KEEP(" + src + ".o(.rodata*))\n")
-                sdata.append(" " * 12 + "KEEP(" + src + ".o(.sdata*))\n")
-                data.append(" " * 12 + "KEEP(" + src + ".o(.data*))\n")
-                sbss.append(" " * 12 + "KEEP(" + src + ".o(.sbss*))\n")
-                bss.append(" " * 12 + "KEEP(" + src + ".o(.bss*))\n")
+                if src.suffix == ".c":
+                    is_c = True                    
+                text.append(" " * 12 + f"KEEP({str(src_o)}(.text*))\n")
+                rodata.append(" " * 12 + f"KEEP({str(src_o)}(.rodata*))\n")
+                sdata.append(" " * 12 + f"KEEP({str(src_o)}(.sdata*))\n")
+                data.append(" " * 12 + f"KEEP({str(src_o)}(.data*))\n")
+                sbss.append(" " * 12 + f"KEEP({str(src_o)}(.sbss*))\n")
+                bss.append(" " * 12 + f"KEEP({str(src_o)}(.bss*))\n")
                 if add_psyq and self.use_psyq and is_c:
                     add_psyq = False
                     psyq.append(" " * 12 + "KEEP(*(.psyqtext*))\n")
@@ -160,7 +160,7 @@ class Makefile:
         MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
         TARGET = mod
 
-        SRCS = {" ".join(self.srcs)}
+        SRCS = {" ".join([str(i) for i in self.srcs])}
         CPPFLAGS = -DBUILD={self.build_id}
         LDSYMS = {" ".join(f"-T{str(sym)}" for sym in self.files_symbols)}
 
@@ -189,26 +189,22 @@ class Makefile:
 
     def delete_temp_files(self) -> None:
         for ovr in self.ovrs:
-            for src in ovr[1]:
-                src = src.rsplit(".", 1)[0]
-                _files.delete_file(src + ".o")
-                _files.delete_file(src + ".dep")
+            for src in ovr[1]: # list of pathlibs
+                _files.delete_file(src.with_suffix(".o"))
+                _files.delete_file(src.with_suffix(".dep"))
 
     # Moving the .o and .dep to debug/
     def move_temp_files(self) -> None:
         buffer = str()
         for ovr in self.ovrs:
             for src in ovr[1]:
-                src = src.rsplit(".", 1)[0]
-                obj_path = src + ".o"
-                dep_path = src + ".dep"
-                if os.path.isfile(obj_path) and os.path.isfile(dep_path):
-                    obj_file = obj_path.rsplit("/", 1)[1]
-                    dep_file = dep_path.rsplit("/", 1)[1]
-                    obj_dst = str(OBJ_FOLDER / obj_file)
-                    dep_dst = str(DEP_FOLDER / dep_file)
-                    buffer += obj_dst + " " + obj_path + "\n"
-                    buffer += dep_dst + " " + dep_path + "\n"
+                obj_path = src.with_suffix(".o")
+                dep_path = src.with_suffix(".dep")
+                if _files.check_file(obj_path) and _files.check_file(dep_path):
+                    obj_dst = OBJ_FOLDER / obj_path.name
+                    dep_dst = DEP_FOLDER / dep_path.name
+                    buffer += f"{obj_dst} {obj_path}\n"
+                    buffer += f"{dep_dst} {dep_path}\n"
                     shutil.move(obj_path, obj_dst)
                     shutil.move(dep_path, dep_dst)
         with open(COMP_SOURCE, "w") as file:
@@ -240,10 +236,11 @@ class Makefile:
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
-                    logger.critical("Compilation failed")
+                    logger.critical(f"Compilation failed. See {GCC_OUT_FILE}")
                     return False
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
+            return False
         end_time = time()
         total_time = str(round(end_time - start_time, 3))
         with open(GCC_OUT_FILE, "r") as file:
