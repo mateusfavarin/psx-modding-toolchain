@@ -116,7 +116,6 @@ class CompileList:
         for src in srcs:
             src_path = pathlib.Path(self.prefix + src).resolve()
             directory = src_path.parent
-            self.source.append(directory)
             regex = re.compile(src_path.name.replace("*", "(.*)"))
             output_name = src_path.stem
             if not directory in dict_folders:
