@@ -1,5 +1,6 @@
 """
 Parses the buildList.txt file line by line assuming a tabluar format 
+Use pathlib.Path().resolve() to handle concatenation of ../.. syntax
 """
 import _files # check_file
 from common import COMMENT_SYMBOL, CONFIG_PATH, OUTPUT_FOLDER, MOD_PATH, is_number
@@ -28,11 +29,12 @@ class CompileList:
     def __init__(self, line: str, sym: Syms, prefix: str) -> None:
         self.original_line = line
         self.sym = sym
-        self.prefix = prefix
+        self.prefix = prefix # path prefix
         self.ignore = False
         self.is_bin = False
         self.cl = False
         self.path_build_list = None
+        self.source = None
         self.pch = str()
         self.min_addr = 0x80000000
         self.max_addr = 0x807FFFFF if self.is_8mb() else 0x801FFFFF
@@ -44,20 +46,35 @@ class CompileList:
             data = json.load(file)["compiler"]
             return data["8mb"] == 1
 
+    @staticmethod
+    def tokenize_line(string, delimiter = ","):
+        """ Strip and delimit """
+        list_out = [l.strip() for l in string.split(delimiter) if l.strip() != ""]
+        return list_out
+
+    @staticmethod
+    def skip_comments(list_tokens, string_comment = COMMENT_SYMBOL):
+        """
+        Lines that start with comments go to empty
+        Lines that end with comments get truncated
+        """
+        list_out = list_tokens[::] # copy
+        for index, token in enumerate(list_tokens):
+            if token.lower() == string_comment.lower():
+                if index == 0:
+                    list_out = []
+                else: # comment is after the first
+                    list_out = list_tokens[:index] # truncate line
+                break
+        return list_out
+
     def parse_line(self, string) -> None:
         """
         TODO: This does much more than just parse a line
         """
         string_p = string.replace(COMMENT_SYMBOL, f",{COMMENT_SYMBOL},")
-        list_tokens = [l.strip() for l in string_p.split(",") if l.strip() != ""]
-        # BUG: Prone to bugs as it's modifying the list as we iterate through it
-        for index, token in enumerate(list_tokens):
-            if token == COMMENT_SYMBOL:
-                if index == 0:
-                    list_tokens = []
-                else:
-                    list_tokens = list_tokens[:index]
-                break
+        list_tokens = self.tokenize_line(string_p)
+        list_tokens = self.skip_comments(list_tokens)
         if len(list_tokens) < 5:
             if len(list_tokens) == 2 and list_tokens[0] == "add":
                 list_tokens[1] = list_tokens[1].replace("\\", "/")
@@ -92,34 +109,36 @@ class CompileList:
             error_print("Invalid arithmetic expression for offset at line {line_count[0]}: {self.original_line}\n")
 
         self.address = self.calculate_address_base(list_tokens[2], offset)
+        # construct source_directories
         srcs = [l.strip() for l in list_tokens[4].split()]
-        self.source = list()
-        folders = dict()
+        self.source = []
+        dict_folders = dict()
         for src in srcs:
-            # TODO: Replace with pathlib
-            src = (self.prefix + src).replace("\\", "/").rsplit("/", 1)
-            directory = src[0] + "/"
-            regex = re.compile(src[1].replace("*", "(.*)"))
-            output_name = src[1].split(".")[0]
-            if not directory in folders:
+            src_path = pathlib.Path(self.prefix + src).resolve()
+            directory = src_path.parent
+            self.source.append(directory)
+            regex = re.compile(src_path.name.replace("*", "(.*)"))
+            output_name = src_path.stem
+            if not directory in dict_folders:
                 for _, _, files in os.walk(directory):
-                    folders[directory] = files
+                    dict_folders[directory] = files
                     break
-            if directory.rsplit("/", 1)[-1] == str(OUTPUT_FOLDER) and output_name in sections:
-                self.source.append(directory + src[1])
+            # TODO: Figure out why we need this weird if-block
+            # TODO: Workaround until OUTPUT_FOLDER is a pathlib object
+            if (directory.name + os.sep == OUTPUT_FOLDER) and output_name in sections:
+                self.source.append(directory / src_path.name)
             else:
-                if directory in folders:
-                    for file in folders[directory]:
+                if directory in dict_folders:
+                    for file in dict_folders[directory]:
                         if regex.search(file):
-                            self.source.append(directory + file)
+                            self.source.append(directory / file)
                 else:
-                    error_print("\n[BuildList-py] WARNING: directory " + directory + " not found.")
-                    error_print(f"at line: {line_count[0]}: {self.original_line}\n")
+                    logger.warning("directory {directory} not found at line: {line_count[0]}: {self.original_line}")
                     self.ignore = True
                     return
 
         if len(self.source) == 0:
-            error_print(f"\n[BuildList-py] WARNING: no file(s) found at line: {line_count[0]}: {self.original_line}\n")
+            error_print(f"No file(s) found at line: {line_count[0]}: {self.original_line}")
             self.ignore = True
             return
         if len(list_tokens) == 6:
@@ -148,9 +167,13 @@ class CompileList:
         else:
             sections[self.section_name] = True
 
-    def get_section_name_from_filepath(self, filepath: str) -> str:
-        """ TODO: Get an example """
-        return filepath.rsplit("/", 1)[-1].replace(".", "").replace("-", "_")
+    @staticmethod
+    def get_section_name_from_filepath(filepath):
+        """ 
+        Removes dots in the extension and replaces hypens with underscores
+        TODO: This function name is unintuitive
+        """
+        return filepath.name.replace(".", "").replace("-", "_")
 
     def calculate_address_base(self, symbol: str, offset: int) -> int:
         addr = self.sym.get_address(symbol)
