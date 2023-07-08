@@ -100,28 +100,28 @@ class Mkpsxiso:
         iso_changed = False
         xml_tree = et.parse(fname_xml)
         dir_tree = xml_tree.findall(".//directory_tree")[0]
-        build_lists = ["./"]
+        build_lists = ["./"] # cwd
         while build_lists:
             prefix = build_lists.pop(0)
             bl = pathlib.Path(prefix) / COMPILE_LIST # TODO: Double check
             free_sections()
             with open(bl, "r") as file:
                 for line in file:
-                    cl = CompileList(line, sym, prefix)
-                    if cl.is_cl():
-                        build_lists.append(cl.path_build_list)
-                    if not cl.should_build():
+                    instance_cl = CompileList(line, sym, prefix)
+                    if instance_cl.is_cl():
+                        build_lists.append(instance_cl.path_build_list)
+                    if not instance_cl.should_build():
                         continue
 
                     # if it's a file to be overwritten in the game
-                    df = disc.get_df(cl.game_file)
+                    df = disc.get_df(instance_cl.game_file)
                     if df is not None:
                         # checking file start boundaries
-                        if cl.address < df.address:
+                        if instance_cl.address < df.address:
                             error_msg = f"""
                             [ISO-py] ERROR: Cannot overwrite {df.physical_file}
-                            Base address {hex(df.address)} is bigger than the requested address {hex(cl.address)}
-                            At line: {cl.original_line}
+                            Base address {hex(df.address)} is bigger than the requested address {hex(instance_cl.address)}
+                            At line: {instance_cl.original_line}
                             """
                             print(error_msg)
                             if self.abort_build_request():
@@ -137,7 +137,7 @@ class Mkpsxiso:
                         game_file_size = os.path.getsize(game_file)
 
                         # checking whether the modded file exists and retrieving its size
-                        mod_file = cl.get_output_name()
+                        mod_file = instance_cl.get_output_name()
                         if not _files.check_file(mod_file):
                             if self.abort_build_request():
                                 return False
@@ -145,7 +145,7 @@ class Mkpsxiso:
                         mod_size = os.path.getsize(mod_file)
 
                         # Checking potential file size overflows and warning the user about them
-                        offset = cl.address - df.address + df.offset
+                        offset = instance_cl.address - df.address + df.offset
                         if (mod_size + offset) > game_file_size:
                             logger.warning(f"{mod_file} will increase total file size of {game_file}\n")
 
@@ -169,11 +169,11 @@ class Mkpsxiso:
                     # if it's not a file to be overwritten in the game
                     # assume it's a new file to be inserted in the disc
                     else:
-                        filename = (cl.section_name + ".bin").upper()
+                        filename = (instance_cl.section_name + ".bin").upper()
                         filename_len = len(filename)
                         if filename_len > 12:
                             filename = filename[(filename_len - 12):] # truncate
-                        mod_file = OUTPUT_FOLDER + cl.section_name + ".bin"
+                        mod_file = OUTPUT_FOLDER + instance_cl.section_name + ".bin"
                         dst = dir_in_build / filename
                         shutil.copyfile(mod_file, dst)
                         contents = {
