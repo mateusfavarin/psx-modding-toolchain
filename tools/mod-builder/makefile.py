@@ -73,13 +73,14 @@ class Makefile:
 
     def build_makefile_objects(self) -> None:
         self.srcs = []
-        self.ovr_section = str()
-        self.ovrs = list()
+        self.ovr_section = []
+        self.ovrs = []
         for instance in self.list_compile_lists:
             for src in instance.source: #pathlibs
                 self.srcs.append(src)
             self.ovrs.append((instance.section_name, instance.source, instance.address))
-            self.ovr_section += "." + instance.section_name + " "
+            # self.ovr_section += "." + instance.section_name + " "
+            self.ovr_section.append("." + instance.section_name)
 
     def build_linker_script(self, filename="overlay.ld") -> str:
         offset_buffer = str()
@@ -167,7 +168,7 @@ class Makefile:
         USE_FUNCTION_SECTIONS ?= {self.use_function_sections}
         DISABLE_FUNCTION_REORDER ?= {self.disable_function_reorder}
         USE_PSYQ ?= {self.use_psyq_str}
-        OVERLAYSECTION ?= {self.ovr_section}triple 
+        OVERLAYSECTION ?= {" ".join(self.ovr_section)} triple
         OVR_START_ADDR = {hex(self.base_addr)}
         OVERLAYSCRIPT = {self.build_linker_script()}
         BUILDDIR = $(MODDIR){OUTPUT_FOLDER}
@@ -240,6 +241,7 @@ class Makefile:
                     return False
         except subprocess.CalledProcessError as error:
             logger.exception(error, exc_info = False)
+            logger.critical(f"Compilation failed. See {GCC_OUT_FILE}")
             return False
         end_time = time()
         total_time = str(round(end_time - start_time, 3))
