@@ -103,7 +103,7 @@ class Mkpsxiso:
         build_lists = ["./"] # cwd
         while build_lists:
             prefix = build_lists.pop(0)
-            bl = pathlib.Path(prefix) / COMPILE_LIST # TODO: Double check
+            bl = (pathlib.Path(prefix) / COMPILE_LIST).resolve() # TODO: Double check
             free_sections()
             with open(bl, "r") as file:
                 for line in file:
