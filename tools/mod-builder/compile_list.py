@@ -146,7 +146,7 @@ class CompileList:
         else:
             self.section_name = self.get_section_name_from_filepath(self.source[0])
 
-        extension = self.source[0].rsplit(".", 1)[1]
+        extension = self.source[0].suffix
         if not (extension.lower() in ["c", "s", "cpp", "cc"]):
             self.is_bin = True
             self.ignore = True
@@ -187,7 +187,7 @@ class CompileList:
     def get_output_name(self) -> str:
         if self.is_bin:
             return self.source[0]
-        return pathlib.Path(self.prefix) / OUTPUT_FOLDER / (self.section_name + ".bin")
+        return pathlib.Path(self.prefix + OUTPUT_FOLDER).resolve() / (self.section_name + ".bin")
 
     def should_ignore(self) -> bool:
         return self.ignore
