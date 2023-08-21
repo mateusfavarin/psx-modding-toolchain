@@ -6,12 +6,14 @@ from clut import get_clut_list
 from game_options import game_options
 
 import os
-from subprocess import Popen, DETACHED_PROCESS
+from subprocess import Popen
+if os.name == "nt":
+    from subprocess import DETACHED_PROCESS
 
 import json
 import requests as r
 
-REDUX_EXES = ["pcsx-redux", "pcsx-redux.exe", "PCSX-Redux.app"]
+REDUX_EXES = ["pcsx-redux", "pcsx-redux.exe"]
 
 class Redux:
     def __init__(self) -> None:
@@ -66,7 +68,7 @@ class Redux:
                 print("\n[Redux-py] WARNING: game file not found at " + game_path)
                 print("PCSX-Redux will start without booting the iso.")
         os.chdir(self.path)
-        Popen(self.command + " -run -loadiso " + game_path, shell=True, start_new_session=True, close_fds=True, creationflags=DETACHED_PROCESS)
+        Popen(self.command + " -run -loadiso " + game_path, shell=True, start_new_session=True, close_fds=True, creationflags=DETACHED_PROCESS if os.name == "nt" else 0)
         os.chdir(curr_dir)
         self.load_map(warnings=False)
 
