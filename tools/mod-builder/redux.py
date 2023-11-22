@@ -16,7 +16,7 @@ import sys
 
 logger = logging.getLogger(__name__)
 
-REDUX_EXES = ["pcsx-redux", "pcsx-redux.exe", "PCSX-Redux.app"]
+REDUX_EXES = ["pcsx-redux", "pcsx-redux.exe"]
 
 class Redux:
     def __init__(self) -> None:
