@@ -77,7 +77,7 @@ class Mkpsxiso:
         _files.create_directory(dir_out)
         # TODO: Find out if the plugin and pymk... support pathlib
         pymkpsxiso.dump(str(rom_path), f"{str(dir_out)}{os.sep}", str(fname_out))
-        self.plugin.extract(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(dir_out)}{os.sep}")
+        self.plugin.extract(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(dir_out)}{os.sep}", f"{instance_version.version}")
 
     def abort_build_request(self) -> bool:
         """ TODO: Replace with click """
@@ -239,7 +239,7 @@ class Mkpsxiso:
         logger.info("Patching files...")
         if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml):
             logger.info("Building iso...")
-            self.plugin.build(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(build_files_folder)}{os.sep}")
+            self.plugin.build(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(build_files_folder)}{os.sep}", f"{instance_version.version}")
             pymkpsxiso.make(str(build_bin), str(build_cue), str(new_xml))
             logger.info("Build completed.")
         else:
