@@ -362,3 +362,38 @@ class Redux:
         self.inject_textures(False, True)
         if is_running:
             self.resume_emulation()
+
+    def superstarxalien(self) -> None:
+        print("\n[Redux-py] Patching disc assets...\n")
+        is_running = bool()
+        try:
+            is_running = self.get_emulation_running_state()
+        except Exception:
+            print("\n[Redux - Web Server] ERROR: Couldn't start a connection with redux.")
+            print("Make sure that redux is running, its web server is active, and")
+            print("the port configuration saved in settings.json is correct.\n")
+            return
+        self.pause_emulation()
+        #actual web server request code
+        url = self.url + "/api/v1/cd/patch"
+        params = {"filename": "S0/S0000009.NSF;1"}
+        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/mods/WillyExperiments/src/S0000009.NSF")
+        file = open(binary, "rb")
+        files = {"file": file}
+        response = requests.post(url, params=params, files=files)
+        if response.ok:
+            if response.status_code == 200:
+                logger.info("Successfully patched disc assets.")
+        else:
+            logger.error("Web Server: error patching disc assets.")
+
+        #lemme do it again ok
+        params = {"filename": "S0/S0000009.NSD;1"}
+        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/mods/WillyExperiments/src/S0000009.NSD")
+        file = open(binary, "rb")
+        files = {"file": file}
+        requests.post(url, params=params, files=files)
+
+        #resume emulator
+        if is_running:
+            self.resume_emulation()

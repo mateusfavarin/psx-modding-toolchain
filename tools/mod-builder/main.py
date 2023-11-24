@@ -51,7 +51,8 @@ class Main:
             16  :   export_as_c,
             17  :   rename_psyq_sections,
             18  :   self.clean_all,
-            19  :   self.shutdown
+            19  :   self.shutdown,
+            20  :   self.redux.superstarxalien
         }
         self.num_options = len(self.actions)
         self.window_title = f"{GAME_NAME} - {MOD_NAME}"
@@ -104,6 +105,9 @@ class Main:
         17 - Rename PSYQ Sections
         18 - Clean All
         19 - Quit
+
+        Superstarxalien:
+        20 - Redux Hello World
         """
         error_msg = "ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
