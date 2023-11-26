@@ -15,8 +15,8 @@ versions: list of versions that your game environment will support. They're stru
     "your_version_name":
             "build_id": int
             "game_path": str # Path to the copy of your game
-    # Further discussed in the section about the structure of the file games/game/config.json
-compiler: compiler settings # Further discussed in the section about the structure of the file games/game/config.json
+    # Further discussed in the section about the structure of the file games/game_name/config.json
+compiler: compiler settings # Further discussed in the section about the structure of the file games/game_name/config.json
 ```
 
 ## Configuring the environment
@@ -32,7 +32,7 @@ nops:
     mode: str # Mode selected to run NoPS at. Currently supports fast and slow.
 ```
 
-### games/game/config.json
+### games/game_name/config.json
 This file describes game specific settings, such as game versions and compiler configurations.
 
 ```
@@ -40,10 +40,10 @@ version: list # List of versions that your game environment support. You can giv
     [
         {
             yourVersion:
-                name: str # Name of the ISO that the tool will look for in the games/game/build/ folder
+                name: str # Name of the ISO that the tool will look for in the games/game_name/build/ folder
                 symbols: list # List of linker symbol files that the tool will look for when compiling for this version of the game
                 [
-                    yourSymbolFile: str # filename. This file must be in the games/game/symbols/ folder
+                    yourSymbolFile: str # filename. This file must be in the games/game_name/symbols/ folder
                     ...
                 ]
                 build_id: int # unique ID for this version. This will be used during compilation time to create the variable BUILD, which will have the value of build_id (-DBUILD=build_id).
@@ -62,10 +62,10 @@ compiler:
     ldflags: str # OPTIONAL. Optional flags to feed the linker with.
 ```
 Note: `common` is a reserved name and shouldn't be used to name any of your custom versions.
-Note:: this project supports gcc precompiled headers. To learn more about it, read [here](https://gcc.gnu.org/onlinedocs/gcc/Precompiled-Headers.html)
+Note: this project supports gcc precompiled headers. To learn more about it, read [here](https://gcc.gnu.org/onlinedocs/gcc/Precompiled-Headers.html)
 
-### games/game/disc.json
-This file should contain a description of the ISO structure of your game for each game version. The version names should be same ones that you defined in `games/game/config.json`.
+### games/game_name/disc.json
+This file should contain a description of the ISO structure of your game for each game version. The version names should be same ones that you defined in `games/game_name/config.json`.
 ```
 common: list # Container for files that are the same in all versions of your game
     [
@@ -82,19 +82,19 @@ common: list # Container for files that are the same in all versions of your gam
         }
         ...
     ]
-version1: list # Container for a specific version of the game. The name of version must be the same specified in games/game/config.json
+version1: list # Container for a specific version of the game. The name of version must be the same specified in games/game_name/config.json
     [
         ...
     ]
 ```
 
-### games/game/include/
+### games/game_name/include/
 This is a folder which the compiler will always look at for include files. This is where your files describing the memory map of your game should go.
 
-### games/game/plugins/plugin.py
+### games/game_name/plugins/plugin.py
 During the iso building process, the program will call the `extract` and `build` functions from this `plugin.py` file. This allows the user to write custom code in order to handle automatically building custom game archives. See the `PluginExample` mod in the `Example_CrashTeamRacing` folder as a reference.
 
-### games/game/mods/mod/buildList.txt
+### games/game_name/mods/mod/buildList.txt
 This file should contain a description of how to compile and build your mod. Each line in the file will correspond to one different binary compiled. Each line has different fields, which are separated using the `,` token. Comments are supported using the `//` token.
 
 A general line looks like this:
@@ -121,7 +121,7 @@ add, ModFolder
 
 This will chain multi-compilations, as every `add` command will trigger a compilation in a new context.
 
-### games/game/mods/mod/newtex/
+### games/game_name/mods/mod/newtex/
 Place here any image png that you want to inject in game. The image name must be in the following format: `name_x_y_clutx_cluty_width_height_bpp`.
 
 Note: `clutx` is in 16 half steps, i.e one unit corresponds to 16 pixels.

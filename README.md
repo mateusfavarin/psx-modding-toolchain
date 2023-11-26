@@ -7,7 +7,7 @@ Watch the demo:
 ## Features
 * Compile, playtest and build an ISO in just a few clicks;
 * Compile C code into multiple overlays, targetting any PSX RAM address;
-* Test your changes in game during runtime;
+* Test code and asset changes in game during runtime;
 * Replace game textures using custom images;
 * Automatic rebuild a PSX iso with your own modifications.
 * Generate xdelta patches to easily distribute your ROM hacks. You can apply xdelta patches using this [web application](https://kotcrab.github.io/xdelta-wasm/)
