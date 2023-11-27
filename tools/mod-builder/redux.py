@@ -363,26 +363,17 @@ class Redux:
         if is_running:
             self.resume_emulation()
 
-    def superstarxalien(self) -> None:
-        print("\n[Redux-py] Patching disc assets...\n")
-        is_running = bool()
-        try:
-            is_running = self.get_emulation_running_state()
-        except Exception:
-            print("\n[Redux - Web Server] ERROR: Couldn't start a connection with redux.")
-            print("Make sure that redux is running, its web server is active, and")
-            print("the port configuration saved in settings.json is correct.\n")
-            return
+    def load_patch_file(self) -> bytes:
+        print("\n[Redux-py] Retrieving patch files...\n")
 
-        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/mods/WillyExperiments/src/S0000009.NSF")
-        file = open(binary, "rb")
-        bytes_o = file.read()
+        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/build/c1-usa/S1/S000001E.NSF")
+        file = open(binary, "rb").read()
 
-        if (len(bytes_o) > 6840320):
-            print("\nERROR: The replacement file is larger than the original.\n")
-            return
+        if (len(file) > 6840320):
+            print("ERROR: The replacement file is larger than the original.\n")
+            return 0
 
-        if (len(bytes_o) != 6840320):
+        if (len(file) != 6840320):
             intro_msg = """
             The replacement file is smaller than the original.
             Would you like to pad its size to match?
@@ -393,15 +384,32 @@ class Redux:
             willPad = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 
             if (willPad):
-                len_diff = 6480320 - len(bytes_o)
+                len_diff = 6480320 - len(file)
                 padding = [0x0 for _ in range(len_diff)]
-                bytes_o += bytes(bytearray(len_diff))
+                file += bytes(bytearray(len_diff))
 
+        return file
+
+    def superstarxalien(self) -> None:
+        file = self.load_patch_file()
+
+        if (file == 0):
+            return
+
+        print("\n[Redux-py] Patching disc assets...\n")
+        is_running = bool()
+        try:
+            is_running = self.get_emulation_running_state()
+        except Exception:
+            print("\n[Redux - Web Server] ERROR: Couldn't start a connection with redux.")
+            print("Make sure that redux is running, its web server is active, and")
+            print("the port configuration saved in settings.json is correct.\n")
+            return
         self.pause_emulation()
         #actual web server request code
         url = self.url + "/api/v1/cd/patch"
         params = {"filename": "S0/S0000009.NSF;1"}
-        files = {"file": bytes_o}
+        files = {"file": file}
         response = requests.post(url, params=params, files=files)
         if response.ok:
             if response.status_code == 200:
