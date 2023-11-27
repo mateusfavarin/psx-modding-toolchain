@@ -404,13 +404,19 @@ class Redux:
     def superstarxalien(self) -> None:
         instance_version = Mkpsxiso().ask_user_for_version()
 
-        print("\n[Redux-py] Comparing asset file sizes...\n")
+        print("\n[Redux-py] Comparing disc and patch file sizes...\n")
 
+        # initialize disc and toolchain information
         rom_name = instance_version.rom_name.split(".")[0]
         extract_folder = ISO_PATH / rom_name
         disc = Disc(instance_version.version)
         sym = Syms(instance_version.build_id)
         build_lists = ["./"] # cwd
+
+        instance_array = []
+        df_array = []
+
+        # read buildList contents
         while build_lists:
             prefix = build_lists.pop(0)
             bl = (pathlib.Path(prefix) / COMPILE_LIST).resolve() # TODO: Double check
@@ -418,8 +424,13 @@ class Redux:
             with open(bl, "r") as bl_file:
                 for line in bl_file:
                     instance_cl = CompileList(line, sym, prefix)
-                    df = disc.get_df(instance_cl.game_file)
+
+                    # check if buildList line is for a valid patch file
+                    # in this context, a valid patch file is any binary (ergo, non-code (i.e. .c, .s, .cpp)) file which
+                    # disc location, referred to as section in terms of the toolchain, is set to that of an existing
+                    # disc file. note that the section must have its address set to 0x0 in disc.json in order to count as valid
                     if (instance_cl.is_bin):
+                        df = disc.get_df(instance_cl.game_file)
                         if (not df):
                             print(f"Ignoring {instance_cl.source[0]}:")
                             print(f"section aliased \"{instance_cl.game_file}\" doesn't correspond to a disc file.")
@@ -428,22 +439,32 @@ class Redux:
                                 print(f"Ignoring {instance_cl.source[0]}:")
                                 print(f"section aliased \"{instance_cl.game_file}\" has an address.")
                             else:
-                                # please forgive me
+                                # if line is valid, check if patch file is larger than the disc file
+                                # afterwards, add relevant information to arrays for actual patching
+
+                                # by the way this code sucks please forgive me
                                 willCancel = False;
                                 isLarger = self.compare_asset_sizes(df, f"{extract_folder}/{df.physical_file}".replace("\\", "/"), instance_cl.source[0])
                                 if (isLarger):
                                     willCancel = True;
                                 if (willCancel):
                                     return
-                        
+                                instance_array.append(instance_cl)
+                                df_array.append(df)
 
                         
 
+                        
 
 
 
 
-        print("\n[Redux-py] Patching disc assets...\n")
+
+        if (not instance_array):
+            print("ERROR: There are no valid patch files in the buildList.")
+            return
+
+        print("[Redux-py] Patching disc assets...\n")
         
         is_running = bool()
         try:
