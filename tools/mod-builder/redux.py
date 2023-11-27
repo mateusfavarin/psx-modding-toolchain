@@ -366,6 +366,7 @@ class Redux:
             self.resume_emulation()
 
     def compare_asset_sizes(self, og_file_df: DiscFile, og_file_path: str, patch_file_path: str) -> bool:
+        # this looks kinda ugly. is there a better way of doing this?
         binary = pathlib.Path(patch_file_path)
         patch_file = open(binary, "rb").read()
         binary = pathlib.Path(og_file_path)
@@ -379,15 +380,20 @@ class Redux:
 
         return False
 
-    def load_patch_file(self) -> bytes:
+    def load_patch_file(self, og_file_df: DiscFile, og_file_path: str, patch_file_path: str) -> bytes:
         print("\n[Redux-py] Retrieving patch files...\n")
 
-        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/build/c1-usa/S1/S000001E.NSF")
+        # this looks kinda ugly. is there a better way of doing this?
+        binary = pathlib.Path(patch_file_path)
         patch_file = open(binary, "rb").read()
+        binary = pathlib.Path(og_file_path)
+        og_file = open(binary, "rb").read()
 
-        if (len(patch_file) != 6840320):
-            intro_msg = """
-            The replacement file is smaller than the original.
+        if (len(patch_file) != len(og_file)):
+            intro_msg = f"""
+            Patch file
+            {patch_file_path}
+            is smaller than {og_file_df.physical_file}.
             Would you like to pad its size to match?
             1 - Yes
             2 - No
@@ -396,7 +402,7 @@ class Redux:
             willPad = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 
             if (willPad):
-                len_diff = 6480320 - len(patch_file)
+                len_diff = len(og_file) - len(patch_file)
                 patch_file += bytes(bytearray(len_diff))
 
         return patch_file
@@ -434,11 +440,11 @@ class Redux:
                         df = disc.get_df(instance_cl.game_file)
                         if (not df):
                             print(f"Ignoring {instance_cl.source[0]}:")
-                            print(f"section aliased \"{instance_cl.game_file}\" doesn't correspond to a disc file.")
+                            print(f"section aliased \"{instance_cl.game_file}\" doesn't correspond to a disc file.\n")
                         else:
                             if (df.address != 0):
                                 print(f"Ignoring {instance_cl.source[0]}:")
-                                print(f"section aliased \"{instance_cl.game_file}\" has an address.")
+                                print(f"section aliased \"{instance_cl.game_file}\" has an address.\n")
                             else:
                                 # if line is valid, check if patch file is larger than the disc file
                                 # if yes, return
@@ -454,20 +460,13 @@ class Redux:
                                 bl_line_array.append(instance_cl)
                                 df_array.append(df)
 
-                        
-
-                        
-
-
-
-
-
         if (not bl_line_array):
             print("ERROR: There are no valid patch files in the buildList.")
             return
 
         print("[Redux-py] Patching disc assets...\n")
         
+        # check if pcsx redux is running, then pause
         is_running = bool()
         try:
             is_running = self.get_emulation_running_state()
@@ -479,17 +478,23 @@ class Redux:
 
         self.pause_emulation()
 
-        #actual web server request code
+        # actual web server request code
         url = self.url + "/api/v1/cd/patch"
-        params = {"filename": "S0/S0000009.NSF;1"}
-        patch_file = self.load_patch_file()
-        patch_files = {"file": patch_file}
-        response = requests.post(url, params=params, files=patch_files)
-        if response.ok:
-            if response.status_code == 200:
-                logger.info("Successfully patched disc assets.")
-        else:
-            logger.error("Web Server: error patching disc assets.")
+
+        count = 0 # I only know C...
+
+        for bl_line in bl_line_array:
+            count = count + 1
+            filename = f"{df_array[count].physical_file};1"
+            params = {"filename": filename}
+            patch_file = self.load_patch_file(df_array[count], f"{extract_folder}/{df_array[count].physical_file}".replace("\\", "/"), bl_line.source[0])
+            patch_files = {"file": patch_file}
+            response = requests.post(url, params=params, files=patch_files)
+            if response.ok:
+                if response.status_code == 200:
+                    logger.info("Successfully patched disc assets.")
+            else:
+                logger.error("Web Server: error patching disc assets.")
 
         #resume emulator
         if is_running:
