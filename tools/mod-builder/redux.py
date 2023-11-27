@@ -484,7 +484,6 @@ class Redux:
         count = 0 # I only know C...
 
         for bl_line in bl_line_array:
-            count = count + 1
             filename = f"{df_array[count].physical_file};1"
             params = {"filename": filename}
             patch_file = self.load_patch_file(df_array[count], f"{extract_folder}/{df_array[count].physical_file}".replace("\\", "/"), bl_line.source[0])
@@ -495,6 +494,8 @@ class Redux:
                     logger.info("Successfully patched disc assets.")
             else:
                 logger.error("Web Server: error patching disc assets.")
+                return
+            count = count + 1
 
         #resume emulator
         if is_running:
