@@ -365,14 +365,16 @@ class Redux:
         if is_running:
             self.resume_emulation()
 
-    def compare_asset_sizes(self, og_file: DiscFile, patch_file_path: str) -> bool:
+    def compare_asset_sizes(self, og_file_df: DiscFile, og_file_path: str, patch_file_path: str) -> bool:
         binary = pathlib.Path(patch_file_path)
         patch_file = open(binary, "rb").read()
+        binary = pathlib.Path(og_file_path)
+        og_file = open(binary, "rb").read()
 
-        if (len(patch_file) > 6840320):
+        if (len(patch_file) > len(og_file)):
             print("ERROR: Patch file")
             print(f"{patch_file_path}")
-            print(f"is larger than {og_file.physical_file}.")
+            print(f"is larger than {og_file_df.physical_file}.")
             return True
 
         return False
@@ -401,23 +403,17 @@ class Redux:
 
     def superstarxalien(self) -> None:
         instance_version = Mkpsxiso().ask_user_for_version()
+
         print("\n[Redux-py] Comparing asset file sizes...\n")
-        
-        print(type(instance_version))
+
         rom_name = instance_version.rom_name.split(".")[0]
-        print(rom_name)
         extract_folder = ISO_PATH / rom_name
-        print(extract_folder)
-        print(instance_version.version)
-        print(instance_version.build_id)
         disc = Disc(instance_version.version)
         sym = Syms(instance_version.build_id)
         build_lists = ["./"] # cwd
         while build_lists:
             prefix = build_lists.pop(0)
             bl = (pathlib.Path(prefix) / COMPILE_LIST).resolve() # TODO: Double check
-            print(f"{prefix} prefix")
-            print(f"{bl} bl")
             free_sections()
             with open(bl, "r") as bl_file:
                 for line in bl_file:
@@ -425,21 +421,20 @@ class Redux:
                     df = disc.get_df(instance_cl.game_file)
                     if (instance_cl.is_bin):
                         if (not df):
-                            print(f"ignoring {instance_cl.source[0]},")
-                            print(f"section aliased \"{instance_cl.game_file}\" doesn't correspond to a disc file")
+                            print(f"Ignoring {instance_cl.source[0]}:")
+                            print(f"section aliased \"{instance_cl.game_file}\" doesn't correspond to a disc file.")
                         else:
                             if (df.address != 0):
-                                print(f"ignoring {instance_cl.source[0]},")
-                                print(f"section aliased \"{instance_cl.game_file}\" has an address")
+                                print(f"Ignoring {instance_cl.source[0]}:")
+                                print(f"section aliased \"{instance_cl.game_file}\" has an address.")
                             else:
                                 # please forgive me
                                 willCancel = False;
-                                isLarger = self.compare_asset_sizes(df, instance_cl.source[0])
+                                isLarger = self.compare_asset_sizes(df, f"{extract_folder}/{df.physical_file}".replace("\\", "/"), instance_cl.source[0])
                                 if (isLarger):
                                     willCancel = True;
                                 if (willCancel):
                                     return
-                                    #f"{extract_folder}/{df.physical_file}".replace("\\", "/"), 
                         
 
                         
