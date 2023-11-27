@@ -373,23 +373,34 @@ class Redux:
             print("Make sure that redux is running, its web server is active, and")
             print("the port configuration saved in settings.json is correct.\n")
             return
+
+        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/mods/WillyExperiments/src/S0000009.NSF")
+        file = open(binary, "rb")
+        bytes_o = file.read()
+
+        if (len(bytes_o) > 6840320):
+            print("\nERROR: The replacement file is larger than the original.\n")
+            return
+
+        if (len(bytes_o) != 6840320):
+            intro_msg = """
+            The replacement file is smaller than the original.
+            Would you like to pad its size to match?
+            1 - Yes
+            2 - No
+            """
+            error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
+            willPad = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
+
+            if (willPad):
+                len_diff = 6480320 - len(bytes_o)
+                padding = [0x0 for _ in range(len_diff)]
+                bytes_o += bytes(bytearray(len_diff))
+
         self.pause_emulation()
         #actual web server request code
         url = self.url + "/api/v1/cd/patch"
         params = {"filename": "S0/S0000009.NSF;1"}
-        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/mods/WillyExperiments/src/S0000009.NSF")
-        file = open(binary, "rb")
-
-        bytes_o = file.read()
-        if (len(bytes_o) < 6840320):
-            len_diff = 6480320 - len(bytes_o)
-            padding = [0x0 for _ in range(len_diff)]
-            bytes_o += bytes(bytearray(len_diff))
-        elif (len(bytes_o) > 6840320):
-            print("\nThe replacement file is larger than the original!\n")
-            return
-
-
         files = {"file": bytes_o}
         response = requests.post(url, params=params, files=files)
         if response.ok:
