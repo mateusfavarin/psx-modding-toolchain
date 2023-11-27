@@ -379,7 +379,18 @@ class Redux:
         params = {"filename": "S0/S0000009.NSF;1"}
         binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/mods/WillyExperiments/src/S0000009.NSF")
         file = open(binary, "rb")
-        files = {"file": file}
+
+        bytes_o = file.read()
+        if (len(bytes_o) < 6840320):
+            len_diff = 6480320 - len(bytes_o)
+            padding = [0x0 for _ in range(len_diff)]
+            bytes_o += bytes(bytearray(len_diff))
+        elif (len(bytes_o) > 6840320):
+            print("\nThe replacement file is larger than the original!\n")
+            return
+
+
+        files = {"file": bytes_o}
         response = requests.post(url, params=params, files=files)
         if response.ok:
             if response.status_code == 200:
