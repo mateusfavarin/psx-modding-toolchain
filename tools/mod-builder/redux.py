@@ -5,6 +5,8 @@ from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP
 from image import get_image_list
 from clut import get_clut_list
 from game_options import game_options
+from mkpsxiso import Mkpsxiso
+from disc import Disc, DiscFile
 
 import logging
 import json
@@ -363,25 +365,25 @@ class Redux:
         if is_running:
             self.resume_emulation()
 
-    def compare_asset_sizes(self) -> bool:
-        print("\n[Redux-py] Comparing asset file sizes...\n")
+    def compare_asset_sizes(self, og_file: DiscFile, patch_file_path: str) -> bool:
+        binary = pathlib.Path(patch_file_path)
+        patch_file = open(binary, "rb").read()
 
-        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/build/c1-usa/S1/S000001E.NSF")
-        file = open(binary, "rb").read()
+        if (len(patch_file) > 6840320):
+            print("ERROR: Patch file")
+            print(f"{patch_file_path}")
+            print(f"is larger than {og_file.physical_file}.")
+            return True
 
-        if (len(file) > 6840320):
-            print("ERROR: The replacement file is larger than the original.\n")
-            return False
-
-        return True
+        return False
 
     def load_patch_file(self) -> bytes:
         print("\n[Redux-py] Retrieving patch files...\n")
 
         binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/build/c1-usa/S1/S000001E.NSF")
-        file = open(binary, "rb").read()
+        patch_file = open(binary, "rb").read()
 
-        if (len(file) != 6840320):
+        if (len(patch_file) != 6840320):
             intro_msg = """
             The replacement file is smaller than the original.
             Would you like to pad its size to match?
@@ -392,16 +394,59 @@ class Redux:
             willPad = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 
             if (willPad):
-                len_diff = 6480320 - len(file)
-                file += bytes(bytearray(len_diff))
+                len_diff = 6480320 - len(patch_file)
+                patch_file += bytes(bytearray(len_diff))
 
-        return file
+        return patch_file
 
     def superstarxalien(self) -> None:
-        isValid = self.compare_asset_sizes()
+        instance_version = Mkpsxiso().ask_user_for_version()
+        print("\n[Redux-py] Comparing asset file sizes...\n")
+        
+        print(type(instance_version))
+        rom_name = instance_version.rom_name.split(".")[0]
+        print(rom_name)
+        extract_folder = ISO_PATH / rom_name
+        print(extract_folder)
+        print(instance_version.version)
+        print(instance_version.build_id)
+        disc = Disc(instance_version.version)
+        sym = Syms(instance_version.build_id)
+        build_lists = ["./"] # cwd
+        while build_lists:
+            prefix = build_lists.pop(0)
+            bl = (pathlib.Path(prefix) / COMPILE_LIST).resolve() # TODO: Double check
+            print(f"{prefix} prefix")
+            print(f"{bl} bl")
+            free_sections()
+            with open(bl, "r") as bl_file:
+                for line in bl_file:
+                    instance_cl = CompileList(line, sym, prefix)
+                    df = disc.get_df(instance_cl.game_file)
+                    if (instance_cl.is_bin):
+                        if (not df):
+                            print(f"ignoring {instance_cl.source[0]},")
+                            print(f"section aliased \"{instance_cl.game_file}\" doesn't correspond to a disc file")
+                        else:
+                            if (df.address != 0):
+                                print(f"ignoring {instance_cl.source[0]},")
+                                print(f"section aliased \"{instance_cl.game_file}\" has an address")
+                            else:
+                                # please forgive me
+                                willCancel = False;
+                                isLarger = self.compare_asset_sizes(df, instance_cl.source[0])
+                                if (isLarger):
+                                    willCancel = True;
+                                if (willCancel):
+                                    return
+                                    #f"{extract_folder}/{df.physical_file}".replace("\\", "/"), 
+                        
 
-        if (isValid == False):
-            return
+                        
+
+
+
+
 
         print("\n[Redux-py] Patching disc assets...\n")
         
@@ -419,9 +464,9 @@ class Redux:
         #actual web server request code
         url = self.url + "/api/v1/cd/patch"
         params = {"filename": "S0/S0000009.NSF;1"}
-        file = self.load_patch_file()
-        files = {"file": file}
-        response = requests.post(url, params=params, files=files)
+        patch_file = self.load_patch_file()
+        patch_files = {"file": patch_file}
+        response = requests.post(url, params=params, files=patch_files)
         if response.ok:
             if response.status_code == 200:
                 logger.info("Successfully patched disc assets.")
