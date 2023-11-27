@@ -363,17 +363,25 @@ class Redux:
         if is_running:
             self.resume_emulation()
 
-    def load_patch_file(self) -> bytes:
-        print("\n[Redux-py] Retrieving patch files...\n")
+    def compare_asset_sizes(self) -> bool:
+        print("\n[Redux-py] Comparing asset file sizes...\n")
 
         binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/build/c1-usa/S1/S000001E.NSF")
         file = open(binary, "rb").read()
 
         if (len(file) > 6840320):
             print("ERROR: The replacement file is larger than the original.\n")
-            return 0
+            return False
 
-        if (len(file) < 6840320):
+        return True
+
+    def load_patch_file(self) -> bytes:
+        print("\n[Redux-py] Retrieving patch files...\n")
+
+        binary = pathlib.Path("C:/CTR/psx-modding-toolchain-dhern023/games/Crash1/build/c1-usa/S1/S000001E.NSF")
+        file = open(binary, "rb").read()
+
+        if (len(file) != 6840320):
             intro_msg = """
             The replacement file is smaller than the original.
             Would you like to pad its size to match?
@@ -390,9 +398,9 @@ class Redux:
         return file
 
     def superstarxalien(self) -> None:
-        file = self.load_patch_file()
+        isValid = self.compare_asset_sizes()
 
-        if (file == 0):
+        if (isValid == False):
             return
 
         print("\n[Redux-py] Patching disc assets...\n")
@@ -408,6 +416,7 @@ class Redux:
         #actual web server request code
         url = self.url + "/api/v1/cd/patch"
         params = {"filename": "S0/S0000009.NSF;1"}
+        file = self.load_patch_file()
         files = {"file": file}
         response = requests.post(url, params=params, files=files)
         if response.ok:
