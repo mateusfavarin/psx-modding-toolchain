@@ -373,7 +373,7 @@ class Redux:
             print("ERROR: The replacement file is larger than the original.\n")
             return 0
 
-        if (len(file) != 6840320):
+        if (len(file) < 6840320):
             intro_msg = """
             The replacement file is smaller than the original.
             Would you like to pad its size to match?
@@ -385,7 +385,6 @@ class Redux:
 
             if (willPad):
                 len_diff = 6480320 - len(file)
-                padding = [0x0 for _ in range(len_diff)]
                 file += bytes(bytearray(len_diff))
 
         return file
