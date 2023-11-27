@@ -486,17 +486,22 @@ class Redux:
 
         count = 0 # I only know C...
 
+        # go through array of valid patch files
         for bl_line in bl_line_array:
             filename = f"{df_array[count].physical_file};1"
             params = {"filename": filename}
             og_file_path = f"{extract_folder}/{df_array[count].physical_file}".replace("\\", "/")
             
-            # restoring files
+            # load patch file
+            # if the "Hot Reload Disc Files Restore" command was selected,
+            # the patch file will instead be the original disc file
             if (restore_files):
                 patch_file = self.load_patch_file(df_array[count], og_file_path, og_file_path)
             else:
                 patch_file = self.load_patch_file(df_array[count], og_file_path, bl_line.source[0])
             patch_files = {"file": patch_file}
+
+            # send HTTP request for hot-patching a disc file
             response = requests.post(url, params=params, files=patch_files)
             if response.ok:
                 if response.status_code == 200:
@@ -504,7 +509,8 @@ class Redux:
             else:
                 logger.error("Web Server: error patching disc assets.")
                 return
-            count = count + 1
+
+            count = count + 1 # :')
 
         #resume emulator
         if is_running:
