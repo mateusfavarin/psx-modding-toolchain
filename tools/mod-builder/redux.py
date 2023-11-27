@@ -413,7 +413,8 @@ class Redux:
         sym = Syms(instance_version.build_id)
         build_lists = ["./"] # cwd
 
-        instance_array = []
+        # initialize arrays to be used in file patching
+        bl_line_array = []
         df_array = []
 
         # read buildList contents
@@ -440,7 +441,8 @@ class Redux:
                                 print(f"section aliased \"{instance_cl.game_file}\" has an address.")
                             else:
                                 # if line is valid, check if patch file is larger than the disc file
-                                # afterwards, add relevant information to arrays for actual patching
+                                # if yes, return
+                                # if not, add relevant information to arrays for actual patching
 
                                 # by the way this code sucks please forgive me
                                 willCancel = False;
@@ -449,7 +451,7 @@ class Redux:
                                     willCancel = True;
                                 if (willCancel):
                                     return
-                                instance_array.append(instance_cl)
+                                bl_line_array.append(instance_cl)
                                 df_array.append(df)
 
                         
@@ -460,7 +462,7 @@ class Redux:
 
 
 
-        if (not instance_array):
+        if (not bl_line_array):
             print("ERROR: There are no valid patch files in the buildList.")
             return
 
