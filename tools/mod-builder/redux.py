@@ -424,6 +424,7 @@ class Redux:
 
         if not pathlib.Path(xml).exists:
             print("ERROR: Extracted game files were not found.")
+            return
 
         # read buildList contents
         while build_lists:
