@@ -82,8 +82,8 @@ class Main:
         2 - Clean
 
         Iso:
-        3 - Extract Iso
-        4 - Build Iso
+        3 - Extract ISO
+        4 - Build ISO
         5 - Generate xdelta patch
         6 - Clean Build
 

@@ -407,7 +407,7 @@ class Redux:
 
         return patch_file
 
-    def superstarxalien(self) -> None:
+    def superstarxalien(self, restore_files: bool) -> None:
         instance_version = Mkpsxiso().ask_user_for_version()
 
         print("\n[Redux-py] Comparing disc and patch file sizes...\n")
@@ -415,6 +415,7 @@ class Redux:
         # initialize disc and toolchain information
         rom_name = instance_version.rom_name.split(".")[0]
         extract_folder = ISO_PATH / rom_name
+        xml = extract_folder.with_suffix(".xml")
         disc = Disc(instance_version.version)
         sym = Syms(instance_version.build_id)
         build_lists = ["./"] # cwd
@@ -422,6 +423,9 @@ class Redux:
         # initialize arrays to be used in file patching
         bl_line_array = []
         df_array = []
+
+        if not pathlib.Path(xml).exists:
+            print("ERROR: Extracted game files were not found.")
 
         # read buildList contents
         while build_lists:

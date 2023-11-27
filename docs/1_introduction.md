@@ -42,8 +42,8 @@ In order to play a mod, the first thing you need to do is hit the compiler butto
 
 The tool will look for the `buildList.txt`, which contains a declaration of what files to compile and how to compile them. During the compilation process, several files will be created. The `output/` folder will contain `.bin` files which corresponds to the code that you compiled. The `debug/` folder contains useful debugging information, such as linker map files and `.elf` files. The `backup/` folder will contain saved information for uninstalling mods which you hot-reloaded.
 
-## Building an ISO
-Place your iso in the `games/game_name/build/` folder, rename your iso to match the same name as the iso specified in `games/game_name/config.json`, then run the `Build ISO` command.
+## Extracting & Building an ISO
+Place your iso in the `games/game_name/build/` folder, rename your iso to match the same name as the iso specified in `games/game_name/config.json`, then run the `Extract ISO` or `Build ISO` command.
 
 Note: during the building process, all new files will be renamed to upper case files.
 
