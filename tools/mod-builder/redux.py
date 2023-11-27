@@ -381,8 +381,6 @@ class Redux:
         return False
 
     def load_patch_file(self, og_file_df: DiscFile, og_file_path: str, patch_file_path: str) -> bytes:
-        print("\n[Redux-py] Retrieving patch files...\n")
-
         # this looks kinda ugly. is there a better way of doing this?
         binary = pathlib.Path(patch_file_path)
         patch_file = open(binary, "rb").read()
@@ -407,7 +405,7 @@ class Redux:
 
         return patch_file
 
-    def superstarxalien(self, restore_files: bool) -> None:
+    def patch_disc_files(self, restore_files: bool) -> None:
         instance_version = Mkpsxiso().ask_user_for_version()
 
         print("\n[Redux-py] Comparing disc and patch file sizes...\n")
@@ -490,7 +488,13 @@ class Redux:
         for bl_line in bl_line_array:
             filename = f"{df_array[count].physical_file};1"
             params = {"filename": filename}
-            patch_file = self.load_patch_file(df_array[count], f"{extract_folder}/{df_array[count].physical_file}".replace("\\", "/"), bl_line.source[0])
+            og_file_path = f"{extract_folder}/{df_array[count].physical_file}".replace("\\", "/")
+            
+            # restoring files
+            if (restore_files):
+                patch_file = self.load_patch_file(df_array[count], og_file_path, og_file_path)
+            else:
+                patch_file = self.load_patch_file(df_array[count], og_file_path, bl_line.source[0])
             patch_files = {"file": patch_file}
             response = requests.post(url, params=params, files=patch_files)
             if response.ok:

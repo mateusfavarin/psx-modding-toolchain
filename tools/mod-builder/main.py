@@ -41,18 +41,19 @@ class Main:
             6   :   self.mkpsxiso.clean,
             7   :   self.redux.hot_reload,
             8   :   self.redux.restore,
-            9   :   self.redux.superstarxalien,
-            10   :   self.replace_textures,
-            11  :   self.redux.restore_textures,
-            12  :   self.redux.start_emulation, # would like to pass settings path here
-            13  :   self.nops.hot_reload,
-            14  :   self.nops.restore,
-            15  :   self.clean_pch,
-            16  :   self.disasm,
-            17  :   export_as_c,
-            18  :   rename_psyq_sections,
-            19  :   self.clean_all,
-            20  :   self.shutdown
+            9   :   self.patch_disc_files,
+            10  :   self.restore_disc_files,
+            11  :   self.replace_textures,
+            12  :   self.redux.restore_textures,
+            13  :   self.redux.start_emulation, # would like to pass settings path here
+            14  :   self.nops.hot_reload,
+            15  :   self.nops.restore,
+            16  :   self.clean_pch,
+            17  :   self.disasm,
+            18  :   export_as_c,
+            19  :   rename_psyq_sections,
+            20  :   self.clean_all,
+            21  :   self.shutdown
         }
         self.num_options = len(self.actions)
         self.window_title = f"{GAME_NAME} - {MOD_NAME}"
@@ -90,22 +91,23 @@ class Main:
         PCSX-Redux:
         7 - Hot Reload Code
         8 - Hot Reload Code Restore
-        9 - Hot Reload Assets
-        10 - Replace Textures
-        11 - Restore Textures
-        12 - Start Emulation
+        9 - Hot Reload Disc Files
+        10 - Hot Reload Disc Files Restore
+        11 - Replace Textures
+        12 - Restore Textures
+        13 - Start Emulation
 
         NotPSXSerial:
-        13 - Hot Reload
-        14 - Restore
+        14 - Hot Reload Code
+        15 - Hot Reload Code Restore
 
         General:
-        15 - Clean Precompiled Header
-        16 - Disassemble Elf
-        17 - Export textures as C file
-        18 - Rename PSYQ Sections
-        19 - Clean All
-        20 - Quit
+        16 - Clean Precompiled Header
+        17 - Disassemble Elf
+        18 - Export textures as C file
+        19 - Rename PSYQ Sections
+        20 - Clean All
+        21 - Quit
         """
         error_msg = "ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
@@ -198,6 +200,20 @@ class Main:
         self.mkpsxiso.clean(all=True)
         self.clean()
         self.clean_pch()
+
+    def patch_disc_files(self) -> None:
+        self.redux.patch_disc_files(restore_files=False)
+
+    def restore_disc_files(self) -> None:
+        intro_msg = """
+        WARNING: Make sure you're running the original ISO.
+        Would you like to restore patched files to the original ones?
+        1 - Yes
+        2 - No
+        """
+        error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
+        willRestore = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
+        self.redux.patch_disc_files(restore_files=willRestore)
 
     def replace_textures(self) -> None:
         _files.create_directory(TEXTURES_OUTPUT_FOLDER)
