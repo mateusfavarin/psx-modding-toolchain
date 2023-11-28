@@ -213,7 +213,8 @@ class Main:
         """
         error_msg = "ERROR: Invalid input. Please enter 1 for Yes or 2 for No."
         willRestore = request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
-        self.redux.patch_disc_files(restore_files=willRestore)
+        if (willRestore):
+            self.redux.patch_disc_files(restore_files=willRestore)
 
     def replace_textures(self) -> None:
         _files.create_directory(TEXTURES_OUTPUT_FOLDER)
