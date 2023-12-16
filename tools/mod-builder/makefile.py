@@ -1,27 +1,43 @@
-from compile_list import CompileList
-from common import create_directory, request_user_input, rename_psyq_sections, delete_file, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, FOLDER_DISTANCE, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE, MOD_NAME
+from __future__ import annotations # to use type in python 3.7
 
-import re
+"""
+Constructs the makefile
+TODO: Use subprocess instead of os.system
+"""
+
+from compile_list import CompileList
+import _files # create_directory, delete_file
+from common import request_user_input, rename_psyq_sections, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, CONFIG_PATH, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE, MOD_NAME
+
+import logging
 import json
+import re
 import os
 import shutil
+import subprocess
+import textwrap
 from time import time
+
+# import pdb # debugging
+
+logger = logging.getLogger(__name__)
 
 def clean_pch() -> None:
     with open(CONFIG_PATH, "r") as file:
         data = json.load(file)["compiler"]
         if "pch" in data:
             pch = data["pch"] + ".gch"
-            delete_file(GAME_INCLUDE_PATH + pch)
+            _files.delete_file(GAME_INCLUDE_PATH / pch)
 
 class Makefile:
-    def __init__(self, build_id: int, sym_file: list[str]) -> None:
+    def __init__(self, build_id: int, files_symbols: list[str]) -> None:
         self.build_id = build_id
-        self.sym_file = sym_file
-        self.cl = list()
+        self.files_symbols = files_symbols
+        self.list_compile_lists = []
         self.pch = str()
         self.opt_ccflags = str()
         self.opt_ldflags = str()
+        self.srcs = None # list
         self.load_config()
 
     def load_config(self) -> None:
@@ -45,25 +61,26 @@ class Makefile:
             if "ldflags" in data:
                 self.opt_ldflags = data["ldflags"]
 
-    def add_cl(self, cl: CompileList) -> None:
-        self.cl.append(cl)
+    def add_cl(self, instance: CompileList) -> None:
+        self.list_compile_lists.append(instance)
 
     def set_base_address(self) -> bool:
         address = 0x807FFFFF
-        for cl in self.cl:
-            address = min(address, cl.address)
+        for instance in self.list_compile_lists:
+            address = min(address, instance.address)
         self.base_addr = address
         return True
 
     def build_makefile_objects(self) -> None:
-        self.srcs = str()
-        self.ovr_section = str()
-        self.ovrs = list()
-        for cl in self.cl:
-            for src in cl.source:
-                self.srcs += src + " "
-            self.ovrs.append((cl.section_name, cl.source, cl.address))
-            self.ovr_section += "." + cl.section_name + " "
+        self.srcs = []
+        self.ovr_section = []
+        self.ovrs = []
+        for instance in self.list_compile_lists:
+            for src in instance.source: #pathlibs
+                self.srcs.append(src)
+            self.ovrs.append((instance.section_name, instance.source, instance.address))
+            # self.ovr_section += "." + instance.section_name + " "
+            self.ovr_section.append("." + instance.section_name)
 
     def build_linker_script(self, filename="overlay.ld") -> str:
         offset_buffer = str()
@@ -76,7 +93,7 @@ class Makefile:
         buffer += " " * 4 + "OVERLAY __ovr_start : SUBALIGN(4) {\n"
         for ovr in self.ovrs:
             section_name = ovr[0]
-            source = ovr[1]
+            source = ovr[1] # list of pathlib
             addr = ovr[2]
             offset = addr - self.base_addr
             offset_buffer += section_name + " " + hex(offset) + "\n"
@@ -85,18 +102,18 @@ class Makefile:
                 buffer += " " * 12 + ". = . + " + hex(offset) + ";\n"
             text, rodata, sdata, data, sbss, bss, ctors, psyq = [], [], [], [], [], [], [], []
             sections = [text, rodata, sdata, data, sbss, bss, ctors, psyq]
-            for src in source:
-                full_source = src.rsplit(".", 1)
-                src = full_source[0]
+            for src in source: # pathlib objects
+                # TODO: Utilize pathlib completely
+                src_o = src.with_suffix(".o") # remove suffix
                 is_c = False
-                if len(full_source) == 2 and full_source[1] != "s":
-                    is_c = True
-                text.append(" " * 12 + "KEEP(" + src + ".o(.text*))\n")
-                rodata.append(" " * 12 + "KEEP(" + src + ".o(.rodata*))\n")
-                sdata.append(" " * 12 + "KEEP(" + src + ".o(.sdata*))\n")
-                data.append(" " * 12 + "KEEP(" + src + ".o(.data*))\n")
-                sbss.append(" " * 12 + "KEEP(" + src + ".o(.sbss*))\n")
-                bss.append(" " * 12 + "KEEP(" + src + ".o(.bss*))\n")
+                if src.suffix == ".c":
+                    is_c = True                    
+                text.append(" " * 12 + f"KEEP({str(src_o)}(.text*))\n")
+                rodata.append(" " * 12 + f"KEEP({str(src_o)}(.rodata*))\n")
+                sdata.append(" " * 12 + f"KEEP({str(src_o)}(.sdata*))\n")
+                data.append(" " * 12 + f"KEEP({str(src_o)}(.data*))\n")
+                sbss.append(" " * 12 + f"KEEP({str(src_o)}(.sbss*))\n")
+                bss.append(" " * 12 + f"KEEP({str(src_o)}(.bss*))\n")
                 if add_psyq and self.use_psyq and is_c:
                     add_psyq = False
                     psyq.append(" " * 12 + "KEEP(*(.psyqtext*))\n")
@@ -117,14 +134,14 @@ class Makefile:
         with open(filename, "w") as file:
             file.write(buffer)
 
-        create_directory(DEBUG_FOLDER)
+        _files.create_directory(DEBUG_FOLDER)
         with open(TRIMBIN_OFFSET, "w") as file:
             file.write(offset_buffer)
 
         return filename
 
     def build_makefile(self) -> bool:
-        if self.use_psyq and not os.path.isfile(PSYQ_RENAME_CONFIRM_FILE):
+        if self.use_psyq and not _files.check_file(PSYQ_RENAME_CONFIRM_FILE):
             print("\n[Makefile-py] WARNING: your project configuration may be trying to import PSYQ functions,")
             print("but you haven't renamed your psyq sections.")
             min_option = 1
@@ -140,59 +157,55 @@ class Makefile:
 
         self.set_base_address()
         self.build_makefile_objects()
-        buffer =  "MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))\n"
-        buffer += "TARGET = mod\n"
-        buffer += "\n"
-        buffer += "SRCS = " + self.srcs + "\n"
-        buffer += "CPPFLAGS = -DBUILD=" + str(self.build_id) + "\n"
-        buffer += "LDSYMS = "
-        for sym in self.sym_file:
-            buffer += "-T$(MODDIR)" + sym + " "
-        buffer += "\n"
-        buffer += "USE_FUNCTION_SECTIONS ?= " + self.use_function_sections + "\n"
-        buffer += "DISABLE_FUNCTION_REORDER ?= " + self.disable_function_reorder + "\n"
-        buffer += "USE_PSYQ ?= " + self.use_psyq_str + "\n"
-        buffer += "OVERLAYSECTION ?= " + self.ovr_section + "\n"
-        buffer += "OVR_START_ADDR = " + hex(self.base_addr) + "\n"
-        buffer += "OVERLAYSCRIPT = " + self.build_linker_script() + "\n"
-        buffer += "BUILDDIR = $(MODDIR)" + OUTPUT_FOLDER + "\n"
-        buffer += "SRCINCLUDEDIR = $(MODDIR)" + SRC_FOLDER + "\n"
-        buffer += "GAMEINCLUDEDIR = $(MODDIR)" + GAME_INCLUDE_PATH + "\n"
-        buffer += "EXTRA_CC_FLAGS = " + self.compiler_flags + "\n"
-        buffer += "OPT_CC_FLAGS = " + self.opt_ccflags + "\n"
-        buffer += "OPT_LD_FLAGS = " + self.opt_ldflags + "\n"
-        buffer += "PCHS = $(GAMEINCLUDEDIR)" + self.pch + "\n"
-        buffer += "TRIMBIN_OFFSET = $(MODDIR)" + TRIMBIN_OFFSET + "\n"
-        buffer += "\n"
-        buffer += "include " + FOLDER_DISTANCE + "../common.mk\n"
+        buffer = f"""
+        MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+        TARGET = mod
+
+        SRCS = {" ".join([str(i) for i in self.srcs])}
+        CPPFLAGS = -DBUILD={self.build_id}
+        LDSYMS = {" ".join(f"-T{str(sym)}" for sym in self.files_symbols)}
+
+        USE_FUNCTION_SECTIONS ?= {self.use_function_sections}
+        DISABLE_FUNCTION_REORDER ?= {self.disable_function_reorder}
+        USE_PSYQ ?= {self.use_psyq_str}
+        OVERLAYSECTION ?= {" ".join(self.ovr_section)} triple
+        OVR_START_ADDR = {hex(self.base_addr)}
+        OVERLAYSCRIPT = {self.build_linker_script()}
+        BUILDDIR = $(MODDIR){OUTPUT_FOLDER}
+        SRCINCLUDEDIR = $(MODDIR){SRC_FOLDER}
+        GAMEINCLUDEDIR = {str(GAME_INCLUDE_PATH)}
+        EXTRA_CC_FLAGS = {self.compiler_flags}
+        OPT_CC_FLAGS = {self.opt_ccflags}
+        OPT_LD_FLAGS = {self.opt_ldflags}
+        PCHS = {str(GAME_INCLUDE_PATH/self.pch)}
+        TRIMBIN_OFFSET = $(MODDIR){str(TRIMBIN_OFFSET)}
+
+        include {str(CONFIG_PATH.parents[1] / 'common.mk')}
+        """
 
         with open(MAKEFILE, "w") as file:
-            file.write(buffer)
+            file.write(textwrap.dedent(buffer)) # removes indentation
 
         return True
 
     def delete_temp_files(self) -> None:
         for ovr in self.ovrs:
-            for src in ovr[1]:
-                src = src.rsplit(".", 1)[0]
-                delete_file(src + ".o")
-                delete_file(src + ".dep")
+            for src in ovr[1]: # list of pathlibs
+                _files.delete_file(src.with_suffix(".o"))
+                _files.delete_file(src.with_suffix(".dep"))
 
     # Moving the .o and .dep to debug/
     def move_temp_files(self) -> None:
         buffer = str()
         for ovr in self.ovrs:
             for src in ovr[1]:
-                src = src.rsplit(".", 1)[0]
-                obj_path = src + ".o"
-                dep_path = src + ".dep"
-                if os.path.isfile(obj_path) and os.path.isfile(dep_path):
-                    obj_file = obj_path.rsplit("/", 1)[1]
-                    dep_file = dep_path.rsplit("/", 1)[1]
-                    obj_dst = OBJ_FOLDER + obj_file
-                    dep_dst = DEP_FOLDER + dep_file
-                    buffer += obj_dst + " " + obj_path + "\n"
-                    buffer += dep_dst + " " + dep_path + "\n"
+                obj_path = src.with_suffix(".o")
+                dep_path = src.with_suffix(".dep")
+                if _files.check_file(obj_path) and _files.check_file(dep_path):
+                    obj_dst = OBJ_FOLDER / obj_path.name
+                    dep_dst = DEP_FOLDER / dep_path.name
+                    buffer += f"{obj_dst} {obj_path}\n"
+                    buffer += f"{dep_dst} {dep_path}\n"
                     shutil.move(obj_path, obj_dst)
                     shutil.move(dep_path, dep_dst)
         with open(COMP_SOURCE, "w") as file:
@@ -200,39 +213,54 @@ class Makefile:
 
     # Restoring the saved .o and .dep for faster compilation
     def restore_temp_files(self) -> None:
-        if os.path.isfile(COMP_SOURCE):
+        if _files.check_file(COMP_SOURCE):
             with open(COMP_SOURCE, "r") as file:
                 for line in file:
                     line = [l.strip() for l in line.split()]
                     shutil.move(line[0], line[1])
 
     def make(self) -> bool:
-        create_directory(OUTPUT_FOLDER)
-        create_directory(BACKUP_FOLDER)
-        create_directory(OBJ_FOLDER)
-        create_directory(DEP_FOLDER)
+        """
+        TODO: Creating all of these directories right now instead of upfront is bad design
+        TODO: Keep track of all files incase this fails to clean up after ourselves
+        """
+        _files.create_directory(OUTPUT_FOLDER)
+        _files.create_directory(BACKUP_FOLDER)
+        _files.create_directory(OBJ_FOLDER)
+        _files.create_directory(DEP_FOLDER)
         self.restore_temp_files()
         cli_clear()
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
-        os.system("make -s -j8 > " + GCC_OUT_FILE + " 2>&1")
+        try:
+            command = ["make", "--silent"] # TODO: Point to the CWD directory 
+            with open(GCC_OUT_FILE, "w") as outfile:
+                result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
+                if result.returncode != 0:
+                    logger.critical(f"Compilation failed. See {GCC_OUT_FILE}")
+                    return False
+        except subprocess.CalledProcessError as error:
+            logger.exception(error, exc_info = False)
+            logger.critical(f"Compilation failed. See {GCC_OUT_FILE}")
+            return False
         end_time = time()
         total_time = str(round(end_time - start_time, 3))
         with open(GCC_OUT_FILE, "r") as file:
             for line in file:
                 print(line)
 
+        # These are relaive to the current Makefile
         if (not os.path.isfile("mod.map")) or (not os.path.isfile("mod.elf")):
             self.move_temp_files()
             self.delete_temp_files()
-            print("\n[Makefile-py] ERROR: compilation was not successful. (" + total_time + "s)\n")
+            logger.critical(f"Compilation completed but unsuccessful. ({total_time}s)")
             return False
 
-        shutil.move("mod.map", DEBUG_FOLDER + "mod.map")
-        shutil.move("mod.elf", DEBUG_FOLDER + "mod.elf")
+        shutil.move("mod.map", DEBUG_FOLDER / "mod.map")
+        shutil.move("mod.elf", DEBUG_FOLDER / "mod.elf")
         self.move_temp_files()
 
-        print("\n[Makefile-py] Successful compilation in " + total_time + "s.\n")
+        logger.info(f"Compilation successful ({total_time}s)")
         pattern = re.compile(r"0x0000000080[0-7][0-9a-fA-F]{5}\s+([a-zA-Z]|_)\w*")
         special_symbols = ["__heap_base", "__ovr_start", "__ovr_end", "OVR_START_ADDR"]
         buffer = ""

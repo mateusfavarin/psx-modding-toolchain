@@ -1,0 +1,22 @@
+MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+TARGET = mod
+
+SRCS = ./src/hello.c ./src/hook.s 
+CPPFLAGS = -DBUILD=926
+LDSYMS = -T/mnt/c/dev/psx-modding-toolchain/games/Example_CrashTeamRacing/symbols/funcs-u.txt -T/mnt/c/dev/psx-modding-toolchain/games/Example_CrashTeamRacing/symbols/addrs-u.txt 
+USE_FUNCTION_SECTIONS ?= true
+DISABLE_FUNCTION_REORDER ?= false
+USE_PSYQ ?= false
+OVERLAYSECTION ?= .helloc .hooks 
+OVR_START_ADDR = 0x80010100
+OVERLAYSCRIPT = overlay.ld
+BUILDDIR = $(MODDIR)output/
+SRCINCLUDEDIR = $(MODDIR)src/
+GAMEINCLUDEDIR = /mnt/c/dev/psx-modding-toolchain/games/Example_CrashTeamRacing/include
+EXTRA_CC_FLAGS = -Os -g
+OPT_CC_FLAGS = 
+OPT_LD_FLAGS = 
+PCHS = $(GAMEINCLUDEDIR)
+TRIMBIN_OFFSET = $(MODDIR)debug/offset.txt
+
+include /mnt/c/dev/psx-modding-toolchain/games/common.mk

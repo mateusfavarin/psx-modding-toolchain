@@ -7,48 +7,86 @@ Watch the demo:
 ## Features
 * Compile, playtest and build an ISO in just a few clicks;
 * Compile C code into multiple overlays, targetting any PSX RAM address;
-* Test your changes in game during runtime;
+* Test code and asset changes in game during runtime;
 * Replace game textures using custom images;
 * Automatic rebuild a PSX iso with your own modifications.
 * Generate xdelta patches to easily distribute your ROM hacks. You can apply xdelta patches using this [web application](https://kotcrab.github.io/xdelta-wasm/)
 
 To discuss PSX development, hacking, and reverse engineering in general, please join the PSXDev Network Discord server: [![Discord](https://img.shields.io/discord/642647820683444236)](https://discord.gg/QByKPpH)
 
-## Pre requisites
-```
-python 3+
-```
-Note: some python instalations might be incomplete. Make sure that you have installed `python`, `pip` and add them to your `PATH`.
+## Setup
 
-Open the command prompt and install the dependencies:
+## Prerequisites
 ```
-pip install requests
-pip install opencv-python
-pip install pymkpsxiso
-pip install pyxdelta
-pip install pillow
+python3.7+
+python-pip
+```
+Note: some python installations might be incomplete. Make sure that you have installed `python`, `pip` and add them to your `PATH`.
+
+To compile the GCC mipsel toolchain (incomplete)
+```
+make
+libgl1 with GLIBC_2.35 # if using prebuilt
 ```
 
-## Getting Started
-#### Clone this repository:
+## Setup
+
+### Clone this repository:
 ```
 $ git clone https://github.com/mateusfavarin/psx-modding-toolchain.git
 ```
+
+### python dependencies
+Install the python dependencies from the command line
+```
+$ pip install --upgrade pip setuptools wheel
+$ pip install -r requirements.txt
+```
 Note: don't use whitespaces in the folder names. This will break the `make` script.
-#### Install the mipsel GCC toolchain:
+TODO: Verify this is still the case
+
+### gcc-mipsel-none-elf toolchain:
+
 ##### Windows:
-Copy-paste the following into a command prompt:
+Run the following command in a terminal like cmd or powershell
 ```
-powershell -c "& { iwr -UseBasicParsing https://raw.githubusercontent.com/grumpycoders/pcsx-redux/main/mips.ps1 | iex }"
+$ powershell -c "& { iwr -UseBasicParsing https://raw.githubusercontent.com/grumpycoders/pcsx-redux/main/mips.ps1 | iex }"
 ```
-Then, open a new command prompt, and type the following:
+In a new terminal, run the following
 ```
 mips install 13.1.0
 ```
-As an alternative, you can download the toolchain directly [here](https://static.grumpycoder.net/pixel/mips/g++-mipsel-none-elf-13.1.0.zip), and then add the `bin/` folder to your `PATH`.
 
-##### Linux
-Compile the latest version of gcc `mipsel-none-elf` using [this script](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/linux-mips), or download the pre-compiled binaries [here](https://drive.google.com/file/d/1VTCPRpriwPS5wkLVeDfx5dAXzUB1gAoa/view?usp=share_link) (outdated, v12.2.0). Make sure that you added the `bin/` folder to your `$PATH`.
+OR pre-built installations are found at
+- https://static.grumpycoder.net/pixel/mips/g++-mipsel-none-elf-13.1.0.zip
+- https://www.github.com/Lameguy64/PSn00bSDK/releases/latest
+
+Extract the folder, e.g. `g++-mipsel-none-elf`
+Then add both of these folders to your `PATH`
+```
+g++-mipsel-none-elf/bin
+g++-mipsel-none-elf/mipsel-non-elf/bin
+```
+
+#### Linux
+
+You can compile the necessary gcc && mipsel-none-elf from source using [this script](https://github.com/grumpycoders/pcsx-redux/tree/main/tools/linux-mips). It takes a few hours.
+
+OR you can find pre-built binaries here 
+- https://www.github.com/Lameguy64/PSn00bSDK/releases/latest
+
+The `install_toolchain_prebuilt.sh` extracts them to /opt/gcc-mipsel-none-elf/ (you may need sudo access). You just need to add them to your PATH
+```
+export PATH="$PATH:/opt/gcc-mipsel-none-elf/bin"
+export PATH="$PATH:/opt/gcc-mipsel-none-elf/mipsel-none-elf/bin"
+```
+Note: This isn't permanent and only works in a single terminal at a time.
+
+OR you can run the dockerfile (EXPERIMENTAL) from the root of this directory
+```
+docker build -t psx-modding .
+docker run -d -t psx-modding
+```
 
 ##### MacOS
 You'll need [brew](https://brew.sh/), and then run:
@@ -79,3 +117,10 @@ You can download the latest release of Unirom [here](https://github.com/Jonathan
 Check the [docs](docs/) for information about configuring and using the tools.
 
 If you're interested in decompiling a game, you might be interested in checking out [this](games/Example_CrashTeamRacing/mods/DecompUnitTester/README.md) real time function unit tester.
+
+## Testing
+We use pytest for testing
+```
+cd /tools/mod-builder
+python -m pytest
+```

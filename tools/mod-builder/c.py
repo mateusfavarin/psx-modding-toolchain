@@ -2,6 +2,11 @@ from common import TEXTURES_FOLDER
 from image import create_images, clear_images, get_image_list
 from clut import clear_cluts, get_clut_list
 
+import logging
+import textwrap
+
+logger = logging.getLogger(__name__)
+
 RECT_SIZE = 8
 CHAR_SIZE = 1
 SHORT_SIZE = 2
@@ -9,22 +14,30 @@ SHORT_SIZE = 2
 img_names = []
 clut_names = []
 
-def declare_header() -> str:
-    buffer = "typedef struct\n"
-    buffer += "{\n"
-    buffer += " " * 4 + "short x, y, w, h;\n"
-    buffer += "} RECT;\n\n"
-    buffer += "typedef struct\n"
-    buffer += "{\n"
-    buffer += " " * 4 + "char * image;\n"
-    buffer += " " * 4 + "RECT * pos;\n"
-    buffer += "} Texture;\n\n"
-    buffer += "typedef struct\n"
-    buffer += "{\n"
-    buffer += " " * 4 + "short * clut;\n"
-    buffer += " " * 4 + "RECT * pos;\n"
-    buffer += "} CLUT;\n"
-    return buffer + "\n"
+def construct_header() -> str:
+    """
+    TODO: Verify this works
+    """
+    buffer = """
+    typedef struct
+    {
+        short x, y, w, h;
+    } RECT;
+
+    typedef struct
+    {
+        char * image;
+        RECT * pos;
+    } Texture;
+
+    typedef struct
+    {
+        short * clut;
+        RECT * pos;
+    } CLUT;
+
+    """
+    return textwrap.dedent(buffer) # remove indentation
 
 def export_objects(obj_list, is_img: bool) -> str:
     buffer = str()
@@ -61,14 +74,14 @@ def clear_cache() -> None:
 def export_as_c() -> None:
     img_count = create_images(TEXTURES_FOLDER)
     if img_count == 0:
-        print("\n[Image-py] WARNING: 0 images found. No textures were exported.\n")
+        logger.warning("0 images found. No textures were exported.")
         return
-    buffer = declare_header()
+    buffer = construct_header()
     buffer += export_objects(get_image_list(), True)
     buffer += export_objects(get_clut_list(), False)
     buffer += create_texture_struct()
-    filepath = TEXTURES_FOLDER + "newtex.c"
-    with open(filepath, "w") as file:
+    path_out = TEXTURES_FOLDER / "newtex.c"
+    with open(path_out, "w") as file:
         file.write(buffer)
-    print("[Image-py] Textures successfully exported in " + filepath)
+    logger.info(f"Textures successfully exported in {path_out}")
     clear_cache()
