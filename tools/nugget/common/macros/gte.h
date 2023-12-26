@@ -883,7 +883,7 @@
     __asm__ volatile( \
         "nop;"        \
         "nop;"        \
-        "cop2 0x01A0003E0")
+        "cop2 0x01A0003E")
 
 #define gte_mvmva_core(r0) \
     __asm__ volatile(      \
