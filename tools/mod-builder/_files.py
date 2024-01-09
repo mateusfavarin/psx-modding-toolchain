@@ -34,10 +34,11 @@ def get_file_directory(fname = "config.json", folder = "games"):
 
     return path_search
 
-def check_file(fname):
+def check_file(fname, quiet=False):
     path = pathlib.Path(fname)
     if not path.exists():
-        logger.error("fname not found: {}".format(fname))
+        if not quiet:
+            logger.error("fname not found: {}".format(fname))
         return False
     return True
 
@@ -83,4 +84,4 @@ def delete_directory(dirname):
         logger.exception("Cannot delete folder: {}".format(dirname), exc_info=error.__cause__)
         is_successful = False
 
-    return is_successful    
+    return is_successful

@@ -34,7 +34,7 @@ class Main:
         self.redux.load_config(SETTINGS_PATH)
         self.actions = {
             1   :   self.compile,
-            2   :   self.clean,
+            2   :   self.clean_files,
             3   :   self.mkpsxiso.extract_iso, # makes it awkward to pass arguments
             4   :   self.mkpsxiso.build_iso,
             5   :   self.mkpsxiso.xdelta,
@@ -80,7 +80,7 @@ class Main:
         Please select an action:
         Mod:
         1 - Compile
-        2 - Clean
+        2 - Clean Files
 
         Iso:
         3 - Extract ISO
@@ -129,7 +129,7 @@ class Main:
         if not _files.check_file(COMPILE_LIST):
             return
         is_root = False
-        if not _files.check_file(RECURSIVE_COMP_PATH):
+        if not _files.check_file(RECURSIVE_COMP_PATH, quiet=True):
             with open(RECURSIVE_COMP_PATH, "w") as _:
                 is_root = True
         else:
@@ -176,10 +176,7 @@ class Main:
             _files.delete_file(ABORT_PATH)
             self.update_title()
 
-    def clean(self) -> None:
-        """
-        TODO: rename method to clean_files for explicit
-        """
+    def clean_files(self) -> None:
         _files.delete_directory(DEBUG_FOLDER)
         _files.delete_directory(BACKUP_FOLDER)
         _files.delete_directory(OUTPUT_FOLDER)
@@ -188,10 +185,6 @@ class Main:
             _files.delete_file(file)
         _files.delete_file(ABORT_PATH)
         _files.delete_file(RECURSIVE_COMP_PATH)
-        dir_source = pathlib.Path.cwd() / SRC_FOLDER
-        for file in dir_source.iterdir():
-            if file.suffix in (".o", ".dep"):
-                _files.delete_file(file)
 
     def clean_pch(self) -> None:
         clean_pch()
