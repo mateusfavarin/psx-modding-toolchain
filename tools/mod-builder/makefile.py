@@ -7,7 +7,7 @@ TODO: Use subprocess instead of os.system
 
 from compile_list import CompileList
 import _files # create_directory, delete_file
-from common import request_user_input, rename_psyq_sections, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, CONFIG_PATH, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, PSYQ_RENAME_CONFIRM_FILE, MOD_NAME
+from common import request_user_input, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, CONFIG_PATH, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, MOD_NAME
 
 import logging
 import json
@@ -53,7 +53,6 @@ class Makefile:
                 self.compiler_flags += " -g"
             self.use_psyq_str = str(data["psyq"] != 0).lower()
             self.use_mininoob_str = str(data["mininoob"] != 0).lower()
-            self.use_psyq = data["psyq"] != 0
             if "pch" in data:
                 self.pch = data["pch"] + ".gch"
             if "ccflags" in data:
@@ -84,7 +83,6 @@ class Makefile:
 
     def build_linker_script(self, filename="overlay.ld") -> str:
         offset_buffer = str()
-        add_psyq = True
         buffer =  "__heap_base = __ovr_end;\n"
         buffer += "\n"
         buffer += "__ovr_start = " + hex(self.base_addr) + ";\n"
@@ -100,8 +98,8 @@ class Makefile:
             buffer += " " * 8 + "." + section_name + " {\n"
             if addr > self.base_addr:
                 buffer += " " * 12 + ". = . + " + hex(offset) + ";\n"
-            text, rodata, sdata, data, sbss, bss, ctors, psyq = [], [], [], [], [], [], [], []
-            sections = [text, rodata, sdata, data, sbss, bss, ctors, psyq]
+            text, rodata, sdata, data, sbss, bss, ctors = [], [], [], [], [], [], []
+            sections = [text, rodata, sdata, data, sbss, bss, ctors]
             for src in source: # pathlib objects
                 # TODO: Utilize pathlib completely
                 src_o = src.with_suffix(".o") # remove suffix
@@ -114,14 +112,6 @@ class Makefile:
                 data.append(" " * 12 + f"KEEP({str(src_o)}(.data*))\n")
                 sbss.append(" " * 12 + f"KEEP({str(src_o)}(.sbss*))\n")
                 bss.append(" " * 12 + f"KEEP({str(src_o)}(.bss*))\n")
-                if add_psyq and self.use_psyq and is_c:
-                    add_psyq = False
-                    psyq.append(" " * 12 + "KEEP(*(.psyqtext*))\n")
-                    psyq.append(" " * 12 + "KEEP(*(.psyqrdata*))\n")
-                    psyq.append(" " * 12 + "KEEP(*(.psyqsdata*))\n")
-                    psyq.append(" " * 12 + "KEEP(*(.psyqdata*))\n")
-                    psyq.append(" " * 12 + "KEEP(*(.psyqsbss*))\n")
-                    psyq.append(" " * 12 + "KEEP(*(.psyqbss*))\n")
             for section in sections:
                 for line in section:
                     buffer += line
@@ -141,20 +131,6 @@ class Makefile:
         return filename
 
     def build_makefile(self) -> bool:
-        if self.use_psyq and not _files.check_file(PSYQ_RENAME_CONFIRM_FILE):
-            print("\n[Makefile-py] WARNING: your project configuration may be trying to import PSYQ functions,")
-            print("but you haven't renamed your psyq sections.")
-            min_option = 1
-            max_option = 2
-            intro_msg = "Would you like to convert them now?\n1 - Yes\n2 - No"
-            error_msg = "ERROR: Please select a number between " + str(min_option) + " and " + str(max_option)
-            if request_user_input(min_option, max_option, intro_msg=intro_msg, error_msg=error_msg) == 1:
-                rename_psyq_sections()
-            else:
-                intro_msg = "Would you like to abort the compilation?\n1 - Yes\n2 - No"
-                if request_user_input(min_option, max_option, intro_msg=intro_msg, error_msg=error_msg) == 1:
-                    return False
-
         self.set_base_address()
         self.build_makefile_objects()
         buffer = f"""

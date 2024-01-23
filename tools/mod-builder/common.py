@@ -94,10 +94,8 @@ ABORT_PATH = DIR_GAME / ABORT_FILE
 DISC_FILE = "disc.json"
 DISC_PATH = DIR_GAME / DISC_FILE
 TOOLS_PATH = DIR_GAME.parents[1] / "tools"
-PSYQ_CONVERTED_PATH = TOOLS_PATH / "gcc-psyq-converted" / "lib"
-PSYQ_RENAME_CONFIRM_FILE = PSYQ_CONVERTED_PATH / ".sections-renamed"
 COMMENT_SYMBOL = "//"
-MOD_NAME = pathlib.Path.cwd().name # TODO: Pass this as an arg 
+MOD_NAME = pathlib.Path.cwd().name # TODO: Pass this as an arg
 try:
     GAME_NAME = pathlib.Path.cwd().parents[DISTANCE_LENGTH].name # not sure, number of folders?
     logger.debug(f"GAME_NAME: {GAME_NAME}")
@@ -105,43 +103,6 @@ except IndexError as error:
     logger.exception("No GAME_NAME found")
 
 HEXDIGITS = ["A", "B", "C", "D", "E", "F"]
-
-def rename_psyq_sections():
-    """TODO: Convert to pathlib"""
-    sections = ["text", "data", "bss", "rdata", "sdata", "sbss", "note"]
-    command = ["mipsel-none-elf-"]
-    command.append("objcopy")
-    for section in sections:
-        command.append("--rename-section")
-        command.append(f".{section}=.psyq{section}")
-
-    logger.info("Renaming PSYQ sections...")
-    curr_directory = ""
-    for root, _, files in os.walk(PSYQ_CONVERTED_PATH):
-        for filename in files:
-            split_filename = filename.rsplit(".", 1)
-            if len(split_filename) != 2:
-                continue
-            extension = split_filename[1]
-            if extension == "a" or extension == "o":
-                if root[-1] != "/":
-                    root = root + "/"
-                directory = root.split("/")[-2]
-                if directory != curr_directory:
-                    curr_directory = directory
-                    logger.info(f"Converting directory: {directory}...")
-                filepath = root + filename
-                command.append(filepath)
-                try:
-                    result = subprocess.call(command, shell=True)
-                    if result != 0:
-                        print("There was an error in the process")
-                except subprocess.CalledProcessError as error:
-                    logger.exception(error, exc_info = False)
-
-    with open(PSYQ_RENAME_CONFIRM_FILE, "w"):
-        pass
-    logger.info("PSYQ sections renamed successfully.")
 
 def request_user_input(first_option: int, last_option: int, intro_msg: str, error_msg: str) -> int:
     """

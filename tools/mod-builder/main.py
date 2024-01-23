@@ -9,7 +9,7 @@ from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
 from redux import Redux
-from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, SRC_FOLDER, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_PATH, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, rename_psyq_sections, DISC_PATH, SETTINGS_PATH, CONFIG_PATH
+from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, SRC_FOLDER, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_PATH, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, DISC_PATH, SETTINGS_PATH, CONFIG_PATH
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
@@ -51,9 +51,8 @@ class Main:
             16  :   self.clean_pch,
             17  :   self.disasm,
             18  :   export_as_c,
-            19  :   rename_psyq_sections,
-            20  :   self.clean_all,
-            21  :   self.shutdown
+            19  :   self.clean_all,
+            20  :   self.shutdown
         }
         self.num_options = len(self.actions)
         self.window_title = f"{GAME_NAME} - {MOD_NAME}"
@@ -105,9 +104,8 @@ class Main:
         16 - Clean Precompiled Header
         17 - Disassemble Elf
         18 - Export textures as C file
-        19 - Rename PSYQ Sections
-        20 - Clean All
-        21 - Quit
+        19 - Clean All
+        20 - Quit
         """
         error_msg = "ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
