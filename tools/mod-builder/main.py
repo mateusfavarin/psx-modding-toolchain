@@ -226,9 +226,7 @@ class Main:
         path_out = DEBUG_FOLDER / 'disasm.txt'
         with open(path_out, "w") as file:
             command = ["mipsel-none-elf-objdump", "-d", str(path_in)]
-            result = subprocess.call(command, stdout=file, stderr=subprocess.STDOUT)
-            if result.returncode != 0:
-                logger.critical("Disassembly failed")
+            subprocess.call(command, stdout=file, stderr=subprocess.STDOUT)
         logger.info(f"Disassembly saved at {path_out}")
 
     def exec(self):

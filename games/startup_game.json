@@ -19,11 +19,11 @@
         }
     ],
     "compiler": {
-        "function_sections": 1,
         "reorder_functions": 1,
         "optimization": 4,
         "debug": 1,
         "psyq": 0,
+        "mininoob": 0,
         "8mb": 1
     }
 }

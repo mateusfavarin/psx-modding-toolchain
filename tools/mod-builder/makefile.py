@@ -43,7 +43,6 @@ class Makefile:
     def load_config(self) -> None:
         with open(CONFIG_PATH, "r") as file:
             data = json.load(file)["compiler"]
-            self.use_function_sections = str(data["function_sections"] == 1).lower()
             self.disable_function_reorder = str(data["reorder_functions"] == 0).lower()
             optimization_level = data["optimization"]
             if optimization_level > 3:
@@ -53,6 +52,7 @@ class Makefile:
             if data["debug"] != 0:
                 self.compiler_flags += " -g"
             self.use_psyq_str = str(data["psyq"] != 0).lower()
+            self.use_mininoob_str = str(data["mininoob"] != 0).lower()
             self.use_psyq = data["psyq"] != 0
             if "pch" in data:
                 self.pch = data["pch"] + ".gch"
@@ -107,7 +107,7 @@ class Makefile:
                 src_o = src.with_suffix(".o") # remove suffix
                 is_c = False
                 if src.suffix == ".c":
-                    is_c = True                    
+                    is_c = True
                 text.append(" " * 12 + f"KEEP({str(src_o)}(.text*))\n")
                 rodata.append(" " * 12 + f"KEEP({str(src_o)}(.rodata*))\n")
                 sdata.append(" " * 12 + f"KEEP({str(src_o)}(.sdata*))\n")
@@ -165,9 +165,9 @@ class Makefile:
         CPPFLAGS = -DBUILD={self.build_id}
         LDSYMS = {" ".join(f"-T{str(sym)}" for sym in self.files_symbols)}
 
-        USE_FUNCTION_SECTIONS ?= {self.use_function_sections}
         DISABLE_FUNCTION_REORDER ?= {self.disable_function_reorder}
         USE_PSYQ ?= {self.use_psyq_str}
+        USE_MININOOB ?= {self.use_mininoob_str}
         OVERLAYSECTION ?= {" ".join(self.ovr_section)} triple
         OVR_START_ADDR = {hex(self.base_addr)}
         OVERLAYSCRIPT = {self.build_linker_script()}
@@ -233,7 +233,7 @@ class Makefile:
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
         try:
-            command = ["make", "--silent"] # TODO: Point to the CWD directory 
+            command = ["make", "--silent"] # TODO: Point to the CWD directory
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:

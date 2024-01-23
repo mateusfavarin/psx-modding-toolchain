@@ -1,0 +1,2 @@
+# Minin00b
+Minin00b is a fork of [PSn00bSDK](https://github.com/Lameguy64/PSn00bSDK) source code, slighly modified and compiled to generate minimal libraries to use for modding purposes with the psx-mooding-toolchain.

@@ -13,6 +13,22 @@ CPPFLAGS += -I$(TOOLSDIR)nugget/common/macros/
 CPPFLAGS += -I$(GAMEINCLUDEDIR)
 CPPFLAGS += -I$(SRCINCLUDEDIR)
 
+ifeq ($(USE_MININOOB),true)
+  CPPFLAGS += -I$(TOOLSDIR)minin00b/include/
+  LDFLAGS += -L$(TOOLSDIR)minin00b/lib/
+  LDFLAGS += -Wl,--start-group
+  LDFLAGS += -l:libc.a
+  LDFLAGS += -l:psxcd.a
+  LDFLAGS += -l:psxetc.a
+  LDFLAGS += -l:psxgpu.a
+  LDFLAGS += -l:psxgte.a
+  LDFLAGS += -l:psxpress.a
+  LDFLAGS += -l:psxsio.a
+  LDFLAGS += -l:psxspu.a
+  LDFLAGS += -l:psxapi.a
+  LDFLAGS += -Wl,--end-group
+endif
+
 ifeq ($(USE_PSYQ),true)
   CPPFLAGS += -I$(TOOLSDIR)gcc-psyq-converted/include/
   LDFLAGS += -L$(TOOLSDIR)gcc-psyq-converted/lib/

@@ -11,9 +11,7 @@ LDFLAGS += -Wl,--gc-sections
 
 ARCHFLAGS = -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -mfp32
 ARCHFLAGS += -fno-stack-protector -nostdlib -ffreestanding
-ifeq ($(USE_FUNCTION_SECTIONS),true)
-CPPFLAGS += -ffunction-sections
-endif
+CPPFLAGS += -ffunction-sections -fdata-sections
 ifeq ($(DISABLE_FUNCTION_REORDER),true)
 CPPFLAGS += -fno-toplevel-reorder
 endif
