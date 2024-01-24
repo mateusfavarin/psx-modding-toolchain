@@ -11,7 +11,6 @@ from common import request_user_input, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_
 
 import logging
 import json
-import re
 import os
 import shutil
 import subprocess
@@ -214,7 +213,7 @@ class Makefile:
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
         try:
-            command = ["make"] # TODO: Point to the CWD directory
+            command = ["make", "--silent"] # TODO: Point to the CWD directory
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
@@ -237,21 +236,20 @@ class Makefile:
             logger.critical(f"Compilation completed but unsuccessful. ({total_time}s)")
             return False
 
-        shutil.move("mod.map", DEBUG_FOLDER / "mod.map")
+        shutil.move("mod.map", GCC_MAP_FILE)
         shutil.move("mod.elf", DEBUG_FOLDER / "mod.elf")
         self.move_temp_files()
 
         logger.info(f"Compilation successful ({total_time}s)")
-        pattern = re.compile(r"0x0000000080[0-7][0-9a-fA-F]{5}\s+([a-zA-Z]|_)\w*")
-        special_symbols = ["__heap_base", "__ovr_start", "__ovr_end", "OVR_START_ADDR"]
+        special_symbols = ["__heap_base", "__ovr_start", "__ovr_end", "OVR_START_ADDR", "__mod_end"]
         buffer = ""
         with open(GCC_MAP_FILE, "r") as file:
             for line in file:
-                for match in re.finditer(pattern, line):
-                    res = match.group().split()
-                    if res[1] in special_symbols:
-                        continue
-                    buffer += res[0][10:] + " " + res[1] + "\n"
+                line = line.split()[:2]
+                if len(line) == 2 and len(line[0]) == 10 and line[0][:2] == "0x":
+                    if not ("." in line[1] or "/" in line[1] or "\\" in line[1]):
+                        if line[1][0] != "0" and line[1] not in special_symbols:
+                            buffer += line[0][2:] + " " + line[1] + "\n"
 
         with open(REDUX_MAP_FILE, "w") as file:
             file.write(buffer)
