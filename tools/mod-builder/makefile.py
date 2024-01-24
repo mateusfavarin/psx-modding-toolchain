@@ -89,10 +89,10 @@ class Makefile:
         buffer += "\n"
         buffer += "SECTIONS {\n"
         buffer += " " * 4 + "OVERLAY __ovr_start : SUBALIGN(4) {\n"
-        for ovr in self.ovrs:
-            section_name = ovr[0]
-            source = ovr[1] # list of pathlib
-            addr = ovr[2]
+        for i in range(len(self.ovrs)):
+            section_name = self.ovrs[i][0]
+            source = self.ovrs[i][1] # list of pathlib
+            addr = self.ovrs[i][2]
             offset = addr - self.base_addr
             offset_buffer += section_name + " " + hex(offset) + "\n"
             buffer += " " * 8 + "." + section_name + " {\n"
@@ -103,15 +103,19 @@ class Makefile:
             for src in source: # pathlib objects
                 # TODO: Utilize pathlib completely
                 src_o = src.with_suffix(".o") # remove suffix
-                is_c = False
-                if src.suffix == ".c":
-                    is_c = True
                 text.append(" " * 12 + f"KEEP({str(src_o)}(.text*))\n")
                 rodata.append(" " * 12 + f"KEEP({str(src_o)}(.rodata*))\n")
                 sdata.append(" " * 12 + f"KEEP({str(src_o)}(.sdata*))\n")
                 data.append(" " * 12 + f"KEEP({str(src_o)}(.data*))\n")
                 sbss.append(" " * 12 + f"KEEP({str(src_o)}(.sbss*))\n")
                 bss.append(" " * 12 + f"KEEP({str(src_o)}(.bss*))\n")
+            if i == len(self.ovrs) - 1:
+                text.append(" " * 12 + "*(.text*)\n")
+                rodata.append(" " * 12 + "*(.rodata*)\n")
+                sdata.append(" " * 12 + "*(.sdata*)\n")
+                data.append(" " * 12 + "*(.data*)\n")
+                sbss.append(" " * 12 + "*(.sbss*)\n")
+                bss.append(" " * 12 + "*(.bss*)\n")
             for section in sections:
                 for line in section:
                     buffer += line
@@ -120,6 +124,7 @@ class Makefile:
             buffer += " " * 8 + "}" + "\n"
         buffer += " " * 4 + "}" + "\n"
         buffer += "}" + "\n"
+        buffer += "__mod_end = .;\n"
 
         with open(filename, "w") as file:
             file.write(buffer)
@@ -144,7 +149,7 @@ class Makefile:
         DISABLE_FUNCTION_REORDER ?= {self.disable_function_reorder}
         USE_PSYQ ?= {self.use_psyq_str}
         USE_MININOOB ?= {self.use_mininoob_str}
-        OVERLAYSECTION ?= {" ".join(self.ovr_section)} triple
+        OVERLAYSECTION ?= {" ".join(self.ovr_section)}
         OVR_START_ADDR = {hex(self.base_addr)}
         OVERLAYSCRIPT = {self.build_linker_script()}
         BUILDDIR = $(MODDIR){OUTPUT_FOLDER}
@@ -209,7 +214,7 @@ class Makefile:
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
         try:
-            command = ["make", "--silent"] # TODO: Point to the CWD directory
+            command = ["make"] # TODO: Point to the CWD directory
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
