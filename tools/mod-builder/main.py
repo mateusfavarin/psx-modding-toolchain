@@ -108,7 +108,7 @@ class Main:
         19 - Clean All
         20 - Quit
         """
-        error_msg = "ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
+        error_msg = f"ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
 
     def abort_compilation(self, is_root: bool, is_warning: bool) -> None:

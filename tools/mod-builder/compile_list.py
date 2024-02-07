@@ -106,7 +106,7 @@ class CompileList:
         try:
             offset = eval(list_tokens[3])
         except Exception:
-            error_print("Invalid arithmetic expression for offset at line {line_count[0]}: {self.original_line}\n")
+            error_print(f"Invalid arithmetic expression for offset at line {line_count[0]}: {self.original_line}\n")
 
         self.address = self.calculate_address_base(list_tokens[2], offset)
         # construct source_directories
@@ -132,7 +132,7 @@ class CompileList:
                         if regex.search(file):
                             self.source.append(directory / file)
                 else:
-                    logger.warning("directory {directory} not found at line: {line_count[0]}: {self.original_line}")
+                    logger.warning(f"directory {directory} not found at line: {line_count[0]}: {self.original_line}")
                     self.ignore = True
                     return
 
