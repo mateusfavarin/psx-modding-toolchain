@@ -45,7 +45,7 @@ class Syms():
                 symbol = line[0]
                 address = line[1].split(";")[0].strip()
                 if not is_number(address):
-                    logger.error("Invalid address in file: {fname} at line: {original_line}")
+                    logger.error(f"Invalid address in file: {fname} at line: {original_line}")
                     continue
                 address = int(address, 0)
                 self.syms[symbol] = address

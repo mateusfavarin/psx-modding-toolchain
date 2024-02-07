@@ -76,7 +76,7 @@ class Redux:
             logger.info(f"Found PCSX-Redux executable at {self.command}")
         dir_current = pathlib.Path.cwd()
         game_name = self.get_game_name()
-        logger.debug("game_name: {game_name}")
+        logger.debug(f"game_name: {game_name}")
         mod_name = game_name.split(".")[0] + "_" + MOD_NAME + ".bin"
         generic_path = dir_current / ISO_PATH
         path_game = generic_path / mod_name
@@ -172,9 +172,9 @@ class Redux:
         response = requests.post(self.url + "/api/v1/assembly/symbols?function=upload", files=files)
         if response.ok:
             if response.status_code == 200:
-                logger.info("Successfully loaded {REDUX_MAP_FILE}")
+                logger.info(f"Successfully loaded {REDUX_MAP_FILE}")
         else:
-            logger.error("Web Server: error loading {REDUX_MAP_FILE}")
+            logger.error(f"Web Server: error loading {REDUX_MAP_FILE}")
 
     def inject(self, backup: bool, restore: bool) -> None:
         build_id = get_build_id()
