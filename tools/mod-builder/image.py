@@ -3,38 +3,63 @@ from __future__ import annotations # to use type in python 3.7
 from clut import get_clut, rgb2psx
 
 import cv2
-
+import logging
+import pathlib
+from PIL import Image as PILImage
 import os
 
-from PIL import Image as PILImage
+logger = logging.getLogger(__name__)
 
-imgs = []
+imgs = [] # global
 
 class Image:
-    def __init__(self, filename: str) -> None:
-        path = filename
-        filename = filename.split('/')[-1][:-4]
-        filename = filename.split('_')
-        self.valid = True
-        if len(filename) != 8:
-            print("[Image-py] ERROR: wrong naming convention for the texture for image " + path)
+    """
+    Class for texture image files
+    TODO: Confirm we only use this for .png file types (debunking so far)
+    """
+    def __init__(self, fname: str) -> None:
+        path = pathlib.Path(fname)
+
+        # validation checks
+        self.valid = True # default
+        if not path.exists():
+            logger.error(f"Given path does not exist: {path}")
             self.valid = False
             return
-        self.name = filename[0]
-        self.mode = int(filename[7])
-        self.x = int(filename[1])
-        self.y = int(filename[2])
+        self.valid = self.check_naming_convention(path.stem)
+        if not self.is_valid():
+            return
+
+        # Extract metadata
+        fname_parts = path.stem.split("_")
+        self.name = fname_parts[0]
+        self.mode = int(fname_parts[7])
+        self.x = int(fname_parts[1])
+        self.y = int(fname_parts[2])
         self.address = (self.y * 2048) + (self.x * 2)
-        self.w = int(filename[5]) // (16 // self.mode)
-        self.h = int(filename[6])
-        self.clut = get_clut(int(filename[3]), int(filename[4]), self.mode)
-        self.img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-        self.pil_img = PILImage.open(path)
+        self.w = int(fname_parts[5]) // (16 // self.mode)
+        self.h = int(fname_parts[6])
+        self.clut = get_clut(int(fname_parts[3]), int(fname_parts[4]), self.mode)
+        self.img = cv2.imread(str(path), cv2.IMREAD_UNCHANGED)
+        self.pil_img = PILImage.open(str(path))
         if self.pil_img.mode == "P":
             self.pil_img = self.pil_img.convert("PA")
         self.psx_img = bytearray()
         self.img_len = 0
         self.output_path = None
+
+    @staticmethod
+    def check_naming_convention(fname):
+        """
+        Any texture file should be of the form
+        NAME_#_#_#_#_#_#_# (name with 7 numbers)
+        """
+        list_parts = fname.split('_')
+        if len(list_parts) != 8:
+            logger.exception(f"wrong naming convention for the texture for image: {fname}")
+            return False
+        
+        return True
 
     def img2psx(self) -> None:
         count = 0 #lol
@@ -148,16 +173,15 @@ def dump_images(path: str) -> None:
             print("[Image-py] WARNING: Image " + img.name + " was ignored because it uses " + img.clut.name + ", which exceeds the number of maximum colors")
 
 def create_images(directory: str) -> int:
-    total = 0
-    for root, _, files in os.walk(directory):
-        for filename in files:
-            if filename[-4:].lower() == ".png":
-                total += 1
-                path = root + filename
-                img = Image(path)
-                if img.is_valid():
-                    imgs.append(img)
-                    img.img2psx()
-                    if img.pil_img.mode == "PA":
-                        img.clut.add_indexed_colors(img.pil_img)
-    return total
+    count_images = 0
+    dir_path = pathlib.Path(directory)
+    for path in list(dir_path.rglob('*.png')):
+        count_images += 1
+        logger.debug(path)
+        img = Image(path)
+        if img.is_valid():
+            imgs.append(img)
+            img.img2psx()
+            if img.pil_img.mode == "PA":
+                img.clut.add_indexed_colors(img.pil_img)
+    return count_images
