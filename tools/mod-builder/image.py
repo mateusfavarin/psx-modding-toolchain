@@ -150,20 +150,28 @@ class Image:
         return "\n".join(list_out)
 
     def __str__(self) -> str:
-        """TODO: Replace with triple quotes"""
-        buffer = ""
+        """
+        Triple quotes can break indentation, best to build line by line
+        """
+        lines_out = []
         if (self.clut is not None) and (self.clut.is_valid()):
-            buffer += "IMG: " + self.name + "\n"
-            buffer += "Coords: (" + str(self.x) + ", " + str(self.y) + ")\n"
-            buffer += "Width, height: (" + str(self.w) + ", " + str(self.h) +")\n"
-            buffer += "Address: " + hex(self.address) + "\n"
-            buffer += '['
+            lines_out += [
+                f"IMG: {self.name}",
+                f"Coords: ({str(self.x)}, {str(self.y)})",
+                f"Width, height: ({str(self.w)}, {str(self.h)})",
+                f"Address: {hex(self.address)}",
+            ]
+            string_address = "["
             for px in self.psx_img:
-                buffer += hex(px) + ','
-            buffer += ']\n'
+                string_address += f"{hex(px)},"
+            string_address += "]"
+            lines_out += [
+                string_address
+            ]
         else:
-            buffer += "ERROR: The images are adding too many colors to a single Image.\n"
-        return buffer
+            message_error = "ERROR: The images are adding too many colors to a single Image."
+            lines_out.append(message_error)
+        return "\n".join(lines_out)
 
 
 def get_image_list() -> list[Image]:

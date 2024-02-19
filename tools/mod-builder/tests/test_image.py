@@ -1,3 +1,6 @@
+"""
+TODO: create a fake image file to avoid having to look for hard-coded assets
+"""
 import pathlib
 import pytest
 
@@ -26,13 +29,31 @@ def test_create_images(image_directory):
 
 def test_as_c_struct(image_directory):
     """
-    TODO: create a fake image file
+    TODO: parametrize this
     """
     fname_image_texture = "SPYRO_368_216_1_251_44_26_4.png"
     instance = image.Image(image_directory / "newtex" / fname_image_texture)
     string_test = instance.as_c_struct()
     string_actual = ""
-    with open(pathlib.Path.cwd() / "tests" / "spyro_c_struct.c", "r") as f:
+    with open(pathlib.Path.cwd() / "tests" / "spyro_c_struct.txt", "r") as f:
+        string_actual = f.read()
+    print("="*10)
+    print(string_actual)
+    print("="*10)
+    print(string_test)
+    print("="*10)
+    assert instance.is_valid()
+    assert string_actual == string_test
+
+def test_string_constructor(image_directory):
+    """
+    TODO: parametrize this
+    """
+    fname_image_texture = "SPYRO_368_216_1_251_44_26_4.png"
+    instance = image.Image(image_directory / "newtex" / fname_image_texture)
+    string_test = instance.__str__()
+    string_actual = ""
+    with open(pathlib.Path.cwd() / "tests" / "spyro___str__.txt", "r") as f:
         string_actual = f.read()
     print("="*10)
     print(string_actual)
