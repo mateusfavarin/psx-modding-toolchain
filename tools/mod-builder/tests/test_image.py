@@ -34,7 +34,10 @@ def test_as_c_struct(image_directory):
     string_actual = ""
     with open(pathlib.Path.cwd() / "tests" / "spyro_c_struct.c", "r") as f:
         string_actual = f.read()
+    print("="*10)
     print(string_actual)
+    print("="*10)
     print(string_test)
+    print("="*10)
     assert instance.is_valid()
     assert string_actual == string_test

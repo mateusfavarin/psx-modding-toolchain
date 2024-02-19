@@ -123,20 +123,30 @@ class Image:
 
     def as_c_struct(self) -> str:
         """
-        TODO: replace with triple quotes
+        Replacing with triple quotes is possible but
+        too much work to remove extra spacings
         """
-        buffer = "// CLUT = " + self.clut.name + "\n"
-        buffer += "char " + self.name + "[] = {"
+        string_header = f"// CLUT = {self.clut.name}"
+        string_function = f"char {self.name}[] = {{"
         for px in self.psx_img:
-            buffer += hex(px) + ","
-        buffer += "};\n\n"
-        buffer += "RECT " + self.name + "_pos = {\n"
-        buffer += " " * 4 + ".x = " + str(self.x) + ",\n"
-        buffer += " " * 4 + ".y = " + str(self.y) + ",\n"
-        buffer += " " * 4 + ".w = " + str(self.w) + ",\n"
-        buffer += " " * 4 + ".h = " + str(self.h) + "\n"
-        buffer += "};\n"
-        return buffer
+            string_function += hex(px) + ","
+        string_function += "};"
+
+        list_out = [
+            string_header,
+            string_function,
+            "",
+            # function body
+            f"RECT {self.name}_pos = {{", 
+            f"    .x = {str(self.x)},",
+            f"    .y = {str(self.y)},",
+            f"    .w = {str(self.w)},",
+            f"    .h = {str(self.h)}",
+            "};",
+            ""
+        ]
+
+        return "\n".join(list_out)
 
     def __str__(self) -> str:
         """TODO: Replace with triple quotes"""
