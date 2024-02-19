@@ -6,7 +6,6 @@ import cv2
 import logging
 import pathlib
 from PIL import Image as PILImage
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,9 @@ imgs = [] # global
 class Image:
     """
     Class for texture image files
-    TODO: Confirm we only use this for .png file types (debunking so far)
+
+    Reads images
+    Converts from palettised (P) to palettised with an alpha channel (PA)
     """
     def __init__(self, fname: str) -> None:
         path = pathlib.Path(fname)
@@ -58,7 +59,7 @@ class Image:
         if len(list_parts) != 8:
             logger.exception(f"wrong naming convention for the texture for image: {fname}")
             return False
-        
+
         return True
 
     def img2psx(self) -> None:
@@ -84,7 +85,7 @@ class Image:
                         px = rgb2psx(px[2], px[1], px[0], px[3])
                         self.psx_img.append(px & 0xFF)
                         self.psx_img.append((px >> 8) & 0xFF)
-        else:
+        else: # image is palettised with an alpha channel (PA)
             for row in self.img:
                 if self.mode == 4:
                     for i in range(0, len(row), 2):
@@ -183,6 +184,11 @@ def dump_images(path: str) -> None:
             print("[Image-py] WARNING: Image " + img.name + " was ignored because it uses " + img.clut.name + ", which exceeds the number of maximum colors")
 
 def create_images(directory: str) -> int:
+    """
+    Prefers a directory with .png files
+    Affects the global images list
+    # TODO: Replace .png with a regex of other file formats.
+    """
     count_images = 0
     dir_path = pathlib.Path(directory)
     for path in list(dir_path.rglob('*.png')):
@@ -190,7 +196,7 @@ def create_images(directory: str) -> int:
         logger.debug(path)
         img = Image(path)
         if img.is_valid():
-            imgs.append(img)
+            imgs.append(img) # global images list
             img.img2psx()
             if img.pil_img.mode == "PA":
                 img.clut.add_indexed_colors(img.pil_img)
