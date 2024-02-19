@@ -63,6 +63,7 @@ class Image:
         return True
 
     def img2psx(self) -> None:
+        """ Converts the image to a bytearray """
         count = 0 #lol
         if self.pil_img.mode != "PA":
             for row in self.img:
@@ -138,7 +139,7 @@ class Image:
             string_function,
             "",
             # function body
-            f"RECT {self.name}_pos = {{", 
+            f"RECT {self.name}_pos = {{",
             f"    .x = {str(self.x)},",
             f"    .y = {str(self.y)},",
             f"    .w = {str(self.w)},",
@@ -180,18 +181,19 @@ def get_image_list() -> list[Image]:
 def clear_images() -> None:
     imgs.clear()
 
-def dump_images(path: str) -> None:
-    print("\n[Image-py] Dumping images...")
+def dump_images(dir_out: str) -> None:
+    logger.info("Dumping images...")
+    path_out = pathlib.Path(dir_out)
     for img in imgs:
         if img.clut.is_valid():
-            img_path = path + img.name + ".bin"
-            img.set_path(img_path)
+            img_path = (path_out / img.name).with_suffix(".bin")
+            img.set_path(str(img_path)) # PIL method
             with open(img_path, "wb") as file:
                 file.write(img.psx_img)
         else:
-            print("[Image-py] WARNING: Image " + img.name + " was ignored because it uses " + img.clut.name + ", which exceeds the number of maximum colors")
+            logger.warning(f"Image exceeds maximum color count: {img.name} -> {img.clut.name}")
 
-def create_images(directory: str) -> int:
+def create_images(directory) -> int:
     """
     Prefers a directory with .png files
     Affects the global images list
