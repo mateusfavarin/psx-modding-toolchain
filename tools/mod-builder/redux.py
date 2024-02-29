@@ -1,7 +1,7 @@
 import _files # check_file
 from syms import Syms
 from compile_list import CompileList, free_sections
-from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, MOD_NAME, DISC_PATH, request_user_input, get_build_id, cli_pause
+from common import COMPILE_LIST, ISO_PATH, REDUX_MAP_FILE, SETTINGS_PATH, BACKUP_FOLDER, TEXTURES_OUTPUT_FOLDER, MOD_NAME, request_user_input, get_build_id, cli_pause
 from image import get_image_list
 from clut import get_clut_list
 from game_options import game_options
@@ -27,7 +27,7 @@ class Redux:
     def load_config(self, fname) -> bool:
         """
         fname is a path to settings.json
-        Assumes of the form 
+        Assumes of the form
         {
             "redux": {"port": int, "path": absolute path }
         }
@@ -468,7 +468,7 @@ class Redux:
             return
 
         print("[Redux-py] Patching disc assets...\n")
-        
+
         # check if pcsx redux is running, then pause
         is_running = bool()
         try:
@@ -491,7 +491,7 @@ class Redux:
             filename = f"{df_array[count].physical_file};1"
             params = {"filename": filename}
             og_file_path = f"{extract_folder}/{df_array[count].physical_file}".replace("\\", "/")
-            
+
             # load patch file
             # if the "Hot Reload Disc Files Restore" command was selected,
             # the patch file will instead be the original disc file

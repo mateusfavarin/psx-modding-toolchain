@@ -7,7 +7,7 @@ TODO: Use subprocess instead of os.system
 
 from compile_list import CompileList
 import _files # create_directory, delete_file
-from common import request_user_input, cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, CONFIG_PATH, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, MOD_NAME
+from common import cli_clear, MAKEFILE, TRIMBIN_OFFSET, GCC_OUT_FILE, COMP_SOURCE, GAME_INCLUDE_PATH, CONFIG_PATH, SRC_FOLDER, DEBUG_FOLDER, OUTPUT_FOLDER, BACKUP_FOLDER, OBJ_FOLDER, DEP_FOLDER, GCC_MAP_FILE, REDUX_MAP_FILE, CONFIG_PATH, MOD_NAME, MOD_DIR
 
 import logging
 import json
@@ -75,7 +75,7 @@ class Makefile:
         self.ovrs = []
         for instance in self.list_compile_lists:
             for src in instance.source: #pathlibs
-                self.srcs.append(src)
+                self.srcs.append(str(src).replace("\\", "/").replace(str(MOD_DIR), ""))
             self.ovrs.append((instance.section_name, instance.source, instance.address))
             # self.ovr_section += "." + instance.section_name + " "
             self.ovr_section.append("." + instance.section_name)
@@ -102,12 +102,13 @@ class Makefile:
             for src in source: # pathlib objects
                 # TODO: Utilize pathlib completely
                 src_o = src.with_suffix(".o") # remove suffix
-                text.append(" " * 12 + f"KEEP({str(src_o)}(.text*))\n")
-                rodata.append(" " * 12 + f"KEEP({str(src_o)}(.rodata*))\n")
-                sdata.append(" " * 12 + f"KEEP({str(src_o)}(.sdata*))\n")
-                data.append(" " * 12 + f"KEEP({str(src_o)}(.data*))\n")
-                sbss.append(" " * 12 + f"KEEP({str(src_o)}(.sbss*))\n")
-                bss.append(" " * 12 + f"KEEP({str(src_o)}(.bss*))\n")
+                src_o = str(src_o).replace("\\", "/").replace(str(MOD_DIR), "")
+                text.append(" " * 12 + f"KEEP({src_o}(.text*))\n")
+                rodata.append(" " * 12 + f"KEEP({src_o}(.rodata*))\n")
+                sdata.append(" " * 12 + f"KEEP({src_o}(.sdata*))\n")
+                data.append(" " * 12 + f"KEEP({src_o}(.data*))\n")
+                sbss.append(" " * 12 + f"KEEP({src_o}(.sbss*))\n")
+                bss.append(" " * 12 + f"KEEP({src_o}(.bss*))\n")
             if i == len(self.ovrs) - 1:
                 text.append(" " * 12 + "*(.text*)\n")
                 rodata.append(" " * 12 + "*(.rodata*)\n")
@@ -141,7 +142,7 @@ class Makefile:
         MODDIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
         TARGET = mod
 
-        SRCS = {" ".join([str(i) for i in self.srcs])}
+        SRCS = {" ".join([i for i in self.srcs])}
         CPPFLAGS = -DBUILD={self.build_id}
         LDSYMS = {" ".join(f"-T{str(sym)}" for sym in self.files_symbols)}
 
@@ -152,7 +153,6 @@ class Makefile:
         OVR_START_ADDR = {hex(self.base_addr)}
         OVERLAYSCRIPT = {self.build_linker_script()}
         BUILDDIR = $(MODDIR){OUTPUT_FOLDER}
-        SRCINCLUDEDIR = $(MODDIR){SRC_FOLDER}
         GAMEINCLUDEDIR = {str(GAME_INCLUDE_PATH)}
         EXTRA_CC_FLAGS = {self.compiler_flags}
         OPT_CC_FLAGS = {self.opt_ccflags}

@@ -6,8 +6,6 @@ import copy
 import logging
 import os
 import pathlib
-import pdb
-import subprocess
 import sys
 import textwrap
 
@@ -96,6 +94,8 @@ DISC_PATH = DIR_GAME / DISC_FILE
 TOOLS_PATH = DIR_GAME.parents[1] / "tools"
 COMMENT_SYMBOL = "//"
 MOD_NAME = pathlib.Path.cwd().name # TODO: Pass this as an arg
+MOD_DIR = str(pathlib.Path.cwd()).replace("\\", "/") + "/"
+print("mod dir: " + MOD_DIR)
 try:
     GAME_NAME = pathlib.Path.cwd().parents[DISTANCE_LENGTH].name # not sure, number of folders?
     logger.debug(f"GAME_NAME: {GAME_NAME}")
