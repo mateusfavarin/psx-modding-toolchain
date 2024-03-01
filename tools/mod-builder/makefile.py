@@ -213,7 +213,7 @@ class Makefile:
         print("\n[Makefile-py] Compiling " + MOD_NAME + "...\n")
         start_time = time()
         try:
-            command = ["make", "--silent"] # TODO: Point to the CWD directory
+            command = ["make", "-j8", "--silent"] # TODO: Point to the CWD directory
             with open(GCC_OUT_FILE, "w") as outfile:
                 result = subprocess.run(command, stdout=outfile, stderr=subprocess.STDOUT)
                 if result.returncode != 0:
