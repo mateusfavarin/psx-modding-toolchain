@@ -200,11 +200,6 @@ class Redux:
             with open(build_list, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
-                    if cl.is_cl():
-                        if cl.path_build_list is not None:
-                            build_lists.append(str(cl.path_build_list))
-                        else:
-                            logger.warning("buildList path not set")
                     if not cl.should_build():
                         continue
                     bin = cl.get_output_name() # pathlib object

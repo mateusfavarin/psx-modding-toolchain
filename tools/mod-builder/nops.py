@@ -39,8 +39,6 @@ class Nops:
             with open(bl, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
-                    if cl.is_cl():
-                        build_lists.append(cl.path_build_list)
                     if not cl.should_build():
                         continue
                     bin = cl.get_output_name()

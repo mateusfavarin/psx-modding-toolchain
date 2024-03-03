@@ -154,7 +154,7 @@ class Main:
 
     def clean_all(self) -> None:
         self.mkpsxiso.clean(all=True)
-        self.clean()
+        self.clean_files()
         self.clean_pch()
 
     def patch_disc_files(self) -> None:

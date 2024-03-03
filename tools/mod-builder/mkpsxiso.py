@@ -108,8 +108,6 @@ class Mkpsxiso:
             with open(bl, "r") as file:
                 for line in file:
                     instance_cl = CompileList(line, sym, prefix)
-                    if instance_cl.is_cl():
-                        build_lists.append(instance_cl.path_build_list)
                     if not instance_cl.should_build():
                         continue
 
@@ -224,7 +222,7 @@ class Mkpsxiso:
             return
         if not _files.check_file(COMPILE_LIST):
             return
-        if not pathlib.Path(xml).exists: # don't need to log error
+        if not pathlib.Path(xml).exists(): # don't need to log error
             self.extract_iso_to_xml(instance_version, extract_folder, xml)
         modified_rom_name = f"{rom_name}_{MOD_NAME}"
         build_files_folder = ISO_PATH / modified_rom_name
@@ -273,8 +271,7 @@ class Mkpsxiso:
             build_xdelta = build_files_folder.with_suffix(".xdelta")
             if all:
                 extract_xml = ISO_PATH / (rom_name + ".xml")
-                extract_folder = extract_xml.stem
-
+                extract_folder = ISO_PATH / extract_xml.stem
                 _files.delete_directory(extract_folder)
                 _files.delete_file(extract_xml)
             _files.delete_directory(build_files_folder)
