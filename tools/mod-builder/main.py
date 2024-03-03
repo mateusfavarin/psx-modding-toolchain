@@ -9,7 +9,7 @@ from makefile import Makefile, clean_pch
 from compile_list import CompileList, free_sections, print_errors
 from syms import Syms
 from redux import Redux
-from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, RECURSIVE_COMP_PATH, ABORT_PATH, CONFIG_PATH, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, DISC_PATH, SETTINGS_PATH, CONFIG_PATH
+from common import MOD_NAME, GAME_NAME, LOG_FILE, COMPILE_LIST, DEBUG_FOLDER, BACKUP_FOLDER, OUTPUT_FOLDER, COMPILATION_RESIDUES, TEXTURES_FOLDER, TEXTURES_OUTPUT_FOLDER, IS_WINDOWS_OS, request_user_input, cli_clear, cli_pause, DISC_PATH, SETTINGS_PATH
 from mkpsxiso import Mkpsxiso
 from nops import Nops
 from game_options import game_options
@@ -19,7 +19,6 @@ from c import export_as_c
 
 import logging
 import os
-import pathlib
 import subprocess
 import sys
 from glob import glob
@@ -111,69 +110,33 @@ class Main:
         error_msg = f"ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
 
-    def abort_compilation(self, is_root: bool, is_warning: bool) -> None:
+    def abort_compilation(self, is_warning: bool) -> None:
         if is_warning:
             logger.warning("Aborting ongoing compilations.")
             cli_pause()
-        if is_root:
-            _files.delete_file(RECURSIVE_COMP_PATH)
-            return
-        else:
-            with open(ABORT_PATH, "w") as _:
-                return
 
     def compile(self) -> None:
-        if ABORT_PATH.exists(): # Shouldn't log ERROR for this one
-            return # Abort ongoing compilation chain due to an error that occured
         if not _files.check_file(COMPILE_LIST):
             return
-        is_root = False
-        if not _files.check_file(RECURSIVE_COMP_PATH, quiet=True):
-            with open(RECURSIVE_COMP_PATH, "w") as _:
-                is_root = True
-        else:
-            with open(RECURSIVE_COMP_PATH, "r") as file:
-                if MOD_NAME in file.readline().split():
-                    return # checking whether the mod was already compiled
         instance_symbols = Syms()
         make = Makefile(instance_symbols.get_build_id(), instance_symbols.get_files())
-        dependencies = []
         # parsing compile list
         free_sections()
         with open(COMPILE_LIST, "r") as file:
             for line in file:
                 cl = CompileList(line, instance_symbols, "./")
-                if cl.is_cl():
-                    dependencies.append(cl.path_build_list)
                 if not cl.should_ignore():
                     make.add_cl(cl)
         if print_errors[0]:
             intro_msg = "[Compile-py] Would you like to continue to compilation process?\n\n1 - Yes\n2 - No\n"
             error_msg = "ERROR: Wrong option. Please type a number from 1-2.\n"
             if request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 2:
-                self.abort_compilation(is_root, is_warning=False)
+                self.abort_compilation(is_warning=False)
         if make.build_makefile():
-            if make.make():
-                with open(RECURSIVE_COMP_PATH, "a") as file:
-                    file.write(MOD_NAME + " ")
-            else:
-                self.abort_compilation(is_root, is_warning=True)
+            if not make.make():
+                self.abort_compilation(is_warning=True)
         else:
-            self.abort_compilation(is_root, is_warning=True)
-        curr_dir = pathlib.Path.cwd()
-        for dep in dependencies: # Does this matter since we know the full path?
-            os.chdir(dep)
-            path_module = CONFIG_PATH.parents[1] / "tools" / "mod-builder" / "main.py"
-            # use to use get_distance_to_file(False, CONFIG_FILE), same as CONFIG_PATH?
-            command = [self.python, str(path_module), "1", instance_symbols.version]
-            result = subprocess.call(command) # only returns code
-            if result != 0:
-                logger.critical("Couldn't run the symbols version")
-        os.chdir(curr_dir)
-        if is_root:
-            _files.delete_file(RECURSIVE_COMP_PATH)
-            _files.delete_file(ABORT_PATH)
-            self.update_title()
+            self.abort_compilation(is_warning=True)
 
     def clean_files(self) -> None:
         _files.delete_directory(DEBUG_FOLDER)
@@ -182,8 +145,6 @@ class Main:
         _files.delete_directory(TEXTURES_OUTPUT_FOLDER)
         for file in COMPILATION_RESIDUES:
             _files.delete_file(file)
-        _files.delete_file(ABORT_PATH)
-        _files.delete_file(RECURSIVE_COMP_PATH)
         leftovers = glob("**/*.o", recursive=True) + glob("**/*.dep", recursive=True)
         for leftover in leftovers:
             _files.delete_file(leftover)
@@ -246,7 +207,5 @@ if __name__ == "__main__":
         main = Main()
         main.exec()
     except Exception as e:
-        _files.delete_file(RECURSIVE_COMP_PATH)
-        _files.delete_file(ABORT_PATH)
         logging.basicConfig(filename=LOG_FILE, filemode="w", format='%(levelname)s:%(message)s')
         logging.exception(e)

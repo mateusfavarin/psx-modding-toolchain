@@ -1,5 +1,5 @@
 """
-Parses the buildList.txt file line by line assuming a tabluar format 
+Parses the buildList.txt file line by line assuming a tabluar format
 Use pathlib.Path().resolve() to handle concatenation of ../.. syntax
 """
 import _files # check_file
@@ -32,7 +32,6 @@ class CompileList:
         self.prefix = prefix # path prefix
         self.ignore = False
         self.is_bin = False
-        self.cl = False
         self.path_build_list = None
         self.source = None
         self.pch = str()
@@ -76,16 +75,7 @@ class CompileList:
         list_tokens = self.tokenize_line(string_p)
         list_tokens = self.skip_comments(list_tokens)
         if len(list_tokens) < 5:
-            if len(list_tokens) == 2 and list_tokens[0] == "add":
-                list_tokens[1] = list_tokens[1].replace("\\", "/")
-                if list_tokens[1][-1] != "/":
-                    list_tokens[1] += "/"
-                self.path_build_list = MOD_PATH / list_tokens[1]
-                if _files.check_file(self.path_build_list):
-                    self.cl = True
-                else:
-                    error_print(f"Mod directory not found at line {line_count[0]}: {self.path_build_list}\n")
-            if (not self.cl) and (len(list_tokens) > 0):
+            if len(list_tokens) > 0:
                 error_print(f"Wrong syntax at line {line_count[0]}: {self.original_line}\n")
             self.ignore = True
             return
@@ -168,7 +158,7 @@ class CompileList:
 
     @staticmethod
     def get_section_name_from_filepath(filepath):
-        """ 
+        """
         Removes dots in the extension and replaces hypens with underscores
         TODO: This function name is unintuitive
         """
@@ -195,9 +185,6 @@ class CompileList:
         if self.ignore and not self.is_bin:
             return False
         return True
-
-    def is_cl(self) -> bool:
-        return self.cl
 
 def free_sections() -> None:
     sections.clear()
