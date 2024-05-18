@@ -159,7 +159,9 @@ class Makefile:
         OPT_LD_FLAGS = {self.opt_ldflags}
         PCHS = {str(GAME_INCLUDE_PATH/self.pch)}
         TRIMBIN_OFFSET = $(MODDIR){str(TRIMBIN_OFFSET)}
+        BUILD_ID = {self.build_id}
 
+        -include define.mk
         include {str(CONFIG_PATH.parents[1] / 'common.mk')}
         """
 
