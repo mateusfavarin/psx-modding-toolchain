@@ -1,0 +1,16 @@
+AssignLayer = 0x80026894;
+
+DefaultLayers = 0x8001d134;
+DrawLayer = 0x80026aa0;
+DumpActiveScreens = 0x8002728c;
+DumpLayerScreens = 0x800262b8;
+
+
+LoadTiles = 0x800dabe4;
+LoadTiles2 = 0x800da984;
+
+ResetLayerPointers = 0x800267d4;
+
+bgLayers = 0x801419b0;
+layoutWidth = 0x80172224;
+layoutHeight = 0x80173a28;
