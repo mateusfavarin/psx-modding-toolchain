@@ -1,0 +1,46 @@
+
+//North American Version
+
+american, exe, 0x80026648, 0x0, src/background.c
+
+american, exe, 0x80020040, 0x0, src/menuHook.s
+american, exe, 0x800ee558, 0x0, src/debugmenu.c src/exception.c , DEBUG_AND_EXCEPTION.bin
+
+american, exe, 0x80027e68, 0x0, src/exceptionNames.c
+american, exe, 0x80012cf8, 0x0, src/exceptionRegisters.c
+american, exe, 0x8001da70, 0x0, src/enableException.c
+american, exe, 0x8001c7cc, 0x0, src/exceptionHook.s
+
+//stupid game/pause menu
+american, exe, 0x80017100, 0x0, src/weaponMenu.c
+
+american, exe, 0x80020094, 0x0, src/resetCollision.s
+
+//debug font
+american, exe, 0x80026CEC, 0x0, src/debugfont/font.c
+american, exe, 0x80015a50, 0x0, src/debugfont/font2.c
+american, exe, 0x8001d074, 0x0, src/debugfont/loadfont.s
+american, exe, 0x800120f4, 0x0, src/debugfont/texthook.s
+
+//Japanese Version
+
+japan, exe, 0x8002669c, 0x0, src/background.c
+
+japan, exe, 0x80020088, 0x0, src/menuHook.s
+japan, exe, 0x800ee734, 0x0, src/debugmenu.c src/exception.c , DEBUG_AND_EXCEPTION.bin
+
+//TODO: find place to put this in the Japanese Version
+
+//american, exe, 0x80027e68, 0x0, src/exceptionNames.c
+//american, exe, 0x80012cf8, 0x0, src/exceptionRegisters.c
+//american, exe, 0x8001da70, 0x0, src/enableException.c
+//american, exe, 0x8001c7cc, 0x0, src/exceptionHook.s
+
+japan, exe, 0x80017134, 0x0, src/weaponMenu.c
+
+japan, exe, 0x800200dc, 0x0, src/resetCollision.s
+
+japan, exe, 0x80026d40, 0x0, src/debugfont/font.c
+japan, exe, 0x80015a84, 0x0, src/debugfont/font2.c
+japan, exe, 0x8001d0f4, 0x0, src/debugfont/loadfont.s
+japan, exe, 0x80012128, 0x0, src/debugfont/texthook.s

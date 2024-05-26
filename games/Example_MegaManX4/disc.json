@@ -1,0 +1,34 @@
+{
+  "american": [
+    {
+      "SLUS_005.61": [
+        {
+          "name": "header",
+          "address": "0x8000B070",
+          "offset": "0x0"
+        },
+        {
+          "name": "exe",
+          "address": "0x80010000",
+          "offset": "0x800"
+        }
+      ]
+    }
+  ],
+  "japan": [
+    {
+      "SLPS_009.02": [
+        {
+          "name": "header",
+          "address": "0x8000B070",
+          "offset": "0x0"
+        },
+        {
+          "name": "exe",
+          "address": "0x80010000",
+          "offset": "0x800"
+        }
+      ]
+    }
+  ]
+}

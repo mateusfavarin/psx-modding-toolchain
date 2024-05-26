@@ -6,7 +6,7 @@ plugins assume os.sep is there
 """
 
 import _files # check_file, delete_file, create_directory, delete_directory
-from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST, PLUGIN_PATH, request_user_input, cli_pause, get_build_id
+from common import ISO_PATH, MOD_NAME, OUTPUT_FOLDER, COMPILE_LIST , FILE_LIST , MOD_DIR, PLUGIN_PATH, request_user_input, cli_pause, get_build_id
 from game_options import game_options
 from disc import Disc
 from compile_list import CompileList, free_sections
@@ -230,6 +230,23 @@ class Mkpsxiso:
         _files.delete_directory(build_files_folder)
         logger.info("Copying files...")
         shutil.copytree(extract_folder, build_files_folder)
+
+        #check for optional fileList.txt
+        if os.path.exists(MOD_DIR + FILE_LIST):
+            logger.info("Adding files from fileList.txt ...")
+            with open(MOD_DIR + FILE_LIST, 'r') as file:
+                lines = file.readlines()
+            for line in lines:
+                cleaned_line = line.strip().replace(' ', '').replace('\t','')
+                if "//" in cleaned_line:
+                    continue
+                words = cleaned_line.split(',')
+                if words[0] == instance_version.version:
+                    srcFile = words[1]
+                    destFile = words[2]
+                    shutil.copyfile(MOD_DIR + srcFile, build_files_folder / destFile)
+        
+        #TODO add in the ability to add files that are non existed in the game (via the fileList.txt + xml)
         logger.info("Converting XML...")
         self.convert_xml(xml, new_xml, modified_rom_name)
         build_bin = build_files_folder.with_suffix(".bin")

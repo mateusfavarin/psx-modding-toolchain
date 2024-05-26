@@ -1,0 +1,58 @@
+AddPrim = 0x800e9690;
+AddPrims = 0x800e96cc;
+
+CatPrim = 0x800e9708;
+ClearOTagR = 0x800ea714;
+
+DrawOTag = 0x800ea80c;
+
+DrawSync = 0x800ea20c;
+
+VSync = 0x800e4db0;
+
+ClearImage = 0x800ea3a0;
+ClearImage2 = 0x800ea434;
+LoadImage = 0x800ea4d0;
+StoreImage = 0x800ea534;
+MoveImage = 0x800ea598;
+
+PutDispEnv = 0x800eaad8;
+PutDrawEnv = 0x800ea880;
+
+SetDefDispEnv = 0x800e9424;
+SetDefDrawEnv = 0x800e9354;
+
+SetPolyF4 = 0x800e97e4;
+SetPolyFT4 = 0x800e97f8;
+SetPolyGT3 = 0x800e97d0;
+SetPolyG4 = 0x800e980c;
+SetPolyGT4 = 0x800e9820;
+SetSemiTrans = 0x800e9744;
+SetSprt8 = 0x800e9834;
+SetSprt16 = 0x800e9848;
+SetSprt = 0x800e985c;
+SetTile1 = 0x800e9870;
+SetTile8 = 0x800e9884;
+SetTile16 = 0x800e9898;
+SetTile = 0x800e98ac;
+SetLineF2 = 0x800e98c0;
+SetLineG2 = 0x800e98d4;
+SetLineF3 = 0x800e98e8;
+SetLineG3 = 0x800e9908;
+SetLineF4 = 0x800e9928;
+SetLineG4 = 0x800e9948;
+SetDrawTPage = 0x800e9968;
+
+
+buffer = 0x1f800000;
+
+drawP = 0x80142f80;
+drawSettings = 0x80166c10;
+
+rectBuffer = 0x8015d9d0;
+rectCount = 0x1f80011c;
+
+primP = 0x1f800100;
+primCount = 0x1f800124;
+
+tempPrimP = 0x1f800108;

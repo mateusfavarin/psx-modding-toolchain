@@ -1,0 +1,43 @@
+AnimeAdvance = 0x80015dc8;
+CollideCheck = 0x8002c614;
+
+ContactMega = 0x8002d9bc;
+ContactWeapon = 0x8002dd04;
+ContactObject = 0x8002bb80;
+ContactObject2 = 0x8002c160;
+
+DeleteObject = 0x8002b0c8;
+DeleteObject2 = 0x8002b108;
+DeleteObject3 = 0x8002b13c;
+DisplayObject = 0x8002b288;
+DisplayObject2 = 0x8002b318;
+DisplayObject3 = 0x8002b3c0;
+
+DrawSpites = 0x80023db8;
+
+GetEffectObject = 0x8002ad7c;
+GetMainObject = 0x8002ab74;
+GetMiscObject = 0x8002ae50;
+GetVisualObject = 0x8002ad3c;
+GetItemObject = 0x8002adbc;
+GetShotObject = 0x8002aca4;
+
+GetRNG = 0x8002b73c;
+
+LockMega = 0x80036ae4;
+
+MoveObject = 0x8002b694;
+MoveObject2 = 0x8002b718;
+
+OffScreenCheck = 0x8002b160;
+OffScreenCheck2 = 0x8002b1e8;
+
+PlayBossSong = 0x8009227c;
+SetAnime = 0x80015d60;
+SetAnimeFrame = 0x80015d90;
+UnlockMega = 0x80036b18;
+
+SpawnExplosion = 0x800af808;
+SpawnJunk = 0x800c813c;
+
+mega = 0x801418c8;

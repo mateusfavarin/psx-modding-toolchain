@@ -1,5 +1,5 @@
 # Developing
-This page is dedicated for developers looking for using the tool to build mods. It includes every bit of information needed in order to set up a new game from scratch, and start writing code for it. Remember: you can always look at the folders `Example_CrashTeamRacing` and `Example_SpyroRiptosRage` in order to check an up-to-date working environment.
+This page is dedicated for developers looking for using the tool to build mods. It includes every bit of information needed in order to set up a new game from scratch, and start writing code for it. Remember: you can always look at the folders `Example_CrashTeamRacing` , `Example_SpyroRiptosRage` and `Example_MegaManX4` in order to check an up-to-date working environment.
 
 Note: when writing addresses for the PSX, always use the prefix 0x80 (KSEG0)
 
@@ -114,6 +114,21 @@ binary name: optional field. Specifies the final name of the binary. If not spec
 
 Note: if you want to add assets in your mod, rename their extension to `.bin` and add them to the `buildList.txt`. This will ensure that the file will be used when hot-reloading and building the iso, but it won't be fed to the compiler.
 
+### games/game_name/mods/mod/fileList.txt
+This is an `optional` file should contain the description on witch files you want to be added to the build disc process.
+A line should look like this:
+
+```
+version, sourceFile , destFile
+```
+
+The `version` does the same thing as the version in buildList.txt. The `sourceFile` is the path to the file you wish to be added to 
+the build disc process. The `destFile` is the file (that already exists in the game) that you wish to be replaced.
+
+### define.mk
+This is an `optional` make file that be included in the directory of your mod that will be `-included` by the dynamicly generated 
+makefile at mod compolation. Useful if you want to include mod specfic linker scripts or setup compile rules for specfic files.
+
 ### games/game_name/mods/mod/newtex/
 Place here any image png that you want to inject in game. The image name must be in the following format: `name_x_y_clutx_cluty_width_height_bpp`.
 
@@ -122,4 +137,4 @@ Note: `clutx` is in 16 half steps, i.e one unit corresponds to 16 pixels.
 ### tools/gcc-psyq-converted
 If you own a copy of PSYQ, you can use it in this modding toolchain by converting them using [Nicolas Noble's psyq-obj-parser](https://github.com/grumpycoders/pcsx-redux/blob/main/src/mips/psyq/README.md), then copying the headers in the `tools/gcc-psyq-converted/include/` folder, and the libs in the `tools/gcc-psyq-convered/lib/` folder.
 
-Note: the psyq functions will be compiled to the first c file described in `buildList.txt`.
+Note: the psyq functions will be compiled to the last c file described in `buildList.txt`.
