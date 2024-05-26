@@ -1,0 +1,5 @@
+IMG: SPYRO
+Coords: (368, 216)
+Width, height: (11, 26)
+Address: 0x6c2e0
+[]
