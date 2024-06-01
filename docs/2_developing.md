@@ -119,11 +119,11 @@ This is an `optional` file should contain the description on witch files you wan
 A line should look like this:
 
 ```
-version, sourceFile , destFile
+version, sourceFile , destFile [optional]
 ```
 
 The `version` does the same thing as the version in buildList.txt. The `sourceFile` is the path to the file you wish to be added to 
-the build disc process. The `destFile` is the file (that already exists in the game) that you wish to be replaced.
+the build disc process. The `destFile` is the file (that already exists in the game) that you wish to be replaced. Optionally you could ignore the `destFile` argument and it will instead be placed at the end of the disc instead of replacing an already existing game file
 
 ### define.mk
 This is an `optional` make file that be included in the directory of your mod that will be `-included` by the dynamicly generated 
