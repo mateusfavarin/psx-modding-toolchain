@@ -199,7 +199,8 @@ class Makefile:
             with open(COMP_SOURCE, "r") as file:
                 for line in file:
                     line = [l.strip() for l in line.split()]
-                    shutil.move(line[0], line[1])
+                    if _files.check_file(line[0]):
+                        shutil.move(line[0], line[1])
 
     def make(self) -> bool:
         """
