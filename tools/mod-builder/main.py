@@ -48,11 +48,10 @@ class Main:
             13  :   self.redux.start_emulation, # would like to pass settings path here
             14  :   self.nops.hot_reload,
             15  :   self.nops.restore,
-            16  :   self.clean_pch,
-            17  :   self.disasm,
-            18  :   export_as_c,
-            19  :   self.clean_all,
-            20  :   self.shutdown
+            16  :   self.disasm,
+            17  :   export_as_c,
+            18  :   self.clean_all,
+            19  :   self.shutdown
         }
         self.num_options = len(self.actions)
         self.window_title = f"{GAME_NAME} - {MOD_NAME}"
@@ -101,11 +100,10 @@ class Main:
         15 - Hot Reload Code Restore
 
         General:
-        16 - Clean Precompiled Header
-        17 - Disassemble Elf
-        18 - Export textures as C file
-        19 - Clean All
-        20 - Quit
+        16 - Disassemble Elf
+        17 - Export textures as C file
+        18 - Clean All
+        19 - Quit
         """
         error_msg = f"ERROR: Wrong option. Please type a number from 1-{self.num_options}.\n"
         return request_user_input(first_option=1, last_option=self.num_options, intro_msg=intro_msg, error_msg=error_msg)
@@ -143,19 +141,16 @@ class Main:
         _files.delete_directory(BACKUP_FOLDER)
         _files.delete_directory(OUTPUT_FOLDER)
         _files.delete_directory(TEXTURES_OUTPUT_FOLDER)
+        clean_pch()
         for file in COMPILATION_RESIDUES:
             _files.delete_file(file)
         leftovers = glob("**/*.o", recursive=True) + glob("**/*.dep", recursive=True)
         for leftover in leftovers:
             _files.delete_file(leftover)
 
-    def clean_pch(self) -> None:
-        clean_pch()
-
     def clean_all(self) -> None:
         self.mkpsxiso.clean(all=True)
         self.clean_files()
-        self.clean_pch()
 
     def patch_disc_files(self) -> None:
         self.redux.patch_disc_files(restore_files=False)

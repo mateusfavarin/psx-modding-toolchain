@@ -109,6 +109,7 @@ class Makefile:
                 data.append(" " * 12 + f"KEEP({src_o}(.data*))\n")
                 sbss.append(" " * 12 + f"KEEP({src_o}(.sbss*))\n")
                 bss.append(" " * 12 + f"KEEP({src_o}(.bss*))\n")
+                ctors.append(" " * 12 + f"KEEP({src_o}(.end*))\n")
             if i == len(self.ovrs) - 1:
                 text.append(" " * 12 + "*(.text*)\n")
                 rodata.append(" " * 12 + "*(.rodata*)\n")
@@ -116,6 +117,7 @@ class Makefile:
                 data.append(" " * 12 + "*(.data*)\n")
                 sbss.append(" " * 12 + "*(.sbss*)\n")
                 bss.append(" " * 12 + "*(.bss*)\n")
+                ctors.append(" " * 12 + "*(.end*)\n")
             for section in sections:
                 for line in section:
                     buffer += line
