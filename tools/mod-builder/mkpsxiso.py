@@ -195,8 +195,21 @@ class Mkpsxiso:
 
         return iso_changed
 
-    def convert_xml(self, fname, fname_out, modified_rom_name: str) -> None:
+    def convert_xml(self, fname, fname_out, modified_rom_name: str,fextra: list[str]) -> None:
         xml_tree = et.parse(fname) # filename
+
+        if fextra:
+            for element in xml_tree.iter("directory_tree"):
+                for srcName in fextra:
+                    new_element = et.Element('file')
+                    discName = srcName.split('/')[-1]
+                    new_element.set('name',discName)
+                    new_element.set('source',modified_rom_name + '/' + discName)
+                    new_element.set('type','data')
+                    new_element.tail = '\n\t\t'
+                    element.append(new_element)
+                break
+
         for element in xml_tree.iter():
             key = "source"
             if key in element.attrib:
@@ -231,6 +244,8 @@ class Mkpsxiso:
         logger.info("Copying files...")
         shutil.copytree(extract_folder, build_files_folder)
 
+        extraFiles = []
+
         #check for optional fileList.txt
         if os.path.exists(MOD_DIR + FILE_LIST):
             logger.info("Adding files from fileList.txt ...")
@@ -243,12 +258,16 @@ class Mkpsxiso:
                 words = cleaned_line.split(',')
                 if words[0] == instance_version.version:
                     srcFile = words[1]
-                    destFile = words[2]
-                    shutil.copyfile(MOD_DIR + srcFile, build_files_folder / destFile)
+
+                    if len(words) < 3:
+                        extraFiles.append(srcFile)
+                        shutil.copyfile(MOD_DIR + srcFile, build_files_folder / words[1].split('/')[-1])
+                    else:
+                        shutil.copyfile(MOD_DIR + srcFile, build_files_folder / words[2])
         
-        #TODO add in the ability to add files that are non existed in the game (via the fileList.txt + xml)
+
         logger.info("Converting XML...")
-        self.convert_xml(xml, new_xml, modified_rom_name)
+        self.convert_xml(xml, new_xml, modified_rom_name,extraFiles)
         build_bin = build_files_folder.with_suffix(".bin")
         build_cue = build_files_folder.with_suffix(".cue")
         logger.info("Patching files...")
