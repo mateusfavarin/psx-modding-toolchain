@@ -232,7 +232,7 @@ class Redux:
 
     def inject_textures(self, backup: bool, restore: bool) -> None:
         url = self.url + "/api/v1/gpu/vram/raw"
-        vram_path = TEXTURES_OUTPUT_FOLDER + "vram.bin"
+        vram_path = TEXTURES_OUTPUT_FOLDER / "vram.bin"
         if backup:
             response = requests.get(url)
             if response.ok:
@@ -265,7 +265,7 @@ class Redux:
             for img in textures:
                 path = img.get_path()
                 if path is not None:
-                    with open(path, "rb"):
+                    with open(path, "rb") as file:
                         files = {"file": file}
                         url_endpoint = f"{url}?x={img.x}&y={img.y}&width={img.w}&height={img.h}"
                         response = requests.post(url_endpoint, files=files)

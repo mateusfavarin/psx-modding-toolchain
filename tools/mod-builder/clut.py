@@ -100,7 +100,7 @@ def dump_cluts(path: str) -> None:
     for clut in cluts:
         if clut.is_valid():
             output = bytearray()
-            clut_path = path + clut.name + ".bin"
+            clut_path = path / (clut.name + ".bin")
             clut.set_path(clut_path)
             for color in clut.colors:
                 output.append(color & 0xFF)
