@@ -104,7 +104,7 @@ class Makefile:
                 src_o = src.with_suffix(".o") # remove suffix
                 src_o = str(src_o).replace("\\", "/").replace(str(MOD_DIR), "")
                 text.append(" " * 12 + f"KEEP({src_o}(.text*))\n")
-                rodata.append(" " * 12 + f"KEEP({src_o}(.rodata*))\n")
+                rodata.append(" " * 12 + f"KEEP({src_o}(.rdata*))\n")
                 sdata.append(" " * 12 + f"KEEP({src_o}(.sdata*))\n")
                 data.append(" " * 12 + f"KEEP({src_o}(.data*))\n")
                 sbss.append(" " * 12 + f"KEEP({src_o}(.sbss*))\n")
@@ -112,7 +112,7 @@ class Makefile:
                 ctors.append(" " * 12 + f"KEEP({src_o}(.end*))\n")
             if i == len(self.ovrs) - 1:
                 text.append(" " * 12 + "*(.text*)\n")
-                rodata.append(" " * 12 + "*(.rodata*)\n")
+                rodata.append(" " * 12 + "*(.rdata*)\n")
                 sdata.append(" " * 12 + "*(.sdata*)\n")
                 data.append(" " * 12 + "*(.data*)\n")
                 sbss.append(" " * 12 + "*(.sbss*)\n")
