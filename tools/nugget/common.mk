@@ -11,6 +11,9 @@ OVR_START_SYM = -Xlinker --defsym=OVR_START_ADDR=$(OVR_START_ADDR)
 ARCHFLAGS = -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -mfp32
 ARCHFLAGS += -fno-stack-protector -nostdlib -ffreestanding
 CPPFLAGS += -ffunction-sections -fdata-sections
+ifeq ($(DISABLE_FUNCTION_REORDER),true)
+CPPFLAGS += -fno-toplevel-reorder
+endif
 CPPFLAGS += -mno-gpopt -fomit-frame-pointer
 CPPFLAGS += -fno-builtin -fno-strict-aliasing -Wno-attributes -Wextra
 CPPFLAGS += $(ARCHFLAGS)
