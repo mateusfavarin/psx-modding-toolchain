@@ -89,7 +89,7 @@ class Mkpsxiso:
         error_msg = "Invalid input. Please type a number from 1-2."
         return request_user_input(first_option=1, last_option=2, intro_msg=intro_msg, error_msg=error_msg) == 1
 
-    def patch_iso(self, version: str, build_id: int, dir_in_build, modified_rom_name: str, fname_xml: str) -> bool:
+    def patch_iso(self, version: str, build_id: int, dir_in_build, modified_rom_name: str, fname_xml: str, usedFileList: bool) -> bool:
         """
         dir_in_build and xml are paths
         TODO: Refactor this since it's doing way too much
@@ -164,25 +164,6 @@ class Mkpsxiso:
                         for i in range(mod_size):
                             modded_buffer[i + offset] = mod_data[i]
 
-                    # if it's not a file to be overwritten in the game
-                    # assume it's a new file to be inserted in the disc
-                    else:
-                        filename = (instance_cl.section_name + ".bin").upper()
-                        filename_len = len(filename)
-                        if filename_len > 12:
-                            filename = filename[(filename_len - 12):] # truncate
-                        mod_file = OUTPUT_FOLDER + instance_cl.section_name + ".bin"
-                        dst = dir_in_build / filename
-                        shutil.copyfile(mod_file, dst)
-                        contents = {
-                            "name": filename,
-                            "source": modified_rom_name + "/" + filename,
-                            "type": "data"
-                        }
-                        element = et.Element("file", contents)
-                        dir_tree.insert(-1, element)
-                        iso_changed = True
-
                 # writing changes to files we overwrote
                 for game_file in modded_files:
                     modded_stream = modded_files[game_file][0]
@@ -190,9 +171,10 @@ class Mkpsxiso:
                     modded_stream.seek(0)
                     modded_stream.write(modded_buffer)
                     modded_stream.close()
-                if iso_changed:
+                if iso_changed or usedFileList:
                     xml_tree.write(fname_xml)
 
+        
         return iso_changed
 
     def convert_xml(self, fname, fname_out, modified_rom_name: str,fextra: list[str]) -> None:
@@ -207,7 +189,7 @@ class Mkpsxiso:
                     new_element.set('source',modified_rom_name + '/' + discName)
                     new_element.set('type','data')
                     new_element.tail = '\n\t\t'
-                    element.append(new_element)
+                    element.insert(-1,new_element)
                 break
 
         for element in xml_tree.iter():
@@ -245,6 +227,7 @@ class Mkpsxiso:
         shutil.copytree(extract_folder, build_files_folder)
 
         extraFiles = []
+        usedFileList = False
 
         #check for optional fileList.txt
         if os.path.exists(MOD_DIR + FILE_LIST):
@@ -253,7 +236,7 @@ class Mkpsxiso:
                 lines = file.readlines()
             for line in lines:
                 cleaned_line = line.strip().replace(' ', '').replace('\t','')
-                if "//" in cleaned_line:
+                if not cleaned_line or cleaned_line.startswith("//"):
                     continue
                 words = cleaned_line.split(',')
                 if words[0] == instance_version.version:
@@ -264,6 +247,7 @@ class Mkpsxiso:
                         shutil.copyfile(MOD_DIR + srcFile, build_files_folder / words[1].split('/')[-1])
                     else:
                         shutil.copyfile(MOD_DIR + srcFile, build_files_folder / words[2])
+                    usedFileList = True
         
 
         logger.info("Converting XML...")
@@ -271,7 +255,7 @@ class Mkpsxiso:
         build_bin = build_files_folder.with_suffix(".bin")
         build_cue = build_files_folder.with_suffix(".cue")
         logger.info("Patching files...")
-        if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml):
+        if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml, usedFileList):
             logger.info("Building iso...")
             self.plugin.build(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(build_files_folder)}{os.sep}", f"{instance_version.version}")
             pymkpsxiso.make(str(build_bin), str(build_cue), str(new_xml))
