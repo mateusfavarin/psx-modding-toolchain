@@ -53,7 +53,7 @@ version: list # List of versions that your game environment support. You can giv
 compiler:
     function_sections: int # 0 or 1. When 1, the flag -ffunction-sections will be set during compilation time.
     reorder_functions: int # 0 or 1. When 0, the flag -fno-toplevel-reorder will be set during compilation time.
-    optimization: int # Compiler optization flags. 0 = -O0, 1 = -O1, 2 = -O2, 3 = -O3, 4+ = -Os
+    optimization: int # Compiler optization flags. 0 = -O0, 1 = -O1, 2 = -O2, 3 = -O3, 4 = -Os, 5+ = -Oz
     debug: int # 0 or 1. When 1, the flag -g will be set during compilation time.
     psyq: int # 0 or 1. When 1, the files at tools/gcc-psyq-converted/ will be included/linked in the compilation/linking process.
     8mb: int # 0 or 1. This configuration only affects the boundary check when compiling your mod.
@@ -122,11 +122,11 @@ A line should look like this:
 version, sourceFile , destFile [optional]
 ```
 
-The `version` does the same thing as the version in buildList.txt. The `sourceFile` is the path to the file you wish to be added to 
+The `version` does the same thing as the version in buildList.txt. The `sourceFile` is the path to the file you wish to be added to
 the build disc process. The `destFile` is the file (that already exists in the game) that you wish to be replaced. Optionally you could ignore the `destFile` argument and it will instead be placed at the end of the disc instead of replacing an already existing game file
 
 ### define.mk
-This is an `optional` make file that be included in the directory of your mod that will be `-included` by the dynamicly generated 
+This is an `optional` make file that be included in the directory of your mod that will be `-included` by the dynamicly generated
 makefile at mod compolation. Useful if you want to include mod specfic linker scripts or setup compile rules for specfic files.
 
 ### games/game_name/mods/mod/newtex/

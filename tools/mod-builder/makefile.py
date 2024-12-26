@@ -45,7 +45,7 @@ class Makefile:
             self.disable_function_reorder = str(data["reorder_functions"] == 0).lower()
             optimization_level = data["optimization"]
             if optimization_level > 3:
-                self.compiler_flags = "-Os"
+                self.compiler_flags = "-Os" if optimization_level == 4 else "-Oz"
             else:
                 self.compiler_flags = "-O" + str(optimization_level)
             if data["debug"] != 0:
