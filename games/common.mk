@@ -12,6 +12,7 @@ TOOLSDIR = $(THISDIR)../tools/
 CPPFLAGS += -I$(TOOLSDIR)nugget/common/macros/
 CPPFLAGS += -I$(GAMEINCLUDEDIR)
 CPPFLAGS += -I$(MODDIR)
+CPPFLAGS += -I$(MODDIR)/src/
 
 ifeq ($(USE_MININOOB),true)
   CPPFLAGS += -I$(TOOLSDIR)minin00b/include/
