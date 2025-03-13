@@ -61,7 +61,7 @@ DIR_GAME = _files.get_file_directory(fname = "config.json", folder = "games")
 CONFIG_PATH = DIR_GAME / CONFIG_FILE
 logger.debug(f"FOLDER_DISTANCE: {DIR_GAME}")
 logger.debug(f"CWD: {pathlib.Path.cwd()}")
-DISTANCE_LENGTH = str(DIR_GAME[1:]).count("/") + 1
+DISTANCE_LENGTH = str(DIR_GAME)[1:].count("/") + 1
 ISO_PATH = DIR_GAME / "build"
 DIR_SYMBOLS = DIR_GAME / "symbols"
 PLUGIN_PATH = DIR_GAME / "plugins"
