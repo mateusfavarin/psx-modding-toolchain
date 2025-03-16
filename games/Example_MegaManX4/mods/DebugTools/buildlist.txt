@@ -1,7 +1,7 @@
 
 //North American Version
 
-american, exe, 0x80026648, 0x0, src/background.c
+american NORELOAD , exe, 0x80026648, 0x0, src/background.c
 
 american, exe, 0x80020040, 0x0, src/menuHook.s
 american, exe, 0x800ee558, 0x0, src/debugmenu.c src/exception.c , DEBUG_AND_EXCEPTION.bin
