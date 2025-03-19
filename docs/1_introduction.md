@@ -1,5 +1,5 @@
 # Introduction
-This page is designed to teach people how to install and play PSX mods, assuming you already followed all the [setup](../README.md#getting-started) process. The next pages will describe how to set up your environment for developing.
+This page is designed to teach people how to install and play PSX mods, assuming you already followed all the [setup](../README.md#setup) process. The next pages will describe how to set up your environment for developing.
 
 ## Basic usage
 Go to your desired mod folder, double click `MOD.BAT`. This invokes the main python application which is responsible for automating all the process. This project comes with 3 simple mods as examples, two for the game Crash Team Racing (cross-version mods) and one for the NTSC-U release of Spyro 2: Ripto's Rage.
@@ -54,7 +54,7 @@ Note: for code hot reloads only, you can uninstall a mod if you select the backu
 Note/NoPS: you may need to launch your game via unirom in debug mode in order to hot-reload code in your PSX.
 
 ## Texture Replacement
-Edit the file `games/settings.json` with your redux port, place your images in the folder `newtex` as specified in [notes](3_notes.md), and then run the texture replacement command. This command will convert your image to the RGB5551 format, and then inject in the specified VRAM address.
+Edit the file `games/settings.json` with your redux port, place your images in the folder `newtex` as specified in [notes](4_notes.md), and then run the texture replacement command. This command will convert your image to the RGB5551 format, and then inject in the specified VRAM address.
 
 ## Clean Commands
 * `Clean`: cleans all the files generated during the compilation process, as well as the output of texture replacement.
