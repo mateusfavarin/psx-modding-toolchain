@@ -140,9 +140,9 @@ def rgb2psx(r: int, g: int, b: int, a: int) -> int:
         else: # Last case, add transparency to the colors if a is in ]0, 255[
             a = 1
         color = a << 5
-        color = color | (((b * 249) + 1014) >> 11) & 0x1F
+        color = color | (((int(b) * 249) + 1014) >> 11) & 0x1F
         color = color << 5
-        color = color | (((g * 249) + 1014) >> 11) & 0x1F
+        color = color | (((int(g) * 249) + 1014) >> 11) & 0x1F
         color = color << 5
-        color = color | (((r * 249) + 1014) >> 11) & 0x1F
+        color = color | (((int(r) * 249) + 1014) >> 11) & 0x1F
         return color
