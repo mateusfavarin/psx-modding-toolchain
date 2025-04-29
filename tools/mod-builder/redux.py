@@ -200,7 +200,7 @@ class Redux:
             with open(build_list, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
-                    if not cl.should_build():
+                    if not cl.should_build() or cl.skip_reload:
                         continue
                     bin = cl.get_output_name() # pathlib object
                     backup_bin = pathlib.Path(prefix) / BACKUP_FOLDER / ("redux_" + cl.section_name + ".bin")
