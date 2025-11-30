@@ -76,8 +76,11 @@ class Mkpsxiso:
         rom_path = ISO_PATH / instance_version.rom_name
         _files.create_directory(dir_out)
         # TODO: Find out if the plugin and pymk... support pathlib
-        pymkpsxiso.dump(str(rom_path), f"{str(dir_out)}{os.sep}", str(fname_out))
-        self.plugin.extract(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(dir_out)}{os.sep}", f"{instance_version.version}")
+        ok = pymkpsxiso.dump(str(rom_path), f"{str(dir_out)}{os.sep}", str(fname_out))
+        if ok:
+            self.plugin.extract(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(dir_out)}{os.sep}", f"{instance_version.version}")
+        else:
+            sys.exit(1)
 
     def abort_build_request(self) -> bool:
         """ TODO: Replace with click """
@@ -258,8 +261,11 @@ class Mkpsxiso:
         if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml, usedFileList):
             logger.info("Building iso...")
             self.plugin.build(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(build_files_folder)}{os.sep}", f"{instance_version.version}")
-            pymkpsxiso.make(str(build_bin), str(build_cue), str(new_xml))
-            logger.info("Build completed.")
+            ok = pymkpsxiso.make(str(build_bin), str(build_cue), str(new_xml))
+            if ok:
+                logger.info("Build completed.")
+            else:
+                sys.exit(1)
         else:
             logger.warning("No files changed. ISO building skipped.")
 
