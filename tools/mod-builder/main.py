@@ -209,3 +209,4 @@ if __name__ == "__main__":
     except Exception as e:
         logging.basicConfig(filename=LOG_FILE, filemode="w", format='%(levelname)s:%(message)s')
         logging.exception(e)
+        sys.exit(1)
