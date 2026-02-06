@@ -19,6 +19,7 @@ import pathlib
 import pdb
 import pyxdelta
 import pymkpsxiso
+import pydumpsxiso
 import shutil
 import sys
 import xml.etree.ElementTree as et
@@ -76,7 +77,7 @@ class Mkpsxiso:
         rom_path = ISO_PATH / instance_version.rom_name
         _files.create_directory(dir_out)
         # TODO: Find out if the plugin and pymk... support pathlib
-        ok = pymkpsxiso.dump(str(rom_path), f"{str(dir_out)}{os.sep}", str(fname_out))
+        ok = pydumpsxiso.run(str(rom_path), f"{str(dir_out)}{os.sep}", str(fname_out))
         if ok:
             self.plugin.extract(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(dir_out)}{os.sep}", f"{instance_version.version}")
         else:
@@ -261,7 +262,7 @@ class Mkpsxiso:
         if self.patch_iso(instance_version.version, instance_version.build_id, build_files_folder, modified_rom_name, new_xml, usedFileList):
             logger.info("Building iso...")
             self.plugin.build(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(build_files_folder)}{os.sep}", f"{instance_version.version}")
-            ok = pymkpsxiso.make(str(build_bin), str(build_cue), str(new_xml))
+            ok = pymkpsxiso.run(str(build_bin), str(build_cue), str(new_xml))
             if ok:
                 logger.info("Build completed.")
             else:
