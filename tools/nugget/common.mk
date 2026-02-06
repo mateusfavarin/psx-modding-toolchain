@@ -7,7 +7,6 @@ CC  = $(PREFIX)-gcc
 CXX = $(PREFIX)-g++
 
 OVR_START_SYM = -Xlinker --defsym=OVR_START_ADDR=$(OVR_START_ADDR)
-LDFLAGS += -Wl,--gc-sections
 
 ARCHFLAGS = -march=mips1 -mabi=32 -EL -fno-pic -mno-shared -mno-abicalls -mfp32
 ARCHFLAGS += -fno-stack-protector -nostdlib -ffreestanding
@@ -20,7 +19,7 @@ CPPFLAGS += -fno-builtin -fno-strict-aliasing -Wno-attributes -Wextra
 CPPFLAGS += $(ARCHFLAGS)
 CPPFLAGS += -I$(ROOTDIR)
 
-LDFLAGS += -Wl,-Map=$(BINDIR)$(TARGET).map -nostdlib -T$(OVERLAYSCRIPT) $(LDSYMS) -static
+LDFLAGS += -Wl,-Map=$(BINDIR)$(TARGET).map -nostdlib -T$(OVERLAYSCRIPT) $(LDSYMS) -static -Wl,--gc-sections
 LDFLAGS += $(ARCHFLAGS) -Wl,--oformat=$(FORMAT)
 LDFLAGS += $(OVR_START_SYM)
 

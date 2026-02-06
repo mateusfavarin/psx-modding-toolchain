@@ -45,7 +45,7 @@ class Makefile:
             self.disable_function_reorder = str(data["reorder_functions"] == 0).lower()
             optimization_level = data["optimization"]
             if optimization_level > 3:
-                self.compiler_flags = "-Os"
+                self.compiler_flags = "-Os" if optimization_level == 4 else "-Oz"
             else:
                 self.compiler_flags = "-O" + str(optimization_level)
             if data["debug"] != 0:
@@ -109,13 +109,15 @@ class Makefile:
                 data.append(" " * 12 + f"KEEP({src_o}(.data*))\n")
                 sbss.append(" " * 12 + f"KEEP({src_o}(.sbss*))\n")
                 bss.append(" " * 12 + f"KEEP({src_o}(.bss*))\n")
+                ctors.append(" " * 12 + f"KEEP({src_o}(.end*))\n")
             if i == len(self.ovrs) - 1:
                 text.append(" " * 12 + "*(.text*)\n")
-                rodata.append(" " * 12 + "*(.rodata*)\n")
+                rodata.append(" " * 12 + "*(.rdata*)\n")
                 sdata.append(" " * 12 + "*(.sdata*)\n")
                 data.append(" " * 12 + "*(.data*)\n")
                 sbss.append(" " * 12 + "*(.sbss*)\n")
                 bss.append(" " * 12 + "*(.bss*)\n")
+                ctors.append(" " * 12 + "*(.end*)\n")
             for section in sections:
                 for line in section:
                     buffer += line

@@ -37,7 +37,7 @@ tools/gcc-psyq-converted/lib/*
 !/tools/gcc-psyq-converted/include/.gitignore
 
 # Settings
-games/settings.json
+games/
 
 # Executables
 *.exe
