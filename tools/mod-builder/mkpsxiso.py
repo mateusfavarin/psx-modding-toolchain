@@ -74,10 +74,18 @@ class Mkpsxiso:
             if 5 <= count_retries:
                 logger.critical("Max retries exeeced to find iso. Exiting")
                 sys.exit(9)
-        rom_path = ISO_PATH / instance_version.rom_name
-        _files.create_directory(dir_out)
+
         # TODO: Find out if the plugin and pymk... support pathlib
-        ok = pydumpsxiso.run(str(rom_path), f"{str(dir_out)}{os.sep}", str(fname_out))
+
+        """
+        For some reason mkpsxiso does not support absolute paths any more starting with 2.20.
+        We must adjust this code to accomidate that!
+        """
+        original_cwd = pathlib.Path.cwd()
+        os.chdir(ISO_PATH)
+        _files.create_directory(dir_out)
+        ok = pydumpsxiso.run(str(instance_version.rom_name), f"{str(dir_out)}{os.sep}", str(dir_out) + ".xml")
+        os.chdir(original_cwd)
         if ok:
             self.plugin.extract(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(dir_out)}{os.sep}", f"{instance_version.version}")
         else:
@@ -217,12 +225,12 @@ class Mkpsxiso:
         extract_folder = ISO_PATH / rom_name
         xml = extract_folder.with_suffix(".xml")
         if only_extract:
-            self.extract_iso_to_xml(instance_version, extract_folder, xml)
+            self.extract_iso_to_xml(instance_version, rom_name, xml)
             return
         if not _files.check_file(COMPILE_LIST):
             return
         if not pathlib.Path(xml).exists(): # don't need to log error
-            self.extract_iso_to_xml(instance_version, extract_folder, xml)
+            self.extract_iso_to_xml(instance_version, rom_name, xml)
         modified_rom_name = f"{rom_name}_{MOD_NAME}"
         build_files_folder = ISO_PATH / modified_rom_name
         new_xml = build_files_folder.with_suffix(".xml")
