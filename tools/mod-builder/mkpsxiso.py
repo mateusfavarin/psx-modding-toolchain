@@ -176,6 +176,26 @@ class Mkpsxiso:
                         for i in range(mod_size):
                             modded_buffer[i + offset] = mod_data[i]
 
+                    # if it's not a file to be overwritten in the game
+                    # assume it's a new file to be inserted in the disc
+                    elif instance_cl.no_file == False:
+                        filename = (instance_cl.section_name + ".bin").upper()
+                        filename_len = len(filename)
+                        if filename_len > 12:
+                            filename = filename[(filename_len - 12):] # truncate
+                        mod_file = OUTPUT_FOLDER + instance_cl.section_name + ".bin"
+                        dst = dir_in_build / filename
+                        shutil.copyfile(mod_file, dst)
+                        contents = {
+                            "name": filename,
+                            "source": modified_rom_name + "/" + filename,
+                            "type": "data"
+                        }
+                        element = et.Element("file", contents)
+                        dir_tree.insert(-1, element)
+                        iso_changed = True
+
+
                 # writing changes to files we overwrote
                 for game_file in modded_files:
                     modded_stream = modded_files[game_file][0]
