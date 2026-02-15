@@ -105,7 +105,8 @@ version, section, address, offset, path, binary name [optional]
 Fields:
 ```
 version: set this to one of your versions defined in config.json, or use the special word "common" to apply to all versions. This line will only be compiled if it matches the version you selected to compile.
-you can also specify 'noreload' after the version to skip reloading the code while using the hot-reload feature.
+you can also specify 'noreload' after the version to skip reloading the code while using the hot-reload feature or 
+'nofile' to specify that section should not be added as new file (this only works for sections that dont already exists in `disc.json` ) .
 section: name of the section defined in disc.json which will be used to overwrite the data in the disc. You can leave this section empty if you want to add a new file to the disc.
 address: address which the binary will be compiled to. It can either be a decimal number, a hexadecimal number, or a symbol.
 offset: an offset which will be applied to the address. This field can be any valid python arithmetic expression.
