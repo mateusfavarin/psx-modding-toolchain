@@ -31,6 +31,8 @@ class CompileList:
         self.sym = sym
         self.prefix = prefix # path prefix
         self.ignore = False
+        self.skip_reload = False
+        self.no_file = False
         self.is_bin = False
         self.path_build_list = None
         self.source = None
@@ -80,7 +82,18 @@ class CompileList:
             self.ignore = True
             return
 
-        version = list_tokens[0]
+        version_str = list_tokens[0].replace("  "," ").split(" ")
+        version = version_str[0]
+
+        if len(version_str) > 1:
+            for i in range(len(version_str)):
+                if i == 0:
+                    continue
+                if version_str[i].lower() == "noreload":
+                    self.skip_reload = True
+                elif version_str[i].lower() == "nofile":
+                    self.no_file = True
+
         if is_number(version):
             version = int(version, 0)
             if version != self.sym.get_build_id():

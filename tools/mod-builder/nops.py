@@ -39,7 +39,7 @@ class Nops:
             with open(bl, "r") as file:
                 for line in file:
                     cl = CompileList(line, sym, prefix)
-                    if not cl.should_build():
+                    if not cl.should_build() or cl.skip_reload:
                         continue
                     bin = cl.get_output_name()
                     backup_bin = pathlib.Path(prefix) / BACKUP_FOLDER / ("nops_" + cl.section_name + ".bin")
