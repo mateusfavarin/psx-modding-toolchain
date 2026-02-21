@@ -85,11 +85,11 @@ class Mkpsxiso:
         os.chdir(ISO_PATH)
         _files.create_directory(dir_out)
         ok = pydumpsxiso.run(str(instance_version.rom_name), f"{str(dir_out)}{os.sep}", str(dir_out) + ".xml")
-        os.chdir(original_cwd)
         if ok:
             self.plugin.extract(f"{str(PLUGIN_PATH)}{os.sep}", f"{str(dir_out)}{os.sep}", f"{instance_version.version}")
         else:
             sys.exit(1)
+        os.chdir(original_cwd)
 
     def abort_build_request(self) -> bool:
         """ TODO: Replace with click """
@@ -206,7 +206,7 @@ class Mkpsxiso:
                 if iso_changed or usedFileList:
                     xml_tree.write(fname_xml)
 
-        
+
         return iso_changed
 
     def convert_xml(self, fname, fname_out, modified_rom_name: str,fextra: list[str]) -> None:
@@ -280,7 +280,7 @@ class Mkpsxiso:
                     else:
                         shutil.copyfile(MOD_DIR + srcFile, build_files_folder / words[2])
                     usedFileList = True
-        
+
 
         logger.info("Converting XML...")
         self.convert_xml(xml, new_xml, modified_rom_name,extraFiles)
